@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Gellix-Regular';
+  src: url('../font/Gellix-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Gellix-Semibold';
+  src: url('../font/Gellix-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'WorkSans-Regular';
+  src: url('../font/WorkSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'WorkSans-Medium';
+  src: url('../font/WorkSans-Medium.ttf') format('truetype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'WorkSans-SemiBold';
+  src: url('../font/WorkSans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'WorkSans-Bold';
+  src: url('../font/WorkSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+
 :root {
-  --background: #ffffff;
+  --white: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
+
+.gellix{
+  font-family: 'Gellix-Regular', sans-serif;
+}
+.gellix-semibold{
+  font-family: 'Gellix-SemiBold', sans-serif;
+}
+
+.worksans-medium {
+  font-family: 'WorkSans-Medium', sans-serif;
+}
+.worksans-semibold {
+  font-family: 'WorkSans-SemiBold', sans-serif;
+}
+.worksans-bold {
+  font-family: 'WorkSans-Bold', sans-serif;
+}
+
+.bg-main{
+  background-color: #0D0DFC;
+}
+.bg-electric400{
+  background-color: #5878FF;
+}
+.bg-electric50{
+  background-color: #E8F1FF;
+}
+.bg-grey50{
+  background-color: #F6F7F9;
+}
+.bg-green600{
+  background-color: #0E8D5A;
+}
+.bg-red600{
+  background-color: #DE1B1B;
+}
+
