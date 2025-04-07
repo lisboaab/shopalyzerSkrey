@@ -4,9 +4,9 @@ interface ButtonProps {
   action: () => void;
   label: string;
   color: string;
-  backgroundColor: string;
+  backgroundColor?: string;
   width?: string;
-  icon: "add" | "bookmark" | "arrow" | "trashcan" | "pencil" | "update";
+  icon?: "add" | "bookmark" | "arrow" | "trashcan" | "pencil" | "update";
   style?: "outline";
 }
 
@@ -131,7 +131,7 @@ const ButtonAnimation: React.FC<ButtonProps> = ({
               height: "2em",
             }
       }
-      className="rounded-full gellix-semibold flex flex-row items-center justify-center gap-2 p-5 w-full transition delay-50 duration-300 ease-in-out hover:scale-103"
+      className="cursor-pointer rounded-full gellix-semibold flex flex-row items-center justify-center gap-2 p-5 w-full transition delay-50 duration-300 ease-in-out hover:scale-103"
     >
       {label}
       {icon && <span style={{ color }}>{icons[icon]}</span>}

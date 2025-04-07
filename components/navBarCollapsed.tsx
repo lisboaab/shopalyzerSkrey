@@ -8,7 +8,7 @@ const NavBarCollapsed: React.FC<NavBarProps> = ({ buttonFunction }) => {
   return (
     <div className="flex flex-col items-center gap-10">
       {/* Hamburguer menu icon */}
-      <button onClick={buttonFunction} className="group">
+      <button onClick={buttonFunction} className="cursor-pointer">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -21,13 +21,12 @@ const NavBarCollapsed: React.FC<NavBarProps> = ({ buttonFunction }) => {
             clipRule="evenodd"
           />
         </svg>
-        <span className="bg-white w-fit border-md group-hover:scale-100">Open side menu</span>
       </button>
 
       {/* Main Buttons */}
       <div className="flex flex-col gap-4 ">
         {/* New search button */}
-        <div className="bg-white rounded-full flex items-center justify-center h-10 w-10">
+        <div className="bg-white rounded-full flex items-center justify-center h-10 w-10 cursor-pointer">
           <a href="/new">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +46,7 @@ const NavBarCollapsed: React.FC<NavBarProps> = ({ buttonFunction }) => {
         </div>
 
         {/* Saved searches button */}
-        <div className="border-2 border-white rounded-full flex items-center justify-center h-10 w-10">
+        <div className="border-2 border-white rounded-full flex items-center justify-center h-10 w-10 cursor-pointer">
           <a href="/saved">
             <svg
               xmlns="http://www.w3.org/2000/svg"

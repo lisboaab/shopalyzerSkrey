@@ -1,11 +1,11 @@
 import React from 'react';
 import "../app/globals.css";
 
-const Loading: React.FC = () => {
+const LoadingData: React.FC = () => {
     return (
-        <div className='flex flex-col items-center justify-center h-screen'>
+        <div className='flex flex-col items-center justify-center w-full h-full'>
             <div style={styles.spinner} className='animate-spin'></div>
-            <p className='pt-6 worksans-semibold'>Hang on... I'm thinking...</p>
+            <p className='pt-6 worksans-semibold'>Wait a little bit while we find the best data for you...</p>
         </div>
     );
 };
@@ -20,4 +20,4 @@ const styles = {
     },
 };
 
-export default Loading;
+export default LoadingData;

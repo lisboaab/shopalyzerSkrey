@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
 
 @font-face {
   font-family: 'Gellix-Regular';
@@ -36,6 +38,21 @@
 }
 
 :root {
+  --color-main: #0D0DFC; 
+  --color-electric50: #E8F1FF;
+}
+
+[data-theme="dark"] {
+  --color-main: #1A1AFC;
+  --color-electric50: #C0C0FF;
+}
+
+[data-theme="light"] {
+  --color-main: #0D0DFC;
+  --color-electric50: #E8F1FF;
+}
+
+:root {
   --white: #ffffff;
   --foreground: #171717;
 }
@@ -52,6 +69,9 @@ body {
   font-family: 'Gellix-SemiBold', sans-serif;
 }
 
+.worksans {
+  font-family: 'WorkSans-Regular', sans-serif;
+}
 .worksans-medium {
   font-family: 'WorkSans-Medium', sans-serif;
 }
@@ -79,5 +99,17 @@ body {
 }
 .bg-red600{
   background-color: #DE1B1B;
+}
+.bg-black20{
+  background-color: #0E101D20;
+}
+.bg-black40{
+  background-color: #0E101420;
+}
+.grey800{
+  color: #414653;
+}
+.main{
+  color: #0D0DFC;
 }
 
