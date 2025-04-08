@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import "../app/globals.css";
+import "../app2/app/globals.css";
 import ModalUserMenu from "./modal/modalUserMenu";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -169,7 +169,7 @@ const UserMenu: React.FC = () => {
                 style="outline"
                 color="#414653"
                 label="Edit"
-                width="7em"
+                width="9em"
                 action={editUserPhoto}
               />
             </div>

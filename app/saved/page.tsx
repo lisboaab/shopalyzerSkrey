@@ -1,4 +1,4 @@
-import LoadingData from "../../components/loadingData";
+import LoadingData from "../../../components/loadingData";
 import { Suspense } from "react";
 import SavedSearch from "@/components/savedSearch";
 import EmptyState from "@/components/emptyState";
@@ -20,7 +20,7 @@ export default async function Page() {
       },
     },
     {
-      title: "Search 02",
+      title: "This is a veery long title that will be cut off",
       lastAcces: "3 days ago",
       createdAt: "03/04/2025",
       metricsGroup: {
@@ -112,7 +112,7 @@ export default async function Page() {
         </h1>
       </div>
       <Suspense fallback={<LoadingData />}>
-        <div className="flex flex-row flex-wrap justify-start items-center w-full gap-16">
+        <div className="flex flex-row flex-wrap items-center w-full gap-16">
           {savedItems.length != 0 && savedItems.map((search, index) => (
             <SavedSearch key={index} search={search} />
           ))}

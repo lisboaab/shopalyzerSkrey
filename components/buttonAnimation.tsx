@@ -1,13 +1,16 @@
 import React from "react";
+import { useState } from "react";
 
 interface ButtonProps {
-  action: () => void;
+  action?: () => void;
   label: string;
   color: string;
   backgroundColor?: string;
   width?: string;
   icon?: "add" | "bookmark" | "arrow" | "trashcan" | "pencil" | "update";
   style?: "outline";
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset" | undefined;
 }
 
 const icons = {
@@ -110,35 +113,69 @@ const ButtonAnimation: React.FC<ButtonProps> = ({
   backgroundColor,
   width,
   icon,
-  style
+  style,
+  disabled,
+  type,
 }) => {
+  const [hover, setHover] = useState(false);
+
   return (
     <button
+      type={type}
       onClick={action}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      disabled={disabled} // Aplica a propriedade disabled
       style={
         style === "outline"
           ? {
-              color: color,
-              border: `2px solid ${color}`,
-              backgroundColor: "transparent",
+              color: disabled ? "#B4BAC5" : color,
+              border: `2px solid ${disabled ? "#B4BAC5" : color}`,
+              backgroundColor: !icon && hover ? "#00000017" : "transparent",
               width: width,
               height: "2em",
+              cursor: disabled ? "not-allowed" : "pointer",
             }
           : {
-              color: color,
-              backgroundColor: backgroundColor,
+              color: disabled ? "white" : color,
+              backgroundColor: disabled ? "#B4BAC5" : backgroundColor,
               width: width,
               height: "2em",
+              border: `1px solid ${disabled ? "#B4BAC5" : backgroundColor}`,
+              cursor: disabled ? "not-allowed" : "pointer",
             }
       }
-      className="cursor-pointer rounded-full gellix-semibold flex flex-row items-center justify-center gap-2 p-5 w-full transition delay-50 duration-300 ease-in-out hover:scale-103"
+      className="cursor-pointer rounded-full gellix-semibold flex flex-row items-center justify-center gap-2 p-5 w-full transition-all duration-500 ease-in-out"
     >
-      {label}
-      {icon && <span style={{ color }}>{icons[icon]}</span>}
+      { !icon && <span
+        // className="flex-1 text-center transition hover:scale-105"
+        >
+        {label}
+      </span>}
+      {icon && (
+        <div className="flex flex-row items-center justify-center gap-2">
+          <span
+            style={{
+              transform: hover ? "translateX(-2px)" : "translateX(10px)",
+              transition: "transform 0.5s ease-in-out",
+            }}
+          >
+            {label}
+          </span>
+          <span
+            style={{
+              color,
+              transform: hover ? "translateX(5px)" : "translateX(-8px)",
+              opacity: hover ? 1 : 0,
+              transition:
+                "transform 0.3s ease-in-out, opacity 0.3s ease-in-out",
+            }}
+          >
+            {icons[icon]}
+          </span>
+        </div>
+      )}
     </button>
-  );
+    )
 };
-
-// criar uma variavel e definir que on hover a variavel fica true e o icon com display 
-
 export default ButtonAnimation;

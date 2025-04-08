@@ -1,6 +1,6 @@
 "use client";
 
-import "../app/globals.css";
+import "../app2/app/globals.css";
 import React from "react";
 import { useState } from "react";
 import NavBarCollapsed from "../components/navBarCollapsed";

@@ -1,17 +1,17 @@
 'use client';
 
-const ModalDeleteSearch = ({ isOpen, title, onDismiss, children }) => {
+const ModalMetrics = ({ isOpen, title, onDismiss, children }) => {
     if (!isOpen) {
         return null;
     }
 
     return (
         <div
-            className='fixed inset-0 z-200 flex justify-center items-center'
+            className='fixed inset-0 w-screen h-screen bg-black/60 z-500 flex justify-center items-center'
             onClick={onDismiss}
         >
             <div
-                className='min-w-[400px] w-fit h-fit overflow-x-hidden min-h-[200px] bg-white rounded-xl p-2 flex flex-col relative left-10 border border-gray-200 shadow-md'
+                className='min-w-[400px] w-285 h-fit overflow-x-hidden min-h-[200px] bg-white rounded-xl p-2 flex flex-col relative border border-gray-200 shadow-md'
                 onClick={(event) => event.stopPropagation()}
             >
 
@@ -24,7 +24,7 @@ const ModalDeleteSearch = ({ isOpen, title, onDismiss, children }) => {
                         </svg>
                     </div>
                 </div>
-                <div className="pl-5 pr-5 gellix max-w-xl">
+                <div className="pl-5 pr-5 pb-5 gellix w-full">
                     {children}
                 </div>
             </div>
@@ -32,4 +32,4 @@ const ModalDeleteSearch = ({ isOpen, title, onDismiss, children }) => {
     );
 };
 
-export default ModalDeleteSearch;
+export default ModalMetrics;

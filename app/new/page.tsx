@@ -8,7 +8,7 @@ export default async function Page() {
     console.log("Started analyzing");
   };
   return (
-    <div className=" h-full w-full flex items-center justify-center h-full p-8">
+    <div className=" h-full w-full flex items-center justify-center p-8">
       <Suspense fallback={<Loading />}>
         <div className="flex flex-col justify-center items-center  gap-6">
           <div className="flex flex-col justify-center items-center  gap-1">

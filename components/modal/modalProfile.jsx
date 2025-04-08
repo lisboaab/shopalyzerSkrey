@@ -7,7 +7,7 @@ const ModalProfile = ({ isOpen, title, onDismiss, children }) => {
 
     return (
         <div
-            className='fixed w-screen h-screen bg-black/60 top-0 left-0 right-0 bottom-0 z-500 flex justify-center items-center'
+            className='fixed inset-0 w-screen h-screen bg-black/60 z-500 flex justify-center items-center'
             onClick={onDismiss}
         >
             <div

@@ -1,5 +1,5 @@
 import React from 'react';
-import "../app/globals.css";
+import "../app2/app/globals.css";
 
 const LoadingData: React.FC = () => {
     return (

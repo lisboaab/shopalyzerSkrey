@@ -7,7 +7,7 @@ const ModalDelete = ({ isOpen, title, onDismiss, children }) => {
 
     return (
         <div
-            className='fixed z-200 flex justify-center items-center'
+            className='fixed inset-0 z-100000 flex justify-center items-center  bg-black/30'
             onClick={onDismiss}
         >
             <div

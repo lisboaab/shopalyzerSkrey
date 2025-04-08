@@ -1,9 +1,9 @@
 import React from 'react';
-import "../app/globals.css";
+import "../app2/app/globals.css";
 
 const Loading: React.FC = () => {
     return (
-        <div className='flex flex-col items-center justify-center h-screen'>
+        <div className='flex flex-col items-center justify-center h-120vh'>
             <div style={styles.spinner} className='animate-spin'></div>
             <p className='pt-6 worksans-semibold'>Hang on... I'm thinking...</p>
         </div>

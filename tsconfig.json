@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/dashboard/[id]/page.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "app2/.next/types/**/*.tapp2/app/dashboard/[id]/page.tsxe.tsx", "components/ButtonCustomMetricsDialog.tsx"],
   "exclude": ["node_modules"]
 }

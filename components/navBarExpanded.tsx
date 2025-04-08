@@ -15,7 +15,7 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
   };
   const goToNewSearch = () => {
     if (router) {
-      router.push('/new');
+      router.push('/');
     }
   };
   const goToSavedSearches = () => {
@@ -65,7 +65,7 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
       </div>
 
       {/* Main buttons */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 w-full">
         {/* New search button */}
         <ButtonAnimation
           label="New Search"

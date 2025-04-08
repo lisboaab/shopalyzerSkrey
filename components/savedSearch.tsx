@@ -1,10 +1,10 @@
 "use client";
 
-import "../app/globals.css";
+import "../app2/app/globals.css";
 import React, { JSX } from "react";
 import ButtonAnimation from "./buttonAnimation";
 import { useState } from "react";
-import ModalDeleteSearch from "./modal/modalDeleteSearch";
+import ModalDeleteSavedSearch from "./modal/modalDeleteSavedSearch";
 
 interface Search {
   title: string;
@@ -115,7 +115,7 @@ const SavedSearch: React.FC<SavedSearch> = (search) => {
         </div>
 
         <div>
-          <h1 className="gellix-semibold text-lg">{search.search.title}</h1>
+          <h1 className="gellix-semibold text-lg w-45 truncate">{search.search.title}</h1>
           <p className="gellix">{search.search.lastAcces}</p>
         </div>
       </div>
@@ -142,7 +142,7 @@ const SavedSearch: React.FC<SavedSearch> = (search) => {
           </div>
         </div>
       </div>
-      <div className="place-self-start">
+      <div className="place-self-end">
         <ButtonAnimation
           style="outline"
           color="red"
@@ -152,7 +152,7 @@ const SavedSearch: React.FC<SavedSearch> = (search) => {
           width="12em"
         />
       </div>
-      <ModalDeleteSearch
+      <ModalDeleteSavedSearch
         isOpen={showModal}
         onDismiss={modalHandler}
         title="Are you sure you want to delete this?"
@@ -181,7 +181,7 @@ const SavedSearch: React.FC<SavedSearch> = (search) => {
             />
           </div>
         </div>
-      </ModalDeleteSearch>
+      </ModalDeleteSavedSearch>
     </div>
   );
 };

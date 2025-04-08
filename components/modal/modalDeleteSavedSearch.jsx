@@ -1,20 +1,19 @@
 'use client';
 
-const ModalDeleteSearch = ({ isOpen, title, onDismiss, children }) => {
+const ModalDeleteSavedSearch = ({ isOpen, title, onDismiss, children }) => {
     if (!isOpen) {
         return null;
     }
 
     return (
         <div
-            className='fixed inset-0 z-200 flex justify-center items-center'
+            className='fixed inset-0 z-200 flex justify-center items-center bg-black/30'
             onClick={onDismiss}
         >
             <div
-                className='min-w-[400px] w-fit h-fit overflow-x-hidden min-h-[200px] bg-white rounded-xl p-2 flex flex-col relative left-10 border border-gray-200 shadow-md'
+                className='min-w-[400px] w-fit h-fit min-h-[200px] bg-white rounded-xl p-2 flex flex-col border border-gray-200 shadow-md'
                 onClick={(event) => event.stopPropagation()}
             >
-
                 <div className='w-full h-fit flex flex-row items-center justify-between mb-1 p-4 gap-8'>
                     <h1 className="text-xl gellix-semibold text-black">{title}</h1>
                     {/* close icon */}
@@ -32,4 +31,4 @@ const ModalDeleteSearch = ({ isOpen, title, onDismiss, children }) => {
     );
 };
 
-export default ModalDeleteSearch;
+export default ModalDeleteSavedSearch;
