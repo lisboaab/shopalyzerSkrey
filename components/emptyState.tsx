@@ -1,5 +1,5 @@
 import React from "react";
-import "../app2/app/globals.css";
+import "../app/globals.css";
 
 const EmptyState: React.FC = () => {
   return (

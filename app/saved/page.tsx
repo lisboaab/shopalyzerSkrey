@@ -1,7 +1,7 @@
-import LoadingData from "../../../components/loadingData";
+import LoadingData from "../../components/loadingData";
 import { Suspense } from "react";
-import SavedSearch from "@/components/savedSearch";
-import EmptyState from "@/components/emptyState";
+import SavedSearch from "../../components/savedSearch";
+import EmptyState from "../../components/emptyState";
 
 export default async function Page() {
   const savedItems = [

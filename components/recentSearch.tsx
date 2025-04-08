@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React from "react";
-import "../app2/app/globals.css";
+import "../app/globals.css";
 import ButtonDeleteDialog from "./ButtonCustomMetricsDialog";
 
 export interface Search {

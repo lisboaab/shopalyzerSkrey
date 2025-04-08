@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import "../app2/app/globals.css";
+import "../app/globals.css";
 import ModalUserMenu from "./modal/modalUserMenu";
 import Image from "next/image";
 import { useRouter } from "next/navigation";

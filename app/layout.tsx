@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import React from "react";
-import Loading from "../../components/loading";
-import NavBar from "../../components/navBar";
-import UserMenu from "../../components/userMenu";
+import Loading from "../components/loading";
+import NavBar from "../components/navBar";
+import UserMenu from "../components/userMenu";
 
 export const metadata: Metadata = {
   title: "Shopalizer",

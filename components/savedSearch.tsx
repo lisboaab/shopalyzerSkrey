@@ -1,6 +1,6 @@
 "use client";
 
-import "../app2/app/globals.css";
+import "../app/globals.css";
 import React, { JSX } from "react";
 import ButtonAnimation from "./buttonAnimation";
 import { useState } from "react";

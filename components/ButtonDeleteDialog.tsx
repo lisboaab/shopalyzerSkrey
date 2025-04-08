@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import "../app2/app/globals.css";
+import "../app/globals.css";
 import { useState } from "react";
 import ModalDelete from "./modal/modalDelete";
 import ButtonAnimation from "./buttonAnimation";
