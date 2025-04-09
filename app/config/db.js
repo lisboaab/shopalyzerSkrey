@@ -1,8 +1,7 @@
-// lib/db.js
 import mongoose from 'mongoose';
-import dbConfig from './db.config.js'; // Importar configurações do banco de dados
+import dbConfig from './db.config.js';
 
-const MONGODB_URI = dbConfig.uri;
+const MONGODB_URI = `mongodb+srv://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/${dbConfig.name}?retryWrites=true&w=majority&appName=Cluster0`
 
 let cached = global.mongoose;
 
@@ -24,7 +23,7 @@ async function connectDB() {
 
     cached.promise = mongoose.connect(MONGODB_URI, opts)
       .then((mongoose) => {
-        console.log('Conectado ao MongoDB com sucesso! URI:', MONGODB_URI);
+        console.log('Conectado ao MongoDB com sucesso!');
         return mongoose;
       })
       .catch((error) => {

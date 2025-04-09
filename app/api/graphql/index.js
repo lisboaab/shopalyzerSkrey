@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-micro';
 import typeDefs from './schema';
 import resolvers from './resolvers';
-import connectDB from '../../../config/db';
+import connectDB from '../../config/db';
 
 connectDB();
 

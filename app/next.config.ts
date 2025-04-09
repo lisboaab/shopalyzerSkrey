@@ -1,11 +1,9 @@
 import type { NextConfig } from "next";
 import withFlowbiteReact from "flowbite-react/plugin/nextjs";
-require('dotenv').config();
+require("dotenv").config();
 
 const nextConfig: NextConfig = {
-  env: {
-    MONGODB_URI: process.env.MONGODB_URI,
-  },
+  // some config here
 };
 
 export default withFlowbiteReact(nextConfig);
