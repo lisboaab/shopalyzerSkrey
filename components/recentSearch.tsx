@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 import "../app/globals.css";
-import ButtonDeleteDialog from "./ButtonCustomMetricsDialog";
+import ButtonDeleteDialog from "./ButtonDeleteDialog";
 
 export interface Search {
   id: number;
