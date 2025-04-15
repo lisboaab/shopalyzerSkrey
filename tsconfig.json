@@ -35,7 +35,7 @@
     "components/ButtonCustomMetricsDialog.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-  ],
+, "next.config.ts", "app/config/cloudinary.js"  ],
   "exclude": [
     "node_modules"
   ]

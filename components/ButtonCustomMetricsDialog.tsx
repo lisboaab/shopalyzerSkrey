@@ -118,7 +118,6 @@ const ButtonCustomMetricsDialog: React.FC = () => {
       <ModalMetrics
         isOpen={showModal}
         onDismiss={() => {
-          console.log("Modal dismissed");
           setShowModal(false);
         }}
         title="Select your own metrics"

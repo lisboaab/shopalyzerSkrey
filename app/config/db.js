@@ -1,39 +1,23 @@
-import mongoose from 'mongoose';
-import dbConfig from './db.config.js';
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-const MONGODB_URI = `mongodb+srv://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/${dbConfig.name}?retryWrites=true&w=majority&appName=Cluster0`
+dotenv.config();
 
-let cached = global.mongoose;
+const connectDB = async () => {
+  try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error("MONGODB_URI is not defined in environment variables");
+    }
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-async function connectDB() {
-  if (cached.conn) {
-    console.log('Usando conexão MongoDB existente');
-    return cached.conn;
+    if (!mongoose.connection.readyState) {
+      mongoose
+        .connect(process.env.MONGODB_URI)
+        .then(() => console.log("Connected to MongoDB!"))
+    }
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    throw error;
   }
-
-  if (!cached.promise) {
-    const opts = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts)
-      .then((mongoose) => {
-        console.log('Conectado ao MongoDB com sucesso!');
-        return mongoose;
-      })
-      .catch((error) => {
-        console.error('Erro ao conectar ao MongoDB:', error.message);
-        throw error;
-      });
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
+};
 
 export default connectDB;

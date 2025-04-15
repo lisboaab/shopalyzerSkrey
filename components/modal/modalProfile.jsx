@@ -11,7 +11,7 @@ const ModalProfile = ({ isOpen, title, onDismiss, children }) => {
             onClick={onDismiss}
         >
             <div
-                className='min-w-[400px] w-fit h-fit overflow-x-hidden min-h-[200px] bg-white rounded-xl p-2 flex flex-col relative border border-gray-200 shadow-md'
+                className='w-200 h-fit min-h-[200px] bg-white rounded-xl p-2 flex flex-col relative border border-gray-200 shadow-md'
                 onClick={(event) => event.stopPropagation()}
             >
 
@@ -24,7 +24,7 @@ const ModalProfile = ({ isOpen, title, onDismiss, children }) => {
                         </svg>
                     </div>
                 </div>
-                <div className="pl-5 pr-5 pb-5 gellix max-w-xl">
+                <div className="pl-5 pr-5 pb-5 gellix w-full">
                     {children}
                 </div>
             </div>
