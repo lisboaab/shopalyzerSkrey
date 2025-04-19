@@ -11,6 +11,7 @@ interface ButtonProps {
   style?: "outline";
   disabled?: boolean;
   type?: "button" | "submit" | "reset" | undefined;
+  className?: string;
 }
 
 const icons = {
@@ -116,6 +117,7 @@ const ButtonAnimation: React.FC<ButtonProps> = ({
   style,
   disabled,
   type,
+  className
 }) => {
   const [hover, setHover] = useState(false);
 
@@ -125,7 +127,7 @@ const ButtonAnimation: React.FC<ButtonProps> = ({
       onClick={action}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      disabled={disabled} // Aplica a propriedade disabled
+      disabled={disabled}
       style={
         style === "outline"
           ? {
@@ -145,10 +147,9 @@ const ButtonAnimation: React.FC<ButtonProps> = ({
               cursor: disabled ? "not-allowed" : "pointer",
             }
       }
-      className="cursor-pointer rounded-full gellix-semibold flex flex-row items-center justify-center gap-2 p-5 w-full transition-all duration-500 ease-in-out"
+      className={`cursor-pointer rounded-full gellix-semibold flex flex-row items-center justify-center gap-2 p-5 w-full transition-all duration-500 ease-in-out ${className ? className : ""}`}
     >
       { !icon && <span
-        // className="flex-1 text-center transition hover:scale-105"
         >
         {label}
       </span>}

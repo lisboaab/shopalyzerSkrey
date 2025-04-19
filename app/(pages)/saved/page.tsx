@@ -1,7 +1,8 @@
-import LoadingData from "../../components/loadingData";
+import LoadingData from "../../../components/loadingData";
 import { Suspense } from "react";
-import SavedSearch from "../../components/savedSearch";
-import EmptyState from "../../components/emptyState";
+import SavedSearch from "../../../components/savedSearch";
+import EmptyState from "../../../components/emptyState";
+import Loading from "@/components/loading";
 
 export default async function Page() {
   const savedItems = [
@@ -12,11 +13,7 @@ export default async function Page() {
       metricsGroup: {
         title: "Marketing",
         icon: "pencil",
-        metricsList: [
-          "Cost per Click",
-          "Click rate",
-          
-        ],
+        metricsList: ["Cost per Click", "Click rate"],
       },
     },
     {
@@ -103,22 +100,25 @@ export default async function Page() {
   ];
   // const savedItems = []
   return (
-    <div className="w-full h-fit flex flex-col gap-8 items-start">
-      <div className="flex flex-col gap-3">
-        <h1 className="worksans text-2xl">Your saved searches</h1>
-        <h1 className="worksans text-md grey800">
-          See and analize again your saved searches! Don’t worry nothing is
-          lost!
-        </h1>
-      </div>
-      <Suspense fallback={<LoadingData />}>
-        <div className="flex flex-row flex-wrap items-center w-full gap-16">
-          {savedItems.length != 0 && savedItems.map((search, index) => (
-            <SavedSearch key={index} search={search} />
-          ))}
-          {savedItems.length == 0 &&  <EmptyState/>}
+    <Suspense fallback={<Loading />}>
+      <div className="w-full h-fit flex flex-col gap-8 items-start">
+        <div className="flex flex-col gap-3">
+          <h1 className="worksans text-2xl">Your saved searches</h1>
+          <h1 className="worksans text-md grey800">
+            See and analize again your saved searches! Don’t worry nothing is
+            lost!
+          </h1>
         </div>
-      </Suspense>
-    </div>
+        <Suspense fallback={<LoadingData />}>
+          <div className="flex flex-row flex-wrap items-center w-full gap-16">
+            {savedItems.length != 0 &&
+              savedItems.map((search, index) => (
+                <SavedSearch key={index} search={search} />
+              ))}
+            {savedItems.length == 0 && <EmptyState />}
+          </div>
+        </Suspense>
+      </div>
+    </Suspense>
   );
 }

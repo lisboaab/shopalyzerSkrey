@@ -6,6 +6,19 @@ const typeDefs = gql`
     default
   }
 
+  enum GraphType {
+    bar
+    line
+    pie
+    donut
+    card
+  }
+
+  enum Status {
+    active
+    inactive
+  }
+
   type LoginResponse {
     accessToken: String
     userID: ID
@@ -21,6 +34,39 @@ const typeDefs = gql`
     cloudinaryID: String
     notifications: Boolean
     token: String
+    createdAt: String
+    updatedAt: String
+  }
+
+  type Metric {
+    _id: ID!
+    name: String!
+    description: String!
+    graphType: GraphType!
+    status: Status!
+  }
+
+  type Search {
+    _id: ID!
+    userID: String!
+    title: String!
+    isSaved: Boolean
+  }
+
+  type Store {
+    _id: ID!
+    name: String!
+    APIKey: String!
+    APIToken: String!
+    createdBy: String!
+  }
+
+  type Group {
+    _id: ID!
+    name: String!
+    status: Boolean!
+    createdBy: String!
+    icon: String
   }
 
   input UserCreateInput {
@@ -46,6 +92,14 @@ const typeDefs = gql`
   type Query {
     user(ID: ID!): User
     users: [User]
+    stores: [Store]
+    groups: [Group] 
+    metrics: [Metric]
+    searches: [Search]
+    search(ID: ID!): Search
+    store(ID: ID!): Store
+    group(ID: ID!): Group
+    metric(ID: ID!): Metric
   }
 
   type Mutation {

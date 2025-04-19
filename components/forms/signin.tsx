@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
 import { loginUser } from "@/lib/queries";
+import { useRouter } from "next/navigation";
+
 
 const SignInForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,18 +37,13 @@ const SignInForm: React.FC = () => {
       if (data?.loginUser.userID) {
         localStorage.setItem("authToken", data.loginUser.accessToken);
         localStorage.setItem("userID", data.loginUser.userID);
-
-        console.log(
-          "Token saved to localStorage:",
-          localStorage.getItem("authToken")
-        );
-        window.location.href = "/";
+        router.push("/");
       } else {
         setError("Invalid credentials.");
       }
     } catch (error) {
       if (error instanceof Error) {
-        console.error("Login error:", error.message);
+        console.error("Login error:", error);
         if (error.message === "User not found") {
           emailInput.classList.add("border-red-500");
           setError("Please, enter a valid email address.");

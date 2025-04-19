@@ -215,6 +215,7 @@ const userResolver = {
         throw new Error("Failed to fetch user");
       }
     },
+    users: async () => await User.find(),
   },
 };
 

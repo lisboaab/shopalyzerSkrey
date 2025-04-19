@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { createUser } from "@/lib/queries";
 import { loginUser } from "@/lib/queries";
+import { useRouter } from "next/navigation";
 
 const SignUpForm: React.FC = () => {
   const [name, setName] = useState("");
@@ -9,6 +10,7 @@ const SignUpForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,13 +65,7 @@ const SignUpForm: React.FC = () => {
         if (login) {
           localStorage.setItem("authToken", login.loginUser.accessToken);
           localStorage.setItem("userID", login.loginUser.userID);
-          
-          console.log(
-            "Token saved to localStorage:",
-            localStorage.getItem("authToken")
-          );
-          console.log("redirecting to home page...");
-          window.location.href = "/";
+          router.push("/");
         }
       } else {
         setError("Invalid credentials.");

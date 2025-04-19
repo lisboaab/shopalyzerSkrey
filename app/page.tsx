@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Loading from "@/components/loading";
 import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
 import { getUserName } from "@/lib/queries";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [store, setStore] = useState("");
@@ -12,35 +13,36 @@ export default function Page() {
   const [token, setToken] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
- useEffect(() => {
-     const t = localStorage.getItem("authToken");
-     if (t) {
-       setToken(t);
-       setLoading(false);
-     } else {
-       window.location.href = "/auth";
-     }
-   }, []);
- 
-   useEffect(() => {
-     const ID = localStorage.getItem("userID");
-     if (!ID) return;
- 
-     const fetchUser = async () => {
-       try {
-         const user = await getUserName(ID);
-         if (user) {
+  useEffect(() => {
+    const t = localStorage.getItem("authToken");
+    if (t) {
+      setToken(t);
+      setLoading(false);
+    } else {
+      router.push("/auth");
+    }
+  }, []);
+
+  useEffect(() => {
+    const ID = localStorage.getItem("userID");
+    if (!ID) return;
+
+    const fetchUser = async () => {
+      try {
+        const user = await getUserName(ID);
+        if (user) {
           const userName = user.name.split(" ");
           setName(userName[0]);
-         }
-       } catch (error) {
-         console.log("Error fetching user:", error);
-       }
-     };
- 
-     fetchUser();
-   }, []);
+        }
+      } catch (error) {
+        console.log("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const analyze = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,8 +89,10 @@ export default function Page() {
     "Last 365 days",
   ];
 
-  return (
-    loading ? (<Loading /> ): (token && !loading && (
+  return loading ? (
+    <Loading />
+  ) : (
+    token && !loading && (
       <div className=" h-full w-full flex items-center justify-center p-8 flex-col">
         <Suspense fallback={<Loading />}>
           <div className="flex flex-col justify-center items-center gap-6">
@@ -244,8 +248,6 @@ export default function Page() {
           )}
         </Suspense>
       </div>
-    ))
-
-    
+    )
   );
 }

@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import "../app/globals.css";
 import ModalUserMenu from "./modal/modalUserMenu";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ModalProfile from "./modal/modalProfile";
 import ButtonAnimation from "./buttonAnimation";
@@ -10,27 +9,35 @@ import { getUser } from "@/lib/queries";
 import SnackBar from "./modal/snackBar";
 import { updateUser } from "@/lib/queries";
 import bcrypt from "bcryptjs";
+import Loading from "./loading";
 
 const UserMenu: React.FC = () => {
   const router = useRouter();
 
   const [showModal, setShowModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [token, setToken] = useState("");
-  const [userId, setUserId] = useState<string>("");
 
-  const [profilePhoto, setProfilePhoto] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [hashPassword, setHashPassword] = useState<string>("");
-
-  const [typeUser, setTypeUser] = useState<string>("");
+  const [isClient, setIsClient] = useState(false);
 
   const [password, setPassword] = useState<string>("");
   const [passwordInput, setPasswordInput] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<boolean>(false);
   const [emailInput, setEmailInput] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string>("");
+
+  const [userState, setUserState] = useState({
+    token: "",
+    userId: "",
+    profilePhoto: "",
+    name: "",
+    email: "",
+    hashPassword: "",
+    typeUser: "",
+  });
+  
+  const updateUserState = (key: string, value: string) => {
+    setUserState((prev) => ({ ...prev, [key]: value }));
+  };
 
   const [snackBarOpen, setSnackBarOpen] = useState(false);
   const [snackBarType, setSnackBarType] = useState("success");
@@ -40,13 +47,11 @@ const UserMenu: React.FC = () => {
     try {
       const user = await getUser(ID);
       if (user) {
-        setProfilePhoto(user.profilePicture);
-        console.log("user photo: " + user.profilePicture);
-        setName(user.name);
-        setEmail(user.email);
-        setHashPassword(user.password);
-        setTypeUser(user.userType);
-        // console.log(user);
+        updateUserState("profilePhoto", user.profilePicture);
+        updateUserState("name", user.name);
+        updateUserState("email", user.email);
+        updateUserState("password" ,user.password);
+        updateUserState("userType" ,user.userType);
       }
     } catch (error) {
       console.log("Error fetching user:", error);
@@ -54,20 +59,30 @@ const UserMenu: React.FC = () => {
   };
 
   useEffect(() => {
-    const t = localStorage.getItem("authToken");
-    const id = localStorage.getItem("userID");
-    if (t && id) {
-      setToken(t);
-      setUserId(id);
-    } else {
-      window.location.href = "/auth";
+    if (typeof window !== 'undefined') {
+      const t = localStorage.getItem("authToken");
+      const id = localStorage.getItem("userID");
+      if (t && id) {
+        updateUserState("token", t)
+        updateUserState("userId", id)
+      } else {
+        router.push("/auth");
+      }
     }
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
-    fetchUser(userId);
-  }, [userId]);
+    if (!userState.userId) return;
+    fetchUser(userState.userId);
+  }, [userState.userId]);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <Loading />;
+  }
 
   const modalHanlder = (modal: string) => {
     setNameInput(false);
@@ -114,18 +129,18 @@ const UserMenu: React.FC = () => {
 
     const file = event.target.files[0];
     const previewUrl = URL.createObjectURL(file);
-    setProfilePhoto(previewUrl);
+    updateUserState("profilePhoto", previewUrl);
 
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
         const base64String = reader.result as string;
-        const data = await updateUser(userId, {
+        const data = await updateUser(userState.userId, {
           profilePicture: base64String,
         });
 
         if (data.profilePicture) {
-          setProfilePhoto(data.profilePicture);
+          updateUserState("profilePhoto", data.profilePicture);
           handleSnackBar("success", "Profile photo updated successfully!");
         }
       } catch (error) {
@@ -140,46 +155,46 @@ const UserMenu: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userID");
-    window.location.href = "/auth";
+    router.push("/auth");
   };
 
   const handleSave = async (input: string) => {
     if (input === "name") {
       setNameInput(false);
 
-      if (!userId) {
+      if (!userState.userId) {
         console.error("User ID is missing");
         return;
       }
 
-      if (!name) {
-        fetchUser(userId);
+      if (!userState.name) {
+        fetchUser(userState.userId);
         handleSnackBar("failure", "Name is required!");
         return;
       }
 
       try {
-        const updatedUser = await updateUser(userId, { name: name });
+        const updatedUser = await updateUser(userState.userId, { name: userState.name });
         handleSnackBar("success", "Name updated successfully!");
       } catch (error) {
         handleSnackBar("failure", "Something went wrong, try again!");
-        fetchUser(userId);
+        fetchUser(userState.userId);
         console.error("Error updating user:", error);
       }
     }
     if (input === "email") {
       setEmailInput(false);
 
-      if (!userId) {
+      if (!userState.userId) {
         console.error("User ID is missing");
         return;
       }
 
       try {
-        const updatedUser = await updateUser(userId, { email: email });
+        const updatedUser = await updateUser(userState.userId, { email: userState.email });
         handleSnackBar("success", "Profile updated successfully!");
       } catch (error) {
-        fetchUser(userId);
+        fetchUser(userState.userId);
         console.error("Error updating user:", error);
         handleSnackBar("failure", "That email address is already in use.");
       }
@@ -187,12 +202,12 @@ const UserMenu: React.FC = () => {
     if (input === "password") {
       setPasswordInput(false);
 
-      if (!userId) {
+      if (!userState.userId) {
         console.error("User ID is missing");
         return;
       }
 
-      const check = bcrypt.compareSync(password, hashPassword);
+      const check = bcrypt.compareSync(password, userState.hashPassword);
       if (!check) {
         handleSnackBar("failurePassword", "Old password is incorrect!");
         return;
@@ -207,12 +222,11 @@ const UserMenu: React.FC = () => {
         return;
       }
       try {
-        const updatedUser = await updateUser(userId, { password: newPassword });
+        const updatedUser = await updateUser(userState.userId, { password: newPassword });
         handleSnackBar("success", "Password updated successfully!");
-        console.log("User updated successfully:", updatedUser);
         setNewPassword("");
       } catch (error) {
-        fetchUser(userId);
+        fetchUser(userState.userId);
         console.error("Error updating user:", error);
         handleSnackBar("failure", "Error updating password!");
       }
@@ -220,25 +234,27 @@ const UserMenu: React.FC = () => {
   };
 
   return (
-    token && (
+    <Suspense fallback={<Loading />}>
+      {userState.token && (
+
       <div>
         <div className="flex flex-row justify-center items-center size-17 rounded-full bg-linear-55 from-blue-600 from-20% to-blue-50">
-          {profilePhoto ? (
+          {userState.profilePhoto ? (
             <div className="rounded-ful flex items-center justify-center h-15 w-15 cursor-pointer">
-            <img
-              src={profilePhoto}
-              alt="Your profile picture"
-              className="rounded-full w-contain h-contain"
-              style={{ objectFit: "cover", height: "100%", width: "100%" }}
-              onClick={() => modalHanlder("menu")}
-            />
-          </div>
+              <img
+                src={userState.profilePhoto}
+                alt="Your profile picture"
+                className="rounded-full w-contain h-contain"
+                style={{ objectFit: "cover", height: "100%", width: "100%" }}
+                onClick={() => modalHanlder("menu")}
+              />
+            </div>
           ) : (
             <div
               className="rounded-full bg-grey50 cursor-pointer w-contain h-contain w-fit h-fit p-3 px-5 text-3xl flex items-center justify-center worksans-medium main"
               onClick={() => modalHanlder("menu")}
             >
-              {name ? name.charAt(0).toUpperCase() : "?"}
+              {userState.name ? userState.name.charAt(0).toUpperCase() : "?"}
             </div>
           )}
 
@@ -290,7 +306,7 @@ const UserMenu: React.FC = () => {
                 Saved searches
               </h1>
               {/* ADMIN Panel */}
-              {typeUser === "admin" && (
+              {userState.typeUser === "admin" && (
                 <h1
                   className="text-black hover:bg-gray-100 hover:rounded-lg p-3 flex flex-row gap-4 items-center cursor-pointer"
                   onClick={goToAdminPanel}
@@ -349,18 +365,22 @@ const UserMenu: React.FC = () => {
               {/* profile picture */}
               <div className="flex flex-col w-1/3 gap-4 items-center">
                 <div className="flex flex-row justify-center items-center size-45 rounded-full bg-linear-55 from-blue-600 from-20% to-blue-50">
-                  {profilePhoto ? (
+                  {userState.profilePhoto ? (
                     <div className="rounded-ful flex items-center justify-center h-42 w-42">
                       <img
-                        src={profilePhoto}
+                        src={userState.profilePhoto}
                         alt="Your profile picture"
                         className="rounded-full w-contain h-contain"
-                        style={{ objectFit: "cover", height: "100%", width: "100%" }}
+                        style={{
+                          objectFit: "cover",
+                          height: "100%",
+                          width: "100%",
+                        }}
                       />
                     </div>
                   ) : (
                     <div className="rounded-full bg-grey50 cursor-pointer w-contain h-contain w-fit h-fit p-8 px-12 text-8xl flex items-center justify-center worksans-medium main">
-                      {name ? name.charAt(0).toUpperCase() : "?"}
+                      {userState.name ? userState.name.charAt(0).toUpperCase() : "?"}
                     </div>
                   )}
                 </div>
@@ -389,7 +409,7 @@ const UserMenu: React.FC = () => {
                     <div id="name" className="flex flex-row gap-5 items-center">
                       <div className="flex flex-row gap-4 items-center">
                         <h1>Name:</h1>
-                        <h1 className="gellix-semibold">{name}</h1>
+                        <h1 className="gellix-semibold">{userState.name}</h1>
                       </div>
                       {/* edit button */}
                       <svg
@@ -420,8 +440,8 @@ const UserMenu: React.FC = () => {
                         <input
                           type="text"
                           className="border border-gray-200 text-gray-900 text-sm rounded-lg w-56 p-3 gellix outline-none"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          value={userState.name}
+                          onChange={(e) => updateUserState("name", e.target.value)}
                         ></input>
                       </div>
                       {/* edit button */}
@@ -472,7 +492,7 @@ const UserMenu: React.FC = () => {
                     <div id="name" className="flex flex-row gap-5 items-center">
                       <div className="flex flex-row gap-4 items-center">
                         <h1>Email:</h1>
-                        <h1 className="gellix-semibold">{email}</h1>
+                        <h1 className="gellix-semibold">{userState.email}</h1>
                       </div>
                       {/* edit button */}
                       <svg
@@ -505,8 +525,8 @@ const UserMenu: React.FC = () => {
                             id="email"
                             type="text"
                             className="border border-gray-200 text-gray-900 text-sm rounded-lg w-56 p-3 gellix outline-none"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={userState.email}
+                            onChange={(e) => updateUserState("email", e.target.value)}
                           ></input>
                         </div>
                       </div>
@@ -657,7 +677,9 @@ const UserMenu: React.FC = () => {
           ></SnackBar>
         </div>
       </div>
-    )
+      
+      )}
+    </Suspense>
   );
 };
 
