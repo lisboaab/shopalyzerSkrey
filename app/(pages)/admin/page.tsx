@@ -5,19 +5,22 @@ import ForbiddenAccess from "@/components/forbiddenAccess";
 import { getUserType } from "@/lib/queries";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
-import AdminManagement from "@/components/adminManagement";
+import UsersManagement from "@/components/admin/usersManagement";
+import StoresManagement from "@/components/admin/storesManagement";
+import MetricsManagement from "@/components/admin/metricsManagement";
+import MetricsGroupsManagement from "@/components/admin/metricsGroupsManagement";
 
 export default function Page() {
   const [forbidden, setForbidden] = useState(true);
   const [userId, setUserId] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<string>("users")
+  const [selectedItem, setSelectedItem] = useState<string>("users");
   const router = useRouter();
-  
+
   const selectItem = (item: string) => {
     setSelectedItem(item);
-  }
-  
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const userId = localStorage.getItem("userID");
@@ -33,7 +36,7 @@ export default function Page() {
       try {
         const userType = await getUserType(userId);
         setForbidden(userType !== "admin");
-        if(forbidden) setLoading(false);
+        if (forbidden) setLoading(false);
       } catch (error) {
         console.error("Error checking user type:", error);
       }
@@ -113,9 +116,9 @@ export default function Page() {
     ),
   };
   const menuOptions = [
-    { id:"users", name: "Users", icon: "user" },
-    { id:"stores", name: "Stores", icon: "shop" },
-    { id:"metrics", name: "Metrics", icon: "metric" },
+    { id: "users", name: "Users", icon: "user" },
+    { id: "stores", name: "Stores", icon: "shop" },
+    { id: "metrics", name: "Metrics", icon: "metric" },
     { id: "metricsGroups", name: "Metrics Groups", icon: "metricGroup" },
   ];
 
@@ -137,20 +140,31 @@ export default function Page() {
               {menuOptions.map((option) => {
                 return (
                   <div
-                    id={option.id} 
+                    id={option.id}
                     key={option.id}
                     className={`flex flex-row gap-4 items-center cursor-pointer hover:bg-gray-100 hover:rounded-lg p-4 ${
-                      selectedItem == option.id ? "main bg-electric50 rounded-lg" : ""
+                      selectedItem == option.id
+                        ? "main bg-electric50 rounded-lg"
+                        : ""
                     }`}
-                    onClick={() => {selectItem(option.id)}}
+                    onClick={() => {
+                      selectItem(option.id);
+                    }}
                   >
                     {iconMap[option.icon]}
-                    <h1 id={option.id} className="gellix-semibold text-md ">{option.name}</h1>
+                    <h1 id={option.id} className="gellix-semibold text-md ">
+                      {option.name}
+                    </h1>
                   </div>
                 );
               })}{" "}
             </div>
-            <div className="w-full"><AdminManagement menuItem={selectedItem} /></div>
+            <div className="w-full">
+              {selectedItem === "users" && <UsersManagement />}
+              {selectedItem === "stores" && <StoresManagement />}
+              {selectedItem === "metrics" && <MetricsManagement />}
+              {selectedItem === "metricsGroups" && <MetricsGroupsManagement />}
+            </div>
           </div>
         </div>
       ) : (

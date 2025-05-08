@@ -3,6 +3,7 @@ import { useState } from "react";
 import { createUser } from "@/lib/queries";
 import { loginUser } from "@/lib/queries";
 import { useRouter } from "next/navigation";
+import ButtonAnimation from "@/components/buttonAnimation";
 
 const SignUpForm: React.FC = () => {
   const [name, setName] = useState("");
@@ -65,7 +66,7 @@ const SignUpForm: React.FC = () => {
         if (login) {
           localStorage.setItem("authToken", login.loginUser.accessToken);
           localStorage.setItem("userID", login.loginUser.userID);
-          router.push("/");
+          router.push("/new");
         }
       } else {
         setError("Invalid credentials.");
@@ -82,43 +83,53 @@ const SignUpForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSignUp} className="flex flex-col gap-4">
-      <input
-        id="nameInput"
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="border p-2 rounded"
-      />
-      <input
-        id="emailInput"
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="border p-2 rounded"
-      />
-      <input
-        id="passwordInput"
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="border p-2 rounded"
-      />
-      <input
-        id="confirmPasswordInput"
-        type="password"
-        placeholder="Confirm your password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        className="border p-2 rounded"
-      />
+    <form onSubmit={handleSignUp} className="flex flex-col gap-6 min-w-80 py-5">
+      <div className="flex flex-col gap-2">
+          <p className="gellix">Name</p>
+          <input
+            id="nameInput"
+            type="text"
+            placeholder="Enter your first name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          />
+        </div>
+      <div className="flex flex-col gap-2">
+          <p className="gellix">Email</p>
+          <input
+            id="emailInput"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className="gellix">Password</p>
+          <input
+            id="passwordInput"
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className="gellix">Confirm Password</p>
+          <input
+            id="confirmPasswordInput"
+            type="password"
+            placeholder="Confirm your password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          />
+      </div>
       {error && <p className="text-red-500">{error}</p>}
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-        Sign Up
-      </button>
+      <ButtonAnimation label="Sign up" type="submit" color="blue" style="outline" icon="arrow"/>
     </form>
   );
 };

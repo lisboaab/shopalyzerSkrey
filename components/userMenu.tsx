@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
-import "../app/globals.css";
-import ModalUserMenu from "./modal/modalUserMenu";
-import { useRouter } from "next/navigation";
-import ModalProfile from "./modal/modalProfile";
-import ButtonAnimation from "./buttonAnimation";
-import { getUser } from "@/lib/queries";
-import SnackBar from "./modal/snackBar";
-import { updateUser } from "@/lib/queries";
 import bcrypt from "bcryptjs";
+import { useRouter } from "next/navigation";
+import "../app/globals.css";
+
+import { getUser, updateUser } from "@/lib/queries";
+
+import ModalUserMenu from "./modal/modalUserMenu";
+import ModalProfile from "./modal/modalProfile";
+import SnackBar from "./modal/snackBar";
+import ButtonAnimation from "./buttonAnimation";
 import Loading from "./loading";
 
 const UserMenu: React.FC = () => {
@@ -32,7 +33,7 @@ const UserMenu: React.FC = () => {
     name: "",
     email: "",
     hashPassword: "",
-    typeUser: "",
+    userType: "",
   });
   
   const updateUserState = (key: string, value: string) => {
@@ -50,8 +51,8 @@ const UserMenu: React.FC = () => {
         updateUserState("profilePhoto", user.profilePicture);
         updateUserState("name", user.name);
         updateUserState("email", user.email);
-        updateUserState("password" ,user.password);
-        updateUserState("userType" ,user.userType);
+        updateUserState("password", user.password);
+        updateUserState("userType", user.userType);        
       }
     } catch (error) {
       console.log("Error fetching user:", error);
@@ -66,7 +67,7 @@ const UserMenu: React.FC = () => {
         updateUserState("token", t)
         updateUserState("userId", id)
       } else {
-        router.push("/auth");
+        router.push("/");
       }
     }
   }, []);
@@ -83,7 +84,6 @@ const UserMenu: React.FC = () => {
   if (!isClient) {
     return <Loading />;
   }
-
   const modalHanlder = (modal: string) => {
     setNameInput(false);
     setEmailInput(false);
@@ -155,7 +155,7 @@ const UserMenu: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userID");
-    router.push("/auth");
+    router.push("/");
   };
 
   const handleSave = async (input: string) => {
@@ -192,7 +192,7 @@ const UserMenu: React.FC = () => {
 
       try {
         const updatedUser = await updateUser(userState.userId, { email: userState.email });
-        handleSnackBar("success", "Profile updated successfully!");
+        if (updatedUser) handleSnackBar("success", "Profile updated successfully!");
       } catch (error) {
         fetchUser(userState.userId);
         console.error("Error updating user:", error);
@@ -306,7 +306,7 @@ const UserMenu: React.FC = () => {
                 Saved searches
               </h1>
               {/* ADMIN Panel */}
-              {userState.typeUser === "admin" && (
+              {userState.userType === "admin" && (
                 <h1
                   className="text-black hover:bg-gray-100 hover:rounded-lg p-3 flex flex-row gap-4 items-center cursor-pointer"
                   onClick={goToAdminPanel}
@@ -437,12 +437,14 @@ const UserMenu: React.FC = () => {
                     >
                       <div className="flex flex-row gap-4 items-center">
                         <h1>Name:</h1>
+                        {/* <NameContext.Provider value={userState.name}> */}
                         <input
                           type="text"
                           className="border border-gray-200 text-gray-900 text-sm rounded-lg w-56 p-3 gellix outline-none"
                           value={userState.name}
                           onChange={(e) => updateUserState("name", e.target.value)}
                         ></input>
+                        {/* </NameContext.Provider> */}
                       </div>
                       {/* edit button */}
                       <div className="flex flex-row gap-2 items-center cursor-pointer">

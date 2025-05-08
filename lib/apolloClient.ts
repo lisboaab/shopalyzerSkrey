@@ -1,7 +1,4 @@
-import { ApolloClient, InMemoryCache, split, HttpLink, ApolloLink } from '@apollo/client/core';
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { createClient } from 'graphql-ws';
-import { getMainDefinition } from '@apollo/client/utilities';
+import { ApolloClient, InMemoryCache, split, HttpLink, ApolloLink  } from '@apollo/client/core';
 
 const getToken = () => localStorage.getItem('authToken');
 
@@ -19,42 +16,35 @@ const authLink = new ApolloLink((operation, forward) => {
             ...headers,
             Authorization: token ? `Bearer ${token}` : ''
         }
+        
     }));
-
+    // console.log('bearer token: ', operation)
     return forward(operation).map((response) => {
         if (response.errors) {
-            console.error('GraphQL Errors:', response.errors);
+            // console.error('GraphQL Errors:', response.errors);
+            const authError = response.errors.find(
+                err => err.extensions?.code === 'UNAUTHENTICATED'
+            );
+            
+            if (authError) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userID');
+                window.location.href = '/auth';
+            }
         }
         return response;
     });
 });
 
-const wsLink = new GraphQLWsLink(
-    createClient({
-        url: 'ws://localhost:3001/api/graphql',
-        connectionParams: () => {
-            const token = getToken();
-            return token ? { Authorization: `Bearer ${token}` } : {};
-        }
-        
-    })
-);
-
-const splitLink = split(
-    ({ query }) => {
-        const definition = getMainDefinition(query);
-        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
-    },
-    wsLink,
-    authLink.concat(httpLink)
-);
-
 const apolloClient = new ApolloClient({
-    link: splitLink,
-    uri: "http://localhost:3001/api/graphql",
+    link: ApolloLink.from([authLink, httpLink]),
     cache: new InMemoryCache(),
+    defaultOptions: {
+        query: {
+          fetchPolicy: 'network-only',
+        },
+      },
     credentials: "include",
-    
 });
 
 export default apolloClient;

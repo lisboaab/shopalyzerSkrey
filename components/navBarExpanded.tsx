@@ -15,7 +15,7 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
   };
   const goToNewSearch = () => {
     if (router) {
-      router.push('/');
+      router.push('/new');
     }
   };
   const goToSavedSearches = () => {

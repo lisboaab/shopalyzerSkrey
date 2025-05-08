@@ -27,7 +27,7 @@ const NavBarCollapsed: React.FC<NavBarProps> = ({ buttonFunction }) => {
       <div className="flex flex-col gap-4 ">
         {/* New search button */}
         <div className="bg-white rounded-full flex items-center justify-center h-10 w-10 cursor-pointer">
-          <a href="/">
+          <a href="/new">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

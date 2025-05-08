@@ -1,6 +1,6 @@
 import { gql } from "apollo-server-micro";
 
-const typeDefs = gql`
+export const typeDefs = gql`
   enum TypeUser {
     admin
     default
@@ -25,7 +25,7 @@ const typeDefs = gql`
   }
 
   type User {
-    _id: ID!
+    _id: ID
     name: String!
     email: String!
     password: String!
@@ -41,7 +41,7 @@ const typeDefs = gql`
   type Metric {
     _id: ID!
     name: String!
-    description: String!
+    description: String
     graphType: GraphType!
     status: Status!
   }
@@ -58,21 +58,47 @@ const typeDefs = gql`
     name: String!
     APIKey: String!
     APIToken: String!
-    createdBy: String!
+    createdBy: User!
+    lastModifiedBy: User!
+    createdAt: String
+    updatedAt: String
   }
 
   type Group {
     _id: ID!
     name: String!
-    status: Boolean!
-    createdBy: String!
+    status: Status!
+    createdBy: User!
     icon: String
+    metrics: [Metric!]!
   }
 
   input UserCreateInput {
     name: String!
     email: String!
     password: String!
+  }
+
+  input StoreCreateInput {
+    name: String!
+    APIKey: String!
+    APIToken: String!
+    createdBy: String
+  }
+
+  input MetricCreateInput {
+    name: String!
+    description: String!
+    graphType: String!
+    status: String
+  }
+
+  input GroupCreateInput {
+    name: String!
+    icon: String
+    status: String
+    metrics: [ID!]
+    createdBy: String
   }
 
   input UserInput {
@@ -82,6 +108,28 @@ const typeDefs = gql`
     profilePicture: String
     notifications: Boolean
     cloudinaryID: String
+    userType: TypeUser
+  }
+
+  input StoreInput {
+    name: String
+    APIKey: String
+    APIToken: String
+    lastModifiedBy: String
+  }
+
+  input MetricInput {
+    name: String
+    description: String
+    graphType: String
+    status: String
+  }
+
+  input GroupInput {
+    name: String
+    icon: String
+    status: String
+    metrics: [ID!]
   }
 
   input UserLoginInput {
@@ -100,14 +148,23 @@ const typeDefs = gql`
     store(ID: ID!): Store
     group(ID: ID!): Group
     metric(ID: ID!): Metric
+    userTypesList: [TypeUser]
   }
 
   type Mutation {
     createUser(input: UserCreateInput!): User
     updateUser(id: ID!, input: UserInput!): User
     removeUser(id: ID!): String
+    createStore(input: StoreCreateInput!): Store
+    updateStore(id: ID!, input: StoreInput!): Store
+    removeStore(id: ID!): String
     loginUser(input: UserLoginInput!): LoginResponse
+    createMetric(input: MetricCreateInput!): Metric
+    removeMetric(id: ID!): String
+    updateMetric(id: ID!, input: MetricInput!): Metric
+    createGroup(input: GroupCreateInput!): Group
+    updateGroup(id: ID!, input: GroupInput!): Group
+    removeGroup(id: ID!): String
   }
 `;
 
-export default typeDefs;

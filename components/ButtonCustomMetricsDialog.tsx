@@ -1,97 +1,70 @@
 "use client";
 import React from "react";
 import "../app/globals.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// Interface
+import Metric from "../app/interface/metric";
+
+// Components
 import ModalMetrics from "./modal/modalMetrics";
 import ButtonAnimation from "./buttonAnimation";
 import EmptyState from "./emptyState";
 
-const ButtonCustomMetricsDialog: React.FC = () => {
+// queries
+import { getMetrics } from "@/lib/queries";
+
+interface Props {
+  setMetricsGroup: (value: string) => void;
+  setCustomMetrics: (value: Metric[]) => void;
+}
+
+const ButtonCustomMetricsDialog: React.FC<Props> = ({
+  setMetricsGroup,
+  setCustomMetrics,
+}) => {
   const [showModal, setShowModal] = useState(false);
-  const [selectectMetrics, setSelectedMetrics] = useState<string[]>([]);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [metricsList, setMetricsList] = useState<Metric[]>([]);
 
   const modalHandler = () => {
     setShowModal((curr) => !curr);
+    setSearchQuery("");
+    setMetricsGroup("681b9229fb80a7c0ec3990a3");
   };
 
   const saveMetrics = () => {
-    console.log(selectectMetrics);
+    const selected = metricsList.filter((m) =>
+      selectedMetrics.includes(m._id ?? "")
+    );
+    setCustomMetrics(selected);
+    setShowModal(false);
   };
 
-  const metricsList = [
-    {
-      title: "Average order value",
-      description: "The average amount spent by a customer per order.",
-    },
-    {
-      title: "Customer acquisition cost rgOIEHJFOwefunedi",
-      description: "The cost associated with acquiring a new customer.",
-    },
-    {
-      title: "Customer lifetime value",
-      description:
-        "The total revenue expected from a customer over their lifetime.",
-    },
-    {
-      title: "Click rate",
-      description:
-        "The percentage of users who click on a specific link or call-to-action.",
-    },
-    {
-      title: "Chrun rate",
-      description:
-        "The percentage of customers who stop using a product or service during a given time period.",
-    },
-    {
-      title: "Conversion rate",
-      description:
-        "The percentage of users who take a desired action, such as making a purchase.",
-    },
-    {
-      title: "Total revenue",
-      description: "The total income generated from sales.",
-    },
-    {
-      title: "Average order value",
-      description: "The average amount spent by a customer per order.",
-    },
-    {
-      title: "Customer acquisition cost",
-      description: "The cost associated with acquiring a new customer.",
-    },
-    {
-      title: "Customer lifetime value",
-      description:
-        "The total revenue expected from a customer over their lifetime.",
-    },
-    {
-      title: "Click rate",
-      description:
-        "The percentage of users who click on a specific link or call-to-action.",
-    },
-    {
-      title: "Chrun rate",
-      description:
-        "The percentage of customers who stop using a product or service during a given time period.",
-    },
-    {
-      title: "Conversion rate",
-      description:
-        "The percentage of users who take a desired action, such as making a purchase.",
-    },
-    {
-      title: "Total revenue",
-      description: "The total income generated from sales.",
-    },
-  ];
+  const fetchData = async () => {
+    try {
+      const fetchedData = await getMetrics();
+      if (fetchedData) {
+        const result = Array.isArray(fetchedData) ? fetchedData : [];
+        setMetricsList(result);
+      }
+    } catch (error) {
+      console.log("Error fetching metrics:", error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredMetrics =
     searchQuery.length < 3
-      ? metricsList
-      : metricsList.filter((m) =>
-          m.title.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+      ? [...metricsList].sort((a, b) => a.name.localeCompare(b.name))
+      : [...metricsList]
+          .filter((m) =>
+            m.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <div>
@@ -119,6 +92,7 @@ const ButtonCustomMetricsDialog: React.FC = () => {
         isOpen={showModal}
         onDismiss={() => {
           setShowModal(false);
+          setSearchQuery("");
         }}
         title="Select your own metrics"
       >
@@ -163,33 +137,36 @@ const ButtonCustomMetricsDialog: React.FC = () => {
                   key={index}
                   className="flex flex-row justify-between items-center gap-4 bg-electric50 rounded-md p-4 mb-2 w-80"
                 >
-                  <div className="flex-col w-60">
-                    <p className="text-gray-900 gellix text-lg cursor-pointer truncate overflow-hidden text-ellipsis whitespace-nowrap">
-                      {metric.title}
-                    </p>
-                    <p className="grey800 wrap text-sm">{metric.description}</p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    id={`metric-${index}`}
-                    className="h-5 w-5 cursor-pointer color-blue-500"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedMetrics((prev) => [
-                          ...prev,
-                          metric.title.toLowerCase().replaceAll(" ", "_"),
-                        ]);
-                      } else {
-                        setSelectedMetrics((prev) =>
-                          prev.filter(
-                            (item) =>
-                              item !==
-                              metric.title.toLowerCase().replaceAll(" ", "_")
-                          )
-                        );
-                      }
-                    }}
-                  />
+                  <label className="flex flex-row items-center justify-between w-full">
+                    <div className="flex-col w-60">
+                      <p className="text-gray-900 gellix text-lg cursor-pointer truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                        {metric.name}
+                      </p>
+                      <p className="grey800 wrap text-sm">
+                        {metric.description}
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      id={`metric-${index}`}
+                      className="h-5 w-5 cursor-pointer color-blue-500"
+                      checked={selectedMetrics.includes(metric._id ?? "")}
+                      onChange={(e) => {
+                        if (metric._id) {
+                          if (e.target.checked) {
+                            setSelectedMetrics((prev) => [
+                              ...prev,
+                              metric._id!,
+                            ]);
+                          } else {
+                            setSelectedMetrics((prev) =>
+                              prev.filter((item) => item !== metric._id)
+                            );
+                          }
+                        }
+                      }}
+                    />
+                  </label>
                 </div>
               ))}
             {filteredMetrics.length == 0 && <EmptyState />}
@@ -213,7 +190,7 @@ const ButtonCustomMetricsDialog: React.FC = () => {
               icon="arrow"
               action={saveMetrics}
               width="10em"
-              disabled={selectectMetrics.length === 0}
+              disabled={selectedMetrics.length === 0}
             />
           </div>
         </div>
