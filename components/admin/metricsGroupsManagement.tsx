@@ -269,7 +269,11 @@ const MetricsGroupsManagement: React.FC = () => {
     try {
       if (!newGroup.metrics || newGroup.metrics.length === 0) {
         handleSnackBar("failure", "Please, fill up all the fields");
-      } else {
+      } 
+      else if (!newGroup.icon || newGroup.icon === ""){
+        handleSnackBar("failure", "Please, select an icon to continue");
+      }
+      else {
         await createGroup(newGroup);
         handleSnackBar("success", "Group created successfully!");
         updateModalState("create", false);
