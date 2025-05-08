@@ -142,14 +142,14 @@ const SavedSearch: React.FC<SavedSearch> = (search) => {
           </div>
         </div>
       </div>
-      <div className="place-self-end">
+      <div className="place-self-center">
         <ButtonAnimation
           style="outline"
           color="red"
           icon="trashcan"
           label="Delete search"
           action={modalHandler}
-          width="12em"
+          width="18em"
         />
       </div>
       <ModalDeleteSavedSearch

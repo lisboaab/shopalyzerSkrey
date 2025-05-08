@@ -8,10 +8,6 @@ import ButtonAnimation from "./buttonAnimation";
 const ButtonDeleteDialog: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
 
-  // add interface with type for the props where the coder can pass the type of info to be 	deleted
-	// also to pass the data to be deleted, or just the ID
-	// if we have the tipe of data and the ID, then we can delete the data from the database
-
 	// interface ButtonDeleteDialogProps {
 	//   data: any;
 	//   type: 'search'| 'user' | 'store' | 'metricsGroup' | 'metric'; 

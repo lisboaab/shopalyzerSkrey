@@ -262,7 +262,7 @@ export default function Page() {
               <li>Store: {store}</li>
               <li>Group of metrics: {metricsGroup}</li>
               {metricsGroup === "custom" ? (customMetrics.map((m) => {
-                return <p>{m.name}</p>
+                return <p key={m._id}>{m.name}</p>
               })): ("")}
               <li>Date range: {date}</li>
             </ul>
