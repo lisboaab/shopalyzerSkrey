@@ -744,6 +744,7 @@ const metricsGroupResolver = {
         metrics:
           input.metrics != null ? input.metrics : group.metrics,
         status: input.status != null ? input.status : group.status,
+        icon: input.icon != null ? input.icon : group.icon,
       });
 
       const updatedGroup = await Group.findById(id).populate("createdBy");

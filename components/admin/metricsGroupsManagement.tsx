@@ -3,6 +3,48 @@ import "../../app/globals.css";
 import { useState, useEffect, useCallback } from "react";
 
 import {
+  AdjustmentsHorizontalIcon,
+  ArrowTrendingUpIcon,
+  ArrowsRightLeftIcon,
+  BanknotesIcon,
+  BellAlertIcon,
+  BeakerIcon,
+  BookmarkIcon,
+  ChartBarIcon,
+  ChartPieIcon,
+  CalendarIcon,
+  CheckBadgeIcon,
+  CircleStackIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+  CloudIcon,
+  CubeIcon,
+  CurrencyDollarIcon,
+  DivideIcon,
+  DocumentPlusIcon,
+  EnvelopeIcon,
+  ExclamationTriangleIcon,
+  FunnelIcon,
+  GiftIcon,
+  GlobeAltIcon,
+  HeartIcon,
+  HashtagIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  MegaphoneIcon,
+  PencilIcon,
+  PuzzlePieceIcon,
+  RocketLaunchIcon,
+  ServerStackIcon,
+  ShareIcon,
+  SparklesIcon,
+  TrophyIcon,
+  UserGroupIcon,
+  UserCircleIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
+
+import {
   getGroups,
   removeGroup,
   updateGroup,
@@ -15,12 +57,54 @@ import Metric from "../../app/interface/metric";
 
 import ArrowUp from "@/components/icons/arrowUp";
 import ArrowDown from "@/components/icons/arrowDown";
-import Loading from "@/components/loading";
-import EmptyState from "@/components/emptyState";
 import ButtonAnimation from "@/components/buttonAnimation";
+import IconSelector from "@/components/iconSelector";
+import IconDisplay from "@/components/iconDisplay";
 
 import SnackBar from "../modal/snackBar";
 import ModalDeleteSavedSearch from "../modal/modalDeleteSavedSearch";
+
+const HeroIcons = {
+  AdjustmentsHorizontalIcon,
+  ArrowTrendingUpIcon,
+  ArrowsRightLeftIcon,
+  BanknotesIcon,
+  BellAlertIcon,
+  BeakerIcon,
+  BookmarkIcon,
+  ChartBarIcon,
+  ChartPieIcon,
+  CalendarIcon,
+  CheckBadgeIcon,
+  CircleStackIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+  CloudIcon,
+  CubeIcon,
+  CurrencyDollarIcon,
+  DivideIcon,
+  DocumentPlusIcon,
+  EnvelopeIcon,
+  ExclamationTriangleIcon,
+  FunnelIcon,
+  GiftIcon,
+  GlobeAltIcon,
+  HeartIcon,
+  HashtagIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  MegaphoneIcon,
+  PencilIcon,
+  PuzzlePieceIcon,
+  RocketLaunchIcon,
+  ServerStackIcon,
+  ShareIcon,
+  SparklesIcon,
+  TrophyIcon,
+  UserGroupIcon,
+  UserCircleIcon,
+  UsersIcon,
+};
 
 const MetricsGroupsManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -35,11 +119,8 @@ const MetricsGroupsManagement: React.FC = () => {
     name: "",
     status: "inactive",
     metrics: [],
+    icon: "",
   });
-  // metrics selected on the edit metric dialog
-  const [editSelectedMetrics, setEditSelectedMetrics] = useState<any[] | null>(
-    null
-  );
   // metrics list
   const [metricsList, setMetricsList] = useState<Metric[] | null>(null);
 
@@ -88,6 +169,7 @@ const MetricsGroupsManagement: React.FC = () => {
 
   const tableHeader = [
     { item: "ID", sortable: true },
+     { item: "Icon" },
     { item: "Name", sortable: true },
     { item: "State", sortable: true },
     { item: "Metrics", sortable: true },
@@ -158,6 +240,7 @@ const MetricsGroupsManagement: React.FC = () => {
         metrics: groupToBeEdited.metrics
           ?.map((metric) => metric._id)
           .filter((id): id is string => !!id),
+        icon: groupToBeEdited.icon
       };
       if (input.name === "" || !input.name) {
         handleSnackBar("failure", "A name is required!");
@@ -248,6 +331,9 @@ const MetricsGroupsManagement: React.FC = () => {
             data.map((group: any, index: number) => (
               <tr key={index} className="w-full gellix pb-2">
                 <td className="py-2">{group._id}</td>
+                <td className="py-2">
+                  <IconDisplay iconName={group.icon} />
+                </td>
                 <td className="py-2">{group.name}</td>
                 <td className="py-2">
                   {group.status === "active" && (
@@ -380,50 +466,66 @@ const MetricsGroupsManagement: React.FC = () => {
                 </label>
               </div>
 
-              {/* group metrics */}
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-600 mb-1 flex gap-5">
-                  Metrics{" "}
-                </label>
-                {metricsList &&
-                  [...metricsList]
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((m) => (
-                      <label key={m._id} className="flex w-full gap-3">
-                        <input
-                          type="checkbox"
-                          checked={
-                            !!groupToBeEdited.metrics?.find(
-                              (metric: { _id: string | undefined }) =>
-                                metric._id === m._id
-                            )
-                          }
-                          className="w-5 p-5"
-                          onChange={(e) => {
-                            let updatedMetrics;
-                            if (e.target.checked) {
-                              updatedMetrics = [
-                                ...(groupToBeEdited.metrics || []),
-                                m,
-                              ];
-                            } else {
-                              updatedMetrics = (
-                                groupToBeEdited.metrics || []
-                              ).filter(
+              <div className="flex flex-row gap-3">
+                {/* group metrics */}
+                <div className="flex flex-col">
+                  <label className="text-sm text-gray-600 mb-1 flex gap-5">
+                    Metrics{" "}
+                  </label>
+                  {metricsList &&
+                    [...metricsList]
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((m) => (
+                        <label key={m._id} className="flex w-full gap-3 hover:cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={
+                              !!groupToBeEdited.metrics?.find(
                                 (metric: { _id: string | undefined }) =>
-                                  metric._id !== m._id
-                              );
+                                  metric._id === m._id
+                              )
                             }
-                            setGroupToBeEdited({
-                              ...groupToBeEdited,
-                              metrics: updatedMetrics,
-                            });
-                          }}
-                        />
-                        {m.name}
-                      </label>
-                    ))}
-                {/* {groupToBeEdited && groupToBeEdited.metrics.map((m: Metric) =><div>{m.name}</div>)} */}
+                            className="w-5 p-5 hover:cursor-pointer"
+                            onChange={(e) => {
+                              let updatedMetrics;
+                              if (e.target.checked) {
+                                updatedMetrics = [
+                                  ...(groupToBeEdited.metrics || []),
+                                  m,
+                                ];
+                              } else {
+                                updatedMetrics = (
+                                  groupToBeEdited.metrics || []
+                                ).filter(
+                                  (metric: { _id: string | undefined }) =>
+                                    metric._id !== m._id
+                                );
+                              }
+                              setGroupToBeEdited({
+                                ...groupToBeEdited,
+                                metrics: updatedMetrics,
+                              });
+                            }}
+                          />
+                          {m.name}
+                        </label>
+                      ))}
+                </div>
+                {/* group icon */}
+                <div className="flex flex-col">
+                  <label className="text-sm text-gray-600 mb-1 flex gap-7">
+                    Icon
+                  </label>
+                  <IconSelector
+                    selected={groupToBeEdited.icon}
+                    onSelect={(iconName) => {
+                      setGroupToBeEdited((prev: any) => ({
+                        ...prev,
+                        icon: iconName,
+                      }));
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -460,8 +562,10 @@ const MetricsGroupsManagement: React.FC = () => {
             name: "",
             status: "inactive",
             metrics: [],
-          })
-          updateModalState("create", false)}}
+            icon: "",
+          });
+          updateModalState("create", false);
+        }}
         title="Create group"
       >
         <div className="my-4 flex flex-col justify-start gap-8">
@@ -500,38 +604,59 @@ const MetricsGroupsManagement: React.FC = () => {
               </label>
             </div>
 
-            {/* group metrics */}
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-600 mb-1 flex gap-5">
-                Metrics{" "}
-              </label>
-              {metricsList &&
-                [...metricsList]
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((m) => (
-                    <label key={m._id} className="flex w-full gap-3">
-                      <input
-                        type="checkbox"
-                        className="w-5 p-5"
-                        onChange={(e) => {
-                          let updatedMetrics;
-                          if (e.target.checked) {
-                            updatedMetrics = [...(newGroup.metrics || []), m._id];
-                          } else {
-                            updatedMetrics = (newGroup.metrics || []).filter(
-                              (metricId: string | undefined) => metricId !== m._id
-                            );
-                          }
-                          setNewGroup({
-                            ...newGroup,
-                            metrics: updatedMetrics,
-                          });
-                        }}
-                      />
-                      {m.name}
-                    </label>
-                  ))}
-              {/* {groupToBeEdited && groupToBeEdited.metrics.map((m: Metric) =><div>{m.name}</div>)} */}
+            <div className="flex flex-row gap-5">
+              {/* group metrics */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1 flex gap-5 pb-1">
+                  Metrics{" "}
+                </label>
+                {metricsList &&
+                  [...metricsList]
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((m) => (
+                      <label key={m._id} className="flex w-full gap-3">
+                        <input
+                          type="checkbox"
+                          className="w-5 p-5"
+                          onChange={(e) => {
+                            let updatedMetrics;
+                            if (e.target.checked) {
+                              updatedMetrics = [
+                                ...(newGroup.metrics || []),
+                                m._id,
+                              ];
+                            } else {
+                              updatedMetrics = (newGroup.metrics || []).filter(
+                                (metricId: string | undefined) =>
+                                  metricId !== m._id
+                              );
+                            }
+                            setNewGroup({
+                              ...newGroup,
+                              metrics: updatedMetrics,
+                            });
+                          }}
+                        />
+                        {m.name}
+                      </label>
+                    ))}
+                {/* {groupToBeEdited && groupToBeEdited.metrics.map((m: Metric) =><div>{m.name}</div>)} */}
+              </div>
+
+              {/* group icon */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1 flex gap-7">
+                  Icon
+                </label>
+                <IconSelector
+                  onSelect={(iconName) => {
+                    setNewGroup((prev: any) => ({
+                      ...prev,
+                      icon: iconName,
+                    }));
+                  }}
+                />
+              </div>
             </div>
           </div>
 

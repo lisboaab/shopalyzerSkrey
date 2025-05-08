@@ -121,6 +121,7 @@ const GET_GROUPS = gql`
         _id
         name
       }
+      icon
       status
     }
   }
@@ -231,6 +232,7 @@ export const UPDATE_GROUP_MUTATION = gql`
     updateGroup(id: $id, input: $input) {
       name
       status
+      icon
     }
   }
 `;
