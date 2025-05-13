@@ -46,13 +46,6 @@ export const typeDefs = gql`
     status: Status!
   }
 
-  type Search {
-    _id: ID!
-    userID: String!
-    title: String!
-    isSaved: Boolean
-  }
-
   type Store {
     _id: ID!
     name: String!
@@ -71,6 +64,17 @@ export const typeDefs = gql`
     createdBy: User!
     icon: String
     metrics: [Metric!]!
+  }
+
+  type Search {
+    _id: ID!
+    name: String!
+    isSaved: Boolean!
+    userID: User!
+    timePeriod: String
+    metrics: [Metric!]
+    metricsGroup: Group
+    store: Store!
   }
 
   input UserCreateInput {
@@ -99,6 +103,15 @@ export const typeDefs = gql`
     status: String
     metrics: [ID!]
     createdBy: String
+  }
+
+  input SearchCreateInput {
+    name: String!
+    timePeriod: String
+    userID: String
+    metrics: [ID!]
+    metricsGroup: String
+    store: String
   }
 
   input UserInput {
@@ -165,6 +178,7 @@ export const typeDefs = gql`
     createGroup(input: GroupCreateInput!): Group
     updateGroup(id: ID!, input: GroupInput!): Group
     removeGroup(id: ID!): String
+    createSearch(input: SearchCreateInput!): Search
   }
 `;
 

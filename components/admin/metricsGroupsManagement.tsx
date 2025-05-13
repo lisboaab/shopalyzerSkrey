@@ -169,7 +169,7 @@ const MetricsGroupsManagement: React.FC = () => {
 
   const tableHeader = [
     { item: "ID", sortable: true },
-     { item: "Icon" },
+    { item: "Icon" },
     { item: "Name", sortable: true },
     { item: "State", sortable: true },
     { item: "Metrics", sortable: true },
@@ -240,7 +240,7 @@ const MetricsGroupsManagement: React.FC = () => {
         metrics: groupToBeEdited.metrics
           ?.map((metric) => metric._id)
           .filter((id): id is string => !!id),
-        icon: groupToBeEdited.icon
+        icon: groupToBeEdited.icon,
       };
       if (input.name === "" || !input.name) {
         handleSnackBar("failure", "A name is required!");
@@ -269,11 +269,9 @@ const MetricsGroupsManagement: React.FC = () => {
     try {
       if (!newGroup.metrics || newGroup.metrics.length === 0) {
         handleSnackBar("failure", "Please, fill up all the fields");
-      } 
-      else if (!newGroup.icon || newGroup.icon === ""){
+      } else if (!newGroup.icon || newGroup.icon === "") {
         handleSnackBar("failure", "Please, select an icon to continue");
-      }
-      else {
+      } else {
         await createGroup(newGroup);
         handleSnackBar("success", "Group created successfully!");
         updateModalState("create", false);
@@ -480,7 +478,10 @@ const MetricsGroupsManagement: React.FC = () => {
                     [...metricsList]
                       .sort((a, b) => a.name.localeCompare(b.name))
                       .map((m) => (
-                        <label key={m._id} className="flex w-full gap-3 hover:cursor-pointer">
+                        <label
+                          key={m._id}
+                          className="flex w-full gap-3 hover:cursor-pointer"
+                        >
                           <input
                             type="checkbox"
                             checked={

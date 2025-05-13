@@ -3,13 +3,16 @@ import mongoose from "mongoose";
 const schema = new mongoose.Schema({
   _id: { type: String, required: true, unique: true },
   userID: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
-  title: { type: String, required: true },
+  name: { type: String, required: true },
   isSaved:{ type: Boolean, required: true },
+  metrics: [{ type: mongoose.Schema.Types.ObjectId, ref: "Metric" }],
+  metricsGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'group' },
+  timePeriod: { type: String, required: true },
 },
   {
     collection: "search",
     timestamps: true,
   });
 
-const User = mongoose.model("Search", schema);
+const Search = mongoose.model("Search", schema);
 export default Search;

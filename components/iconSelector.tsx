@@ -1,16 +1,51 @@
 "use client";
-import React from 'react';
-import {AdjustmentsHorizontalIcon, ArrowTrendingUpIcon, ArrowsRightLeftIcon, BanknotesIcon, BellAlertIcon, BeakerIcon, 
-  BookmarkIcon, ChartBarIcon, ChartPieIcon, CalendarIcon, CheckBadgeIcon, CircleStackIcon, ClockIcon, Cog6ToothIcon, 
-  CloudIcon, CubeIcon, CurrencyDollarIcon, DivideIcon, DocumentPlusIcon, EnvelopeIcon, 
-  ExclamationTriangleIcon, FunnelIcon, GiftIcon, GlobeAltIcon, HeartIcon, HashtagIcon, MagnifyingGlassIcon, MapPinIcon, 
-  MegaphoneIcon, PencilIcon, PuzzlePieceIcon, RocketLaunchIcon, ServerStackIcon, ShareIcon, SparklesIcon, TrophyIcon, UserGroupIcon, 
-  UserCircleIcon, UsersIcon} from '@heroicons/react/24/outline';
-import {useEffect} from 'react'
+import React from "react";
+import {
+  AdjustmentsHorizontalIcon,
+  ArrowTrendingUpIcon,
+  ArrowsRightLeftIcon,
+  BanknotesIcon,
+  BellAlertIcon,
+  BeakerIcon,
+  BookmarkIcon,
+  ChartBarIcon,
+  ChartPieIcon,
+  CalendarIcon,
+  CheckBadgeIcon,
+  CircleStackIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+  CloudIcon,
+  CubeIcon,
+  CurrencyDollarIcon,
+  DivideIcon,
+  DocumentPlusIcon,
+  EnvelopeIcon,
+  ExclamationTriangleIcon,
+  FunnelIcon,
+  GiftIcon,
+  GlobeAltIcon,
+  HeartIcon,
+  HashtagIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  MegaphoneIcon,
+  PencilIcon,
+  PuzzlePieceIcon,
+  RocketLaunchIcon,
+  ServerStackIcon,
+  ShareIcon,
+  SparklesIcon,
+  TrophyIcon,
+  UserGroupIcon,
+  UserCircleIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
+import { useEffect } from "react";
 
 interface IconSelectorProps {
   onSelect: (iconName: string) => void;
-  selected?: string
+  selected?: string;
 }
 
 const HeroIcons = {
@@ -56,16 +91,16 @@ const HeroIcons = {
 };
 
 const IconSelector: React.FC<IconSelectorProps> = ({ onSelect, selected }) => {
-  const [search, setSearch] = React.useState('');
-  const [selectedIcon, setSelectedIcon] = React.useState('');
+  const [search, setSearch] = React.useState("");
+  const [selectedIcon, setSelectedIcon] = React.useState("");
 
   const icons = Object.entries(HeroIcons).map(([name, Icon]) => ({
     name,
-    Component: Icon
+    Component: Icon,
   }));
 
   useEffect(() => {
-    setSelectedIcon(selected || '');
+    setSelectedIcon(selected || "");
   }, [selected]);
 
   return (
@@ -79,7 +114,9 @@ const IconSelector: React.FC<IconSelectorProps> = ({ onSelect, selected }) => {
               onSelect(name);
             }}
             className={`p-2 ${
-              selectedIcon === name ? ' bg-blue-100 rounded-full items-center justify-center' : ''
+              selectedIcon === name
+                ? " bg-blue-100 rounded-full items-center justify-center"
+                : ""
             } hover:cursor-pointer hover:bg-gray-100 rounded-full `}
           >
             <Component className="w-6 h-6" />

@@ -12,7 +12,7 @@ import ButtonAnimation from "./buttonAnimation";
 import EmptyState from "./emptyState";
 
 // queries
-import { getMetrics } from "@/lib/queries";
+import { getActiveMetrics } from "@/lib/queries";
 
 interface Props {
   setMetricsGroup: (value: string) => void;
@@ -44,7 +44,7 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({
 
   const fetchData = async () => {
     try {
-      const fetchedData = await getMetrics();
+      const fetchedData = await getActiveMetrics();
       if (fetchedData) {
         const result = Array.isArray(fetchedData) ? fetchedData : [];
         setMetricsList(result);
