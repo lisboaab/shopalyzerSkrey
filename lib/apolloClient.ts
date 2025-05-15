@@ -1,6 +1,11 @@
 import { ApolloClient, InMemoryCache, split, HttpLink, ApolloLink  } from '@apollo/client/core';
 
-const getToken = () => localStorage.getItem('authToken');
+const getToken = () => {
+    if (typeof window !== 'undefined') {
+        return localStorage.getItem('authToken');
+    }
+    return null;
+};
 
 const httpLink = new HttpLink({
     uri: 'http://localhost:3001/api/graphql',
@@ -18,10 +23,8 @@ const authLink = new ApolloLink((operation, forward) => {
         }
         
     }));
-    // console.log('bearer token: ', operation)
     return forward(operation).map((response) => {
         if (response.errors) {
-            // console.error('GraphQL Errors:', response.errors);
             const authError = response.errors.find(
                 err => err.extensions?.code === 'UNAUTHENTICATED'
             );

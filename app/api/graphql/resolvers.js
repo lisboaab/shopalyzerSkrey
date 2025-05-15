@@ -14,14 +14,7 @@ import bcrypt from "bcryptjs";
 import dbConfig from "../../config/db.config.js";
 import cloudinary from "../../config/cloudinary.js";
 
-// const app = express();
-
-// app.use(
-//   cors({
-//     origin: "http://localhost:3000",
-//     credentials: true,
-//   })
-// );
+import { shopifyApi, LATEST_API_VERSION } from '@shopify/shopify-api';
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -282,9 +275,9 @@ const storeResolver = {
         );
       }
 
-      if (!input.name || !input.APIKey || !input.APIToken) {
+      if (!input.shopUrl || !input.APIKey || !input.APIToken || !input.APISecretKey || !input.name) {
         throw new GraphQLError(
-          "Missing required fields: name, APIKey, APIToken",
+          "Missing required fields: shopUrl, name, APIKey, APIToken, APISecretKey",
           {
             extensions: {
               code: "FIELDS_MISSING",
@@ -292,9 +285,9 @@ const storeResolver = {
           }
         );
       }
-      const storeNameFound = await Store.findOne({ name: input.name });
+      const storeNameFound = await Store.findOne({ shopUrl: input.shopUrl });
       if (storeNameFound) {
-        throw new GraphQLError("This name is already in use.", {
+        throw new GraphQLError("This shopUrl is already in use.", {
           extensions: {
             code: "NAME_IN_USE",
           },
@@ -321,6 +314,17 @@ const storeResolver = {
         });
       }
 
+      const APISecretKeyFound = await Store.findOne({
+        APISecretKey: input.APISecretKey,
+      });
+      if (APISecretKeyFound) {
+        throw new GraphQLError("This API Secret Key is already in use.", {
+          extensions: {
+            code: "APISECRETKEY_IN_USE",
+          },
+        });
+      }
+
       if (input.createdBy) {
         const userFound = await User.findOne({ _id: input.createdBy });
         if (!userFound) {
@@ -333,9 +337,11 @@ const storeResolver = {
       }
 
       const store = new Store({
-        name: input.name,
+        shopUrl: input.shopUrl,
         APIKey: input.APIKey,
+        APISecretKey: input.APISecretKey,
         APIToken: input.APIToken,
+        name: input.name,
         createdBy: input.createdBy ? input.createdBy : context.user._id,
         lastModifiedBy: input.createdBy ? input.createdBy : context.user._id,
       });
@@ -374,9 +380,9 @@ const storeResolver = {
         });
       }
 
-      const storeName = await Store.findOne({ name: input.name });
+      const storeName = await Store.findOne({ shopUrl: input.shopUrl });
       if (storeName && storeName.id != id)
-        throw new Error("Store name already in use.");
+        throw new Error("Store shopUrl already in use.");
 
       const storeAPIKey = await Store.findOne({ APIKey: input.APIKey });
       if (storeAPIKey && storeAPIKey.id != id)
@@ -387,8 +393,10 @@ const storeResolver = {
         throw new Error("Store APIToken already in use.");
 
       await Store.findByIdAndUpdate(id, {
-        name: input.name != null ? input.name : store.name,
+        shopUrl: input.shopUrl != null ? input.shopUrl : store.shopUrl,
         APIKey: input.APIKey != null ? input.APIKey : store.APIKey,
+        APISecretKey:
+          input.APISecretKey != null ? input.APISecretKey : store.APISecretKey,
         APIToken: input.APIToken != null ? input.APIToken : store.APIToken,
         lastModifiedBy: context.user,
       });
@@ -438,8 +446,52 @@ const storeResolver = {
     },
     stores: async () =>
       await Store.find().populate("createdBy").populate("lastModifiedBy"),
+    storeOrders: async (_, { shopId, status = 'any', limit = 50 }
+      // , { user }
+    ) => {
+      // if (!user) throw new Error("Not authorized");
+      
+      try {
+        // Buscar a loja pelo ID
+        const shop = await Store.findById(shopId);
+        if (!shop) throw new Error("Shop not found");
+        
+        // Configurar o cliente Shopify para essa loja específica
+        const shopify = shopifyApi({
+          apiKey: shop.APIKey,
+          apiSecretKey: shop.APISecretKey,
+          hostName: shop.shopUrl,
+          apiVersion: LATEST_API_VERSION,
+          isCustomStoreApp: true,
+        });
+        
+        // Criar o cliente REST para a loja
+        const client = new shopify.clients.Rest({
+          session: {
+            shop: shop.shopUrl,
+            accessToken: shop.APIToken,
+          }
+        });
+        
+        // Buscar os pedidos
+        const response = await client.get({
+          path: 'orders',
+          query: {
+            status: status,
+            limit: limit,
+            fields: 'id,order_number,created_at,customer,total_price,financial_status,fulfillment_status'
+          }
+        });
+        
+        return response.body;
+      } catch (error) {
+        console.error("Error fetching store orders:", error);
+        throw new Error(`Failed to fetch orders: ${error.message}`);
+      }
+    }
   },
 };
+
 const VALID_GRAPH_TYPES = ["bar", "line", "pie", "donut", "card"];
 const metricResolver = {
   Mutation: {

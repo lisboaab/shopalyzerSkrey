@@ -110,8 +110,8 @@ export default function Page() {
         }, 5000);
       }
     } else {
-      console.log("Analyzing data...");
-      // Add your analysis logic here
+      // aqui ele tem que criar uma search e mandar para o dashboard com o id da search
+      router.push("/dashboard/" + store);
     }
   };
 
@@ -208,7 +208,7 @@ export default function Page() {
                   <option value="">Select an option</option>
                   {dateRangeList.map((date) => (
                     <option
-                      key={date}
+                      key={date.toLowerCase().replaceAll(" ", "_")}
                       value={date.toLowerCase().replaceAll(" ", "_")}
                     >
                       {date}
@@ -264,11 +264,12 @@ export default function Page() {
           <ul className="list-disc list-inside">
             <li>Store: {store}</li>
             <li>Group of metrics: {metricsGroup}</li>
-            {metricsGroup === "custom"
+            {customMetrics.length > 0
               ? customMetrics.map((m) => {
                   return <p key={m._id}>{m.name}</p>;
                 })
               : ""}
+              
             <li>Date range: {date}</li>
           </ul>
         </div>

@@ -55,8 +55,34 @@ const GET_STORES = gql`
   query GetStores {
     stores {
       _id
+      shopUrl
       name
       APIKey
+      APISecretKey
+      APIToken
+      createdBy {
+        _id
+        name
+        email
+      }
+      lastModifiedBy {
+        _id
+        name
+        email
+      }
+      updatedAt
+    }
+  }
+`;
+
+const GET_STORE = gql`
+  query GetStore($id: ID!) {
+    store(ID: $id) {
+      _id
+      shopUrl
+      name
+      APIKey
+      APISecretKey
       APIToken
       createdBy {
         _id
@@ -77,6 +103,7 @@ const GET_STORES_NAME_AND_ID = gql`
   query GetStoresNameAndId {
     stores {
       _id
+      shopUrl
       name
     }
   }
@@ -169,6 +196,7 @@ export const REMOVE_USER_MUTATION = gql`
 export const UPDATE_STORE_MUTATION = gql`
   mutation UpdateStore($id: ID!, $input: StoreInput!) {
     updateStore(id: $id, input: $input) {
+      shopUrl
       name
       lastModifiedBy {_id}
     }
@@ -184,8 +212,10 @@ export const REMOVE_STORE_MUTATION = gql`
 export const CREATE_STORE_MUTATION = gql`
   mutation CreateStore($input: StoreCreateInput!) {
     createStore(input: $input) {
+      shopUrl
       name
       APIKey
+      APISecretKey
       APIToken
     }
   }
@@ -242,6 +272,845 @@ export const REMOVE_GROUP_MUTATION = gql`
     removeGroup(id: $id)
   }
 `;
+
+export const GET_ORDERS = gql`
+query GetFull50Orders {
+  orders(first: 2){
+    edges{
+      node{
+				  channelInformation {
+      id
+      app {
+        id
+      }
+    }
+    id
+    name
+    email
+    phone
+    createdAt
+    updatedAt
+    processedAt
+    cancelReason
+    closedAt
+    displayFulfillmentStatus
+    displayFinancialStatus
+    currencyCode
+    confirmed
+    customerLocale
+    test
+    tags
+    note
+    statusPageUrl
+    subtotalPriceSet {
+      shopMoney {
+        amount
+        currencyCode
+      }
+      presentmentMoney {
+        amount
+        currencyCode
+      }
+    }
+    totalPriceSet {
+      shopMoney {
+        amount
+        currencyCode
+      }
+      presentmentMoney {
+        amount
+        currencyCode
+      }
+    }
+    totalShippingPriceSet {
+      shopMoney {
+        amount
+        currencyCode
+      }
+      presentmentMoney {
+        amount
+        currencyCode
+      }
+    }
+    totalTaxSet {
+      shopMoney {
+        amount
+        currencyCode
+      }
+      presentmentMoney {
+        amount
+        currencyCode
+      }
+    }
+    taxExempt
+    totalDiscountsSet {
+      shopMoney {
+        amount
+        currencyCode
+      }
+      presentmentMoney {
+        amount
+        currencyCode
+      }
+    }
+    discountCodes
+    billingAddress {
+      id
+      firstName
+      lastName
+      address1
+      address2
+      company
+      city
+      province
+      provinceCode
+      country
+      zip
+      phone
+      name
+      countryCodeV2
+    }
+    shippingAddress {
+      id
+      firstName
+      lastName
+      address1
+      address2
+      city
+      province
+      country
+      zip
+      phone
+      name
+      countryCodeV2
+    }
+    customer {
+      id
+      firstName
+      lastName
+      email
+      phone
+      emailMarketingConsent {
+        marketingState
+        marketingOptInLevel
+      }
+      tags
+      taxExemptions
+      defaultAddress {
+        firstName
+        lastName
+        company
+        address1
+        address2
+        city
+        province
+        provinceCode
+        zip
+        phone
+        name
+        country
+        countryCodeV2
+      }
+      displayName
+      metafields(first: 100) {
+        edges {
+          node {
+            id
+            key
+            value
+          }
+        }
+      }
+    }
+    currentTaxLines {
+      priceSet {
+        shopMoney {
+          amount
+          currencyCode
+        }
+      }
+      rate
+      ratePercentage
+    }
+    lineItems(first: 50) {
+      edges {
+        node {
+          id
+          title
+          name
+          quantity
+          currentQuantity
+          sku
+          variantTitle
+          originalTotalSet {
+            presentmentMoney {
+              amount
+              currencyCode
+            }
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          originalUnitPriceSet {
+            presentmentMoney {
+              amount
+              currencyCode
+            }
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          discountedTotalSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+            presentmentMoney {
+              amount
+              currencyCode
+            }
+          }
+          discountAllocations {
+            allocatedAmountSet {
+              shopMoney {
+                amount
+                currencyCode
+              }
+            }
+            discountApplication {
+              allocationMethod
+              ... on AutomaticDiscountApplication {
+                title
+              }
+              ... on DiscountCodeApplication {
+                code
+              }
+              ... on ManualDiscountApplication {
+                title
+              }
+              ... on ScriptDiscountApplication {
+                title
+              }
+              targetType
+              value {
+                ... on PricingPercentageValue {
+                  percentage
+                }
+                ... on MoneyV2 {
+                  amount
+                }
+              }
+            }
+          }
+          discountedUnitPriceAfterAllDiscountsSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          variant {
+            id
+            barcode
+            price
+            product {
+              id
+            }
+            sku
+            title
+            inventoryItem {
+              measurement {
+                weight {
+                  unit
+                  value
+                }
+              }
+            }
+            product {
+              id
+              title
+              productType
+              tags
+              vendor
+            }
+            taxable
+          }
+          taxLines {
+            rate
+            priceSet {
+              presentmentMoney {
+                amount
+                currencyCode
+              }
+              shopMoney {
+                amount
+                currencyCode
+              }
+            }
+            ratePercentage
+          }
+        }
+      }
+    }
+    discountApplications(first: 10) {
+      edges {
+        node {
+          targetType
+          allocationMethod
+          targetSelection
+          value {
+            ... on MoneyV2 {
+              amount
+              currencyCode
+            }
+            ... on PricingPercentageValue {
+              percentage
+            }
+          }
+          ... on DiscountCodeApplication {
+            code
+          }
+          ... on ManualDiscountApplication {
+            title
+            description
+          }
+        }
+      }
+    }
+    fulfillments {
+      id
+      status
+      createdAt
+      updatedAt
+      name
+      location {
+        id
+        name
+      }
+      trackingInfo {
+        number
+        url
+        company
+      }
+      fulfillmentLineItems(first: 50) {
+        edges {
+          node {
+            id
+            quantity
+            lineItem {
+              id
+              title
+              name
+              quantity
+              currentQuantity
+              sku
+              variantTitle
+              originalTotalSet {
+                presentmentMoney {
+                  amount
+                  currencyCode
+                }
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              originalUnitPriceSet {
+                presentmentMoney {
+                  amount
+                  currencyCode
+                }
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              discountedTotalSet {
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+                presentmentMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              variant {
+                id
+                barcode
+                price
+                product {
+                  id
+                }
+                sku
+                title
+                inventoryItem {
+                  measurement {
+                    weight {
+                      unit
+                      value
+                    }
+                  }
+                }
+                product {
+                  id
+                  title
+                  productType
+                  tags
+                  vendor
+                }
+                taxable
+              }
+              taxLines {
+                rate
+                priceSet {
+                  presentmentMoney {
+                    amount
+                    currencyCode
+                  }
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
+                ratePercentage
+              }
+              discountAllocations {
+                allocatedAmountSet {
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
+                discountApplication {
+                  allocationMethod
+                  ... on AutomaticDiscountApplication {
+                    title
+                  }
+                  ... on DiscountCodeApplication {
+                    code
+                  }
+                  ... on ManualDiscountApplication {
+                    title
+                  }
+                  ... on ScriptDiscountApplication {
+                    title
+                  }
+                  targetType
+                  value {
+                    ... on PricingPercentageValue {
+                      percentage
+                    }
+                    ... on MoneyV2 {
+                      amount
+                    }
+                  }
+                }
+              }
+              discountedUnitPriceAfterAllDiscountsSet {
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    transactions {
+      id
+      paymentDetails {
+        ... on CardPaymentDetails {
+          name
+          number
+          paymentMethodName
+          company
+          bin
+          cvvResultCode
+          expirationMonth
+          expirationYear
+          wallet
+          avsResultCode
+        }
+        ... on LocalPaymentMethodsPaymentDetails {
+          paymentMethodName
+        }
+        ... on ShopPayInstallmentsPaymentDetails {
+          paymentMethodName
+        }
+        ... on BasePaymentDetails {
+          paymentMethodName
+        }
+      }
+      amountSet {
+        presentmentMoney {
+          amount
+          currencyCode
+        }
+        shopMoney {
+          amount
+          currencyCode
+        }
+      }
+      kind
+      status
+      manuallyCapturable
+      gateway
+      authorizationCode
+      createdAt
+    }
+    refunds {
+      id
+      createdAt
+      totalRefundedSet {
+        presentmentMoney {
+          amount
+          currencyCode
+        }
+        shopMoney {
+          amount
+          currencyCode
+        }
+      }
+      refundLineItems(first: 10) {
+        edges {
+          node {
+            lineItem {
+              id
+              title
+              name
+              quantity
+              currentQuantity
+              sku
+              variantTitle
+              originalTotalSet {
+                presentmentMoney {
+                  amount
+                  currencyCode
+                }
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              originalUnitPriceSet {
+                presentmentMoney {
+                  amount
+                  currencyCode
+                }
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              discountedTotalSet {
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+                presentmentMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              variant {
+                id
+                barcode
+                price
+                product {
+                  id
+                }
+                sku
+                title
+                inventoryItem {
+                  measurement {
+                    weight {
+                      unit
+                      value
+                    }
+                  }
+                }
+                product {
+                  id
+                  title
+                  productType
+                  tags
+                  vendor
+                }
+                taxable
+              }
+              taxLines {
+                rate
+                priceSet {
+                  presentmentMoney {
+                    amount
+                    currencyCode
+                  }
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
+                ratePercentage
+              }
+              discountAllocations {
+                allocatedAmountSet {
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
+                discountApplication {
+                  allocationMethod
+                  ... on AutomaticDiscountApplication {
+                    title
+                  }
+                  ... on DiscountCodeApplication {
+                    code
+                  }
+                  ... on ManualDiscountApplication {
+                    title
+                  }
+                  ... on ScriptDiscountApplication {
+                    title
+                  }
+                  targetType
+                  value {
+                    ... on PricingPercentageValue {
+                      percentage
+                    }
+                    ... on MoneyV2 {
+                      amount
+                    }
+                  }
+                }
+              }
+              discountedUnitPriceAfterAllDiscountsSet {
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+            quantity
+            subtotalSet {
+              presentmentMoney {
+                amount
+                currencyCode
+              }
+              shopMoney {
+                amount
+                currencyCode
+              }
+            }
+            totalTaxSet {
+              shopMoney {
+                amount
+                currencyCode
+              }
+              presentmentMoney {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
+    }
+    returns(first: 100) {
+      edges {
+        node {
+          returnLineItems(first: 100) {
+            edges {
+              node {
+                ... on ReturnLineItem {
+                  fulfillmentLineItem {
+                    lineItem {
+                      id
+                      title
+                      name
+                      quantity
+                      currentQuantity
+                      sku
+                      variantTitle
+                      originalTotalSet {
+                        presentmentMoney {
+                          amount
+                          currencyCode
+                        }
+                        shopMoney {
+                          amount
+                          currencyCode
+                        }
+                      }
+                      originalUnitPriceSet {
+                        presentmentMoney {
+                          amount
+                          currencyCode
+                        }
+                        shopMoney {
+                          amount
+                          currencyCode
+                        }
+                      }
+                      discountedTotalSet {
+                        shopMoney {
+                          amount
+                          currencyCode
+                        }
+                        presentmentMoney {
+                          amount
+                          currencyCode
+                        }
+                      }
+                      variant {
+                        id
+                        barcode
+                        price
+                        product {
+                          id
+                        }
+                        sku
+                        title
+                        inventoryItem {
+                          measurement {
+                            weight {
+                              unit
+                              value
+                            }
+                          }
+                        }
+                        product {
+                          id
+                          title
+                          productType
+                          tags
+                          vendor
+                        }
+                        taxable
+                      }
+                      taxLines {
+                        rate
+                        priceSet {
+                          presentmentMoney {
+                            amount
+                            currencyCode
+                          }
+                          shopMoney {
+                            amount
+                            currencyCode
+                          }
+                        }
+                        ratePercentage
+                      }
+                      discountAllocations {
+                        allocatedAmountSet {
+                          shopMoney {
+                            amount
+                            currencyCode
+                          }
+                        }
+                        discountApplication {
+                          allocationMethod
+                          ... on AutomaticDiscountApplication {
+                            title
+                          }
+                          ... on DiscountCodeApplication {
+                            code
+                          }
+                          ... on ManualDiscountApplication {
+                            title
+                          }
+                          ... on ScriptDiscountApplication {
+                            title
+                          }
+                          targetType
+                          value {
+                            ... on PricingPercentageValue {
+                              percentage
+                            }
+                            ... on MoneyV2 {
+                              amount
+                            }
+                          }
+                        }
+                      }
+                      discountedUnitPriceAfterAllDiscountsSet {
+                        shopMoney {
+                          amount
+                          currencyCode
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    shippingLines(first: 50) {
+      edges {
+        node {
+          code
+          carrierIdentifier
+          id
+          title
+          deliveryCategory
+          discountedPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+            presentmentMoney {
+              amount
+              currencyCode
+            }
+          }
+          taxLines {
+            priceSet {
+              presentmentMoney {
+                amount
+                currencyCode
+              }
+              shopMoney {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
+    }
+    paymentGatewayNames
+    totalWeight
+    purchasingEntity {
+      ... on PurchasingCompany {
+        __typename
+        company {
+          id
+        }
+      }
+    }
+    metafields(first: 100) {
+      edges {
+        node {
+          id
+          key
+          value
+        }
+      }
+    }
+   
+  
+      }
+    }
+	}
+  
+}`
 
 
 export const createUser = async (input: {
@@ -394,6 +1263,28 @@ export const removeUser = async (id: string) => {
   }
 };
 
+export const getStore = async (id: string, token?: string) => {
+  try {
+    const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('authToken') : null);
+    
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
+    const { data } = await apolloClient.query({
+      query: GET_STORE,
+      variables: { id },
+      context: {
+        headers: {
+          Authorization: `Bearer ${authToken}`
+        }
+      }
+    });
+    return data?.store || [];
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getStores = async () => {
   try {
     const token = localStorage.getItem('authToken');
@@ -443,7 +1334,7 @@ export const removeStore = async (id: string) => {
 export const updateStore = async (
   id: string,
   input: {
-    name?: string;
+    shopUrl?: string;
   }
 ) => {
   try {
@@ -461,8 +1352,10 @@ export const updateStore = async (
 };
 
 export const createStore = async (input: {
+  shopUrl: string;
   name: string;
   APIKey: string;
+  APISecretKey: string;
   APIToken: string;
 }) => {
   try {

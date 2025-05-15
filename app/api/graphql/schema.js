@@ -49,7 +49,9 @@ export const typeDefs = gql`
   type Store {
     _id: ID!
     name: String!
+    shopUrl: String!
     APIKey: String!
+    APISecretKey: String!
     APIToken: String!
     createdBy: User!
     lastModifiedBy: User!
@@ -77,6 +79,15 @@ export const typeDefs = gql`
     store: Store!
   }
 
+  type Order {
+    _id: ID
+    name: String
+    shopUrl: String
+    APIKey: String
+    APISecretKey: String
+    
+  }
+
   input UserCreateInput {
     name: String!
     email: String!
@@ -84,8 +95,10 @@ export const typeDefs = gql`
   }
 
   input StoreCreateInput {
+    shopUrl: String!
     name: String!
     APIKey: String!
+    APISecretKey: String!
     APIToken: String!
     createdBy: String
   }
@@ -126,7 +139,9 @@ export const typeDefs = gql`
 
   input StoreInput {
     name: String
+    shopUrl: String
     APIKey: String
+    APISecretKey: String
     APIToken: String
     lastModifiedBy: String
   }
@@ -162,6 +177,7 @@ export const typeDefs = gql`
     group(ID: ID!): Group
     metric(ID: ID!): Metric
     userTypesList: [TypeUser]
+    storeOrders(shopId: ID!, status: String, limit: Int): Order
   }
 
   type Mutation {
