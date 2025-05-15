@@ -6,7 +6,7 @@ const schema = new mongoose.Schema({
   name: { type: String, required: true },
   isSaved:{ type: Boolean, required: true },
   metrics: [{ type: mongoose.Schema.Types.ObjectId, ref: "Metric" }],
-  metricsGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'group' },
+  metricsGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   timePeriod: { type: String, required: true },
 },
   {

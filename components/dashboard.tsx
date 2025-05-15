@@ -1,8 +1,8 @@
 import React from "react";
 import "../app/globals.css";
 import { useQuery, gql } from "@apollo/client";
-import { useEffect, useRef } from "react";
-import { useShopifyData } from "../lib/useShopifyData";
+import { useRef } from "react";
+import LoadingData from "@/components/loadingData";
 
 // Complete Query of Shopify's Orders data
 const GET_SHOP_ORDERS = gql`
@@ -878,8 +878,8 @@ export default function Dashboard({
   //   };
   // }, [shopId]);
 
-  if (loading) return <p>Carregando...</p>;
-  if (error) return <p>Erro: {error.message}</p>;
+  if (loading) return <LoadingData />;
+  if (error) return <p>Error: {error.message}</p>;
 
   const orders = data?.orders;
   console.log("Orders:", orders);

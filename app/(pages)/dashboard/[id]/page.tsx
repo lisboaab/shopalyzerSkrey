@@ -18,11 +18,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     const initializeApollo = async () => {
       try {
         setLoading(true);
-        
-        // 1. Buscar credenciais
         const authToken = localStorage.getItem('authToken');
         const credentials = await getStoreCredentials(id, authToken);
-        // 2. Criar client Apollo
+
         const client = createApolloClient(
           id,
           credentials.shopUrl, 
@@ -30,8 +28,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           authToken
         );
         
-
-        // 3. Atualizar estado
         setApolloClient(client);
         setError(null);
       } catch (err) {
@@ -58,7 +54,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   }
 
   if (!apolloClient) {
-    return <div>Client não inicializado</div>;
+    console.error("Apollo client is not initialized");
+    return <p>Something went wrong: the Apollo Client did not initialize</p>
   }
 
   return (
