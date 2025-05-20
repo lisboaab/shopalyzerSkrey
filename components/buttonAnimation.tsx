@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 
 interface ButtonProps {
-  action?: () => void;
+  action?: (e: React.MouseEvent) => void;
   label: string;
   color: string;
   backgroundColor?: string;

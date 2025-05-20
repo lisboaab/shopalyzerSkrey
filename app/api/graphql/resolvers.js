@@ -2,6 +2,7 @@ import User from "../models/users.model.js";
 import Store from "../models/stores.model.js";
 import Metric from "../models/metric.model.js";
 import Group from "../models/group.model.js";
+import Search from "../models/search.model.js";
 
 import { GraphQLError } from "graphql";
 import mongoose from "mongoose";
@@ -13,8 +14,6 @@ import bcrypt from "bcryptjs";
 
 import dbConfig from "../../config/db.config.js";
 import cloudinary from "../../config/cloudinary.js";
-
-import { shopifyApi, LATEST_API_VERSION } from '@shopify/shopify-api';
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -275,7 +274,13 @@ const storeResolver = {
         );
       }
 
-      if (!input.shopUrl || !input.APIKey || !input.APIToken || !input.APISecretKey || !input.name) {
+      if (
+        !input.shopUrl ||
+        !input.APIKey ||
+        !input.APIToken ||
+        !input.APISecretKey ||
+        !input.name
+      ) {
         throw new GraphQLError(
           "Missing required fields: shopUrl, name, APIKey, APIToken, APISecretKey",
           {
@@ -446,49 +451,6 @@ const storeResolver = {
     },
     stores: async () =>
       await Store.find().populate("createdBy").populate("lastModifiedBy"),
-    storeOrders: async (_, { shopId, status = 'any', limit = 50 }
-      // , { user }
-    ) => {
-      // if (!user) throw new Error("Not authorized");
-      
-      try {
-        // Buscar a loja pelo ID
-        const shop = await Store.findById(shopId);
-        if (!shop) throw new Error("Shop not found");
-        
-        // Configurar o cliente Shopify para essa loja específica
-        const shopify = shopifyApi({
-          apiKey: shop.APIKey,
-          apiSecretKey: shop.APISecretKey,
-          hostName: shop.shopUrl,
-          apiVersion: LATEST_API_VERSION,
-          isCustomStoreApp: true,
-        });
-        
-        // Criar o cliente REST para a loja
-        const client = new shopify.clients.Rest({
-          session: {
-            shop: shop.shopUrl,
-            accessToken: shop.APIToken,
-          }
-        });
-        
-        // Buscar os pedidos
-        const response = await client.get({
-          path: 'orders',
-          query: {
-            status: status,
-            limit: limit,
-            fields: 'id,order_number,created_at,customer,total_price,financial_status,fulfillment_status'
-          }
-        });
-        
-        return response.body;
-      } catch (error) {
-        console.error("Error fetching store orders:", error);
-        throw new Error(`Failed to fetch orders: ${error.message}`);
-      }
-    }
   },
 };
 
@@ -539,11 +501,11 @@ const metricResolver = {
         );
       }
 
-      let status 
-      if(input.status){
-        status = input.status
+      let status;
+      if (input.status) {
+        status = input.status;
       } else {
-        status = "active"
+        status = "active";
       }
 
       const metric = new Metric({
@@ -665,7 +627,13 @@ const metricsGroupResolver = {
         );
       }
 
-      if (!input.name || !input.metrics || input.name === "" || input.metrics.lenght === 0 || input.name === " " ) {
+      if (
+        !input.name ||
+        !input.metrics ||
+        input.name === "" ||
+        input.metrics.lenght === 0 ||
+        input.name === " "
+      ) {
         throw new GraphQLError(
           "Missing required fields: name, icon, and the metrics list",
           {
@@ -696,9 +664,9 @@ const metricsGroupResolver = {
         }
       });
 
-      if(input.createdBy) {
-        const found = User.findById(input.createdBy)
-        if(!found){
+      if (input.createdBy) {
+        const found = User.findById(input.createdBy);
+        if (!found) {
           throw new GraphQLError("User not found", {
             extensions: {
               code: "USER_NOT_FOUND",
@@ -707,18 +675,18 @@ const metricsGroupResolver = {
         }
       }
 
-      let icon
-      if(input.icon){
-        icon = input.icon
+      let icon;
+      if (input.icon) {
+        icon = input.icon;
       } else {
-        icon = ""
+        icon = "";
       }
 
-      let status 
-      if(input.status){
-        status = input.status
+      let status;
+      if (input.status) {
+        status = input.status;
       } else {
-        status = "active"
+        status = "active";
       }
 
       const group = new Group({
@@ -731,7 +699,7 @@ const metricsGroupResolver = {
 
       const newGroup = await group.save();
 
-      return newGroup.populate("metrics"); 
+      return newGroup.populate("metrics");
     },
     removeGroup: async (_, { id }) => {
       if (!id) {
@@ -768,7 +736,7 @@ const metricsGroupResolver = {
           throw new Error("Group name already in use.");
       }
 
-      if(input.metrics){
+      if (input.metrics) {
         input.metrics.forEach((m) => {
           const found = Metric.findById(m);
           if (!found) {
@@ -791,10 +759,8 @@ const metricsGroupResolver = {
 
       await Group.findByIdAndUpdate(id, {
         name: input.name != null ? input.name : group.name,
-        icon:
-          input.icon != null ? input.icon : group.icon,
-        metrics:
-          input.metrics != null ? input.metrics : group.metrics,
+        icon: input.icon != null ? input.icon : group.icon,
+        metrics: input.metrics != null ? input.metrics : group.metrics,
         status: input.status != null ? input.status : group.status,
         icon: input.icon != null ? input.icon : group.icon,
       });
@@ -805,10 +771,13 @@ const metricsGroupResolver = {
     },
   },
   Query: {
-    groups: async () => await Group.find().populate("createdBy").populate("metrics"),
+    groups: async () =>
+      await Group.find().populate("createdBy").populate("metrics"),
     group: async (_, { ID }) => {
       try {
-        const group = await Group.findById(ID).populate("createdBy").populate("metrics");
+        const group = await Group.findById(ID)
+          .populate("createdBy")
+          .populate("metrics");
         if (!group) {
           throw new Error("Group not found");
         }
@@ -821,10 +790,209 @@ const metricsGroupResolver = {
   },
 };
 
+const searchResolver = {
+  Mutation: {
+    createSearch: async (_, { input }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (Object.values(input).length == 0) {
+        throw new GraphQLError(
+          "You need to provide the body with the request.",
+          {
+            extensions: {
+              code: "FIELDS_MISSING",
+            },
+          }
+        );
+      }
+
+      if (
+        !input.metrics ||
+        !input.store ||
+        input.metrics.lenght === 0 ||
+        !input.timePeriod ||
+        !input.userID
+      ) {
+        throw new GraphQLError(
+          "Missing required fields: store (the ID), metrics list or group, timePeriod and userID",
+          {
+            extensions: {
+              code: "FIELDS_MISSING",
+            },
+          }
+        );
+      }
+
+      const storeFound = await Store.findById(input.store);
+      if (!storeFound) {
+        throw new GraphQLError("Store not found", {
+          extensions: { code: "STORE_NOT_FOUND" },
+        });
+      }
+
+      input.metrics.forEach((m) => {
+        const found = Metric.findById(m);
+        if (!found) {
+          throw new GraphQLError(`Could not find metric with ID ${m}`, {
+            extensions: {
+              code: "METRIC_NOT_FOUND",
+            },
+          });
+        }
+      });
+
+      const name = `${storeFound.name} - ${input.timePeriod}`;
+
+      const search = new Search({
+        name: name,
+        isSaved: false,
+        metrics: input.metrics,
+        timePeriod: input.timePeriod,
+        userID: input.userID,
+        metricsGroup: input.metricsGroup ? input.metricsGroup : null,
+        store: input.store,
+      });
+
+      const newSearch = await search.save();
+
+      return newSearch;
+    },
+    removeSearch: async (_, { id }) => {
+      if (!id) {
+        
+        throw new GraphQLError("Missing search ID", {
+          extensions: {
+            code: "FIELDS_MISSING",
+          },
+        });
+      }
+
+      if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID.");
+
+      const search = await Search.findByIdAndDelete(id);
+      if (!search) throw new Error("Search not found.");
+
+      return "Search deleted successfully.";
+    },
+    updateSearch: async (_, { id, input }) => {
+      if (!id) {
+        throw new GraphQLError("Missing search ID", {
+          extensions: {
+            code: "FIELDS_MISSING",
+          },
+        });
+      }
+      const search = await Search.findById(id);
+      if (!search) throw new Error("Search not found.");
+
+      if (input.store) {
+        const store = await Store.findById(id);
+        if (!store) throw new Error("Store not found.");
+      }
+
+      if (input.metricsGroup) {
+        const metricsGroup = await Group.findById(id);
+        if (!metricsGroup) throw new Error("Group not found.");
+      }
+
+      if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID.");
+
+      if (input.metrics) {
+        input.metrics.forEach((m) => {
+          const found = Metric.findById(m);
+          if (!found) {
+            throw new GraphQLError(`Could not find metric with ID ${m}`, {
+              extensions: {
+                code: "METRIC_NOT_FOUND",
+              },
+            });
+          }
+        });
+      }
+
+      await Search.findByIdAndUpdate(id, {
+        name: input.name != null ? input.name : search.name,
+        store: input.store != null ? input.store : search.store,
+        metricsGroup:
+          input.metricsGroup != null ? input.metricsGroup : search.metricsGroup,
+        metrics: input.metrics != null ? input.metrics : search.metrics,
+        isSaved: input.isSaved != null ? input.isSaved : search.isSaved,
+        timePeriod:
+          input.timePeriod != null ? input.timePeriod : search.timePeriod,
+      });
+
+      const updatedSearch = await Search.findById(id)
+          .populate("store")
+          .populate("metrics")
+          .populate("metricsGroup");
+
+      return updatedSearch;
+    },
+  },
+  Query: {
+    searches: async () =>
+      await Search.find().populate("store").populate("metrics").populate("metricsGroup"),
+    search: async (_, { ID }) => {
+      try {
+        const search = await Search.findById(ID)
+          .populate("store")
+          .populate("metrics")
+          .populate("metricsGroup");
+        if (!search) {
+          throw new Error("Search not found");
+        }
+        return search;
+      } catch (error) {
+        console.error(error);
+        throw new Error("Failed to fetch search");
+      }
+    },
+    userSearches: async (_, { ID }) => {
+      try {
+        const user = await User.findById(ID);
+        if (!user) {
+          throw new Error("User not found");
+        }
+        const searches = await Search.find({ userID: ID })
+          .populate("store")
+          .populate("metrics")
+          .populate("metricsGroup");
+        return searches;
+      } catch (error) {
+        console.error(error);
+        throw new Error("Failed to fetch user searches");
+      }
+    },
+    userFavoriteSearches: async (_, { ID }) => {
+      try {
+        const user = await User.findById(ID);
+        if (!user) {
+          throw new Error("User not found");
+        }
+        const searches = await Search.find({ userID: ID, isSaved: true })
+          .populate("store")
+          .populate("metrics")
+          .populate("metricsGroup");
+        return searches;
+      } catch (error) {
+        console.error(error);
+        throw new Error("Failed to fetch user favorite searches");
+      }
+    },
+  },
+};
+
 import { mergeResolvers } from "@graphql-tools/merge";
 export const resolvers = mergeResolvers([
   userResolver,
   storeResolver,
   metricResolver,
   metricsGroupResolver,
+  searchResolver,
 ]);

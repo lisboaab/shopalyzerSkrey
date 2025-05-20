@@ -41,13 +41,14 @@ const GET_USER = gql`
 
 const GET_USERS = gql`
   query GetUsers {
-      users {
+    users {
       _id
       name
       email
       notifications
       userType
-      createdAt}
+      createdAt
+    }
   }
 `;
 
@@ -144,7 +145,7 @@ const GET_GROUPS = gql`
     groups {
       _id
       name
-      metrics{
+      metrics {
         _id
         name
       }
@@ -198,7 +199,9 @@ export const UPDATE_STORE_MUTATION = gql`
     updateStore(id: $id, input: $input) {
       shopUrl
       name
-      lastModifiedBy {_id}
+      lastModifiedBy {
+        _id
+      }
     }
   }
 `;
@@ -247,7 +250,7 @@ export const CREATE_GROUP_MUTATION = gql`
   mutation CreateGroup($input: GroupCreateInput!) {
     createGroup(input: $input) {
       name
-      metrics{
+      metrics {
         _id
         name
       }
@@ -273,845 +276,132 @@ export const REMOVE_GROUP_MUTATION = gql`
   }
 `;
 
-export const GET_ORDERS = gql`
-query GetFull50Orders {
-  orders(first: 2){
-    edges{
-      node{
-				  channelInformation {
-      id
-      app {
-        id
-      }
-    }
-    id
-    name
-    email
-    phone
-    createdAt
-    updatedAt
-    processedAt
-    cancelReason
-    closedAt
-    displayFulfillmentStatus
-    displayFinancialStatus
-    currencyCode
-    confirmed
-    customerLocale
-    test
-    tags
-    note
-    statusPageUrl
-    subtotalPriceSet {
-      shopMoney {
-        amount
-        currencyCode
-      }
-      presentmentMoney {
-        amount
-        currencyCode
-      }
-    }
-    totalPriceSet {
-      shopMoney {
-        amount
-        currencyCode
-      }
-      presentmentMoney {
-        amount
-        currencyCode
-      }
-    }
-    totalShippingPriceSet {
-      shopMoney {
-        amount
-        currencyCode
-      }
-      presentmentMoney {
-        amount
-        currencyCode
-      }
-    }
-    totalTaxSet {
-      shopMoney {
-        amount
-        currencyCode
-      }
-      presentmentMoney {
-        amount
-        currencyCode
-      }
-    }
-    taxExempt
-    totalDiscountsSet {
-      shopMoney {
-        amount
-        currencyCode
-      }
-      presentmentMoney {
-        amount
-        currencyCode
-      }
-    }
-    discountCodes
-    billingAddress {
-      id
-      firstName
-      lastName
-      address1
-      address2
-      company
-      city
-      province
-      provinceCode
-      country
-      zip
-      phone
+const GET_USER_SEARCHES = gql`
+  query GetUserSearches($id: ID!) {
+    userSearches(ID: $id) {
+      _id
       name
-      countryCodeV2
-    }
-    shippingAddress {
-      id
-      firstName
-      lastName
-      address1
-      address2
-      city
-      province
-      country
-      zip
-      phone
-      name
-      countryCodeV2
-    }
-    customer {
-      id
-      firstName
-      lastName
-      email
-      phone
-      emailMarketingConsent {
-        marketingState
-        marketingOptInLevel
-      }
-      tags
-      taxExemptions
-      defaultAddress {
-        firstName
-        lastName
-        company
-        address1
-        address2
-        city
-        province
-        provinceCode
-        zip
-        phone
+      metrics {
+        _id
         name
-        country
-        countryCodeV2
       }
-      displayName
-      metafields(first: 100) {
-        edges {
-          node {
-            id
-            key
-            value
-          }
-        }
+      isSaved
+      metricsGroup {
+        _id
       }
-    }
-    currentTaxLines {
-      priceSet {
-        shopMoney {
-          amount
-          currencyCode
-        }
+      store {
+        _id
+        name
       }
-      rate
-      ratePercentage
-    }
-    lineItems(first: 50) {
-      edges {
-        node {
-          id
-          title
-          name
-          quantity
-          currentQuantity
-          sku
-          variantTitle
-          originalTotalSet {
-            presentmentMoney {
-              amount
-              currencyCode
-            }
-            shopMoney {
-              amount
-              currencyCode
-            }
-          }
-          originalUnitPriceSet {
-            presentmentMoney {
-              amount
-              currencyCode
-            }
-            shopMoney {
-              amount
-              currencyCode
-            }
-          }
-          discountedTotalSet {
-            shopMoney {
-              amount
-              currencyCode
-            }
-            presentmentMoney {
-              amount
-              currencyCode
-            }
-          }
-          discountAllocations {
-            allocatedAmountSet {
-              shopMoney {
-                amount
-                currencyCode
-              }
-            }
-            discountApplication {
-              allocationMethod
-              ... on AutomaticDiscountApplication {
-                title
-              }
-              ... on DiscountCodeApplication {
-                code
-              }
-              ... on ManualDiscountApplication {
-                title
-              }
-              ... on ScriptDiscountApplication {
-                title
-              }
-              targetType
-              value {
-                ... on PricingPercentageValue {
-                  percentage
-                }
-                ... on MoneyV2 {
-                  amount
-                }
-              }
-            }
-          }
-          discountedUnitPriceAfterAllDiscountsSet {
-            shopMoney {
-              amount
-              currencyCode
-            }
-          }
-          variant {
-            id
-            barcode
-            price
-            product {
-              id
-            }
-            sku
-            title
-            inventoryItem {
-              measurement {
-                weight {
-                  unit
-                  value
-                }
-              }
-            }
-            product {
-              id
-              title
-              productType
-              tags
-              vendor
-            }
-            taxable
-          }
-          taxLines {
-            rate
-            priceSet {
-              presentmentMoney {
-                amount
-                currencyCode
-              }
-              shopMoney {
-                amount
-                currencyCode
-              }
-            }
-            ratePercentage
-          }
-        }
-      }
-    }
-    discountApplications(first: 10) {
-      edges {
-        node {
-          targetType
-          allocationMethod
-          targetSelection
-          value {
-            ... on MoneyV2 {
-              amount
-              currencyCode
-            }
-            ... on PricingPercentageValue {
-              percentage
-            }
-          }
-          ... on DiscountCodeApplication {
-            code
-          }
-          ... on ManualDiscountApplication {
-            title
-            description
-          }
-        }
-      }
-    }
-    fulfillments {
-      id
-      status
-      createdAt
       updatedAt
+      timePeriod
+    }
+  }
+`;
+
+const GET_USER_FAVORITE_SEARCHES = gql`
+  query GetUserFavoriteSearches($id: ID!) {
+    userFavoriteSearches(ID: $id) {
+      _id
       name
-      location {
-        id
+      metrics {
+        _id
         name
       }
-      trackingInfo {
-        number
-        url
-        company
+      metricsGroup {
+        icon
+        name
       }
-      fulfillmentLineItems(first: 50) {
-        edges {
-          node {
-            id
-            quantity
-            lineItem {
-              id
-              title
-              name
-              quantity
-              currentQuantity
-              sku
-              variantTitle
-              originalTotalSet {
-                presentmentMoney {
-                  amount
-                  currencyCode
-                }
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              originalUnitPriceSet {
-                presentmentMoney {
-                  amount
-                  currencyCode
-                }
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              discountedTotalSet {
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-                presentmentMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              variant {
-                id
-                barcode
-                price
-                product {
-                  id
-                }
-                sku
-                title
-                inventoryItem {
-                  measurement {
-                    weight {
-                      unit
-                      value
-                    }
-                  }
-                }
-                product {
-                  id
-                  title
-                  productType
-                  tags
-                  vendor
-                }
-                taxable
-              }
-              taxLines {
-                rate
-                priceSet {
-                  presentmentMoney {
-                    amount
-                    currencyCode
-                  }
-                  shopMoney {
-                    amount
-                    currencyCode
-                  }
-                }
-                ratePercentage
-              }
-              discountAllocations {
-                allocatedAmountSet {
-                  shopMoney {
-                    amount
-                    currencyCode
-                  }
-                }
-                discountApplication {
-                  allocationMethod
-                  ... on AutomaticDiscountApplication {
-                    title
-                  }
-                  ... on DiscountCodeApplication {
-                    code
-                  }
-                  ... on ManualDiscountApplication {
-                    title
-                  }
-                  ... on ScriptDiscountApplication {
-                    title
-                  }
-                  targetType
-                  value {
-                    ... on PricingPercentageValue {
-                      percentage
-                    }
-                    ... on MoneyV2 {
-                      amount
-                    }
-                  }
-                }
-              }
-              discountedUnitPriceAfterAllDiscountsSet {
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-            }
-          }
-        }
+      store {
+        name
       }
+      updatedAt
     }
-    transactions {
-      id
-      paymentDetails {
-        ... on CardPaymentDetails {
-          name
-          number
-          paymentMethodName
-          company
-          bin
-          cvvResultCode
-          expirationMonth
-          expirationYear
-          wallet
-          avsResultCode
-        }
-        ... on LocalPaymentMethodsPaymentDetails {
-          paymentMethodName
-        }
-        ... on ShopPayInstallmentsPaymentDetails {
-          paymentMethodName
-        }
-        ... on BasePaymentDetails {
-          paymentMethodName
-        }
-      }
-      amountSet {
-        presentmentMoney {
-          amount
-          currencyCode
-        }
-        shopMoney {
-          amount
-          currencyCode
-        }
-      }
-      kind
-      status
-      manuallyCapturable
-      gateway
-      authorizationCode
-      createdAt
-    }
-    refunds {
-      id
-      createdAt
-      totalRefundedSet {
-        presentmentMoney {
-          amount
-          currencyCode
-        }
-        shopMoney {
-          amount
-          currencyCode
-        }
-      }
-      refundLineItems(first: 10) {
-        edges {
-          node {
-            lineItem {
-              id
-              title
-              name
-              quantity
-              currentQuantity
-              sku
-              variantTitle
-              originalTotalSet {
-                presentmentMoney {
-                  amount
-                  currencyCode
-                }
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              originalUnitPriceSet {
-                presentmentMoney {
-                  amount
-                  currencyCode
-                }
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              discountedTotalSet {
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-                presentmentMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              variant {
-                id
-                barcode
-                price
-                product {
-                  id
-                }
-                sku
-                title
-                inventoryItem {
-                  measurement {
-                    weight {
-                      unit
-                      value
-                    }
-                  }
-                }
-                product {
-                  id
-                  title
-                  productType
-                  tags
-                  vendor
-                }
-                taxable
-              }
-              taxLines {
-                rate
-                priceSet {
-                  presentmentMoney {
-                    amount
-                    currencyCode
-                  }
-                  shopMoney {
-                    amount
-                    currencyCode
-                  }
-                }
-                ratePercentage
-              }
-              discountAllocations {
-                allocatedAmountSet {
-                  shopMoney {
-                    amount
-                    currencyCode
-                  }
-                }
-                discountApplication {
-                  allocationMethod
-                  ... on AutomaticDiscountApplication {
-                    title
-                  }
-                  ... on DiscountCodeApplication {
-                    code
-                  }
-                  ... on ManualDiscountApplication {
-                    title
-                  }
-                  ... on ScriptDiscountApplication {
-                    title
-                  }
-                  targetType
-                  value {
-                    ... on PricingPercentageValue {
-                      percentage
-                    }
-                    ... on MoneyV2 {
-                      amount
-                    }
-                  }
-                }
-              }
-              discountedUnitPriceAfterAllDiscountsSet {
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-            }
-            quantity
-            subtotalSet {
-              presentmentMoney {
-                amount
-                currencyCode
-              }
-              shopMoney {
-                amount
-                currencyCode
-              }
-            }
-            totalTaxSet {
-              shopMoney {
-                amount
-                currencyCode
-              }
-              presentmentMoney {
-                amount
-                currencyCode
-              }
-            }
-          }
-        }
-      }
-    }
-    returns(first: 100) {
-      edges {
-        node {
-          returnLineItems(first: 100) {
-            edges {
-              node {
-                ... on ReturnLineItem {
-                  fulfillmentLineItem {
-                    lineItem {
-                      id
-                      title
-                      name
-                      quantity
-                      currentQuantity
-                      sku
-                      variantTitle
-                      originalTotalSet {
-                        presentmentMoney {
-                          amount
-                          currencyCode
-                        }
-                        shopMoney {
-                          amount
-                          currencyCode
-                        }
-                      }
-                      originalUnitPriceSet {
-                        presentmentMoney {
-                          amount
-                          currencyCode
-                        }
-                        shopMoney {
-                          amount
-                          currencyCode
-                        }
-                      }
-                      discountedTotalSet {
-                        shopMoney {
-                          amount
-                          currencyCode
-                        }
-                        presentmentMoney {
-                          amount
-                          currencyCode
-                        }
-                      }
-                      variant {
-                        id
-                        barcode
-                        price
-                        product {
-                          id
-                        }
-                        sku
-                        title
-                        inventoryItem {
-                          measurement {
-                            weight {
-                              unit
-                              value
-                            }
-                          }
-                        }
-                        product {
-                          id
-                          title
-                          productType
-                          tags
-                          vendor
-                        }
-                        taxable
-                      }
-                      taxLines {
-                        rate
-                        priceSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                          shopMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        ratePercentage
-                      }
-                      discountAllocations {
-                        allocatedAmountSet {
-                          shopMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        discountApplication {
-                          allocationMethod
-                          ... on AutomaticDiscountApplication {
-                            title
-                          }
-                          ... on DiscountCodeApplication {
-                            code
-                          }
-                          ... on ManualDiscountApplication {
-                            title
-                          }
-                          ... on ScriptDiscountApplication {
-                            title
-                          }
-                          targetType
-                          value {
-                            ... on PricingPercentageValue {
-                              percentage
-                            }
-                            ... on MoneyV2 {
-                              amount
-                            }
-                          }
-                        }
-                      }
-                      discountedUnitPriceAfterAllDiscountsSet {
-                        shopMoney {
-                          amount
-                          currencyCode
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    shippingLines(first: 50) {
-      edges {
-        node {
-          code
-          carrierIdentifier
-          id
-          title
-          deliveryCategory
-          discountedPriceSet {
-            shopMoney {
-              amount
-              currencyCode
-            }
-            presentmentMoney {
-              amount
-              currencyCode
-            }
-          }
-          taxLines {
-            priceSet {
-              presentmentMoney {
-                amount
-                currencyCode
-              }
-              shopMoney {
-                amount
-                currencyCode
-              }
-            }
-          }
-        }
-      }
-    }
-    paymentGatewayNames
-    totalWeight
-    purchasingEntity {
-      ... on PurchasingCompany {
-        __typename
-        company {
-          id
-        }
-      }
-    }
-    metafields(first: 100) {
-      edges {
-        node {
-          id
-          key
-          value
-        }
-      }
-    }
-   
-  
-      }
-    }
-	}
-  
-}`
+  }
+`;
 
+export const REMOVE_SEARCH_MUTATION = gql`
+  mutation RemoveSearch($id: ID!) {
+    removeSearch(id: $id)
+  }
+`;
+
+export const CREATE_SEARCH_MUTATION = gql`
+  mutation CreateSearch($input: SearchCreateInput!) {
+    createSearch(input: $input) {
+      _id
+      name
+      metrics {
+        _id
+      }
+      isSaved
+      timePeriod
+      metricsGroup {
+        _id
+      }
+      store {
+        _id
+      }
+    }
+  }
+`;
+
+const GET_STORE_OF_SEARCH = gql`
+  query GetStoreOfSearch($id: ID!) {
+    search(ID: $id) {
+      store {
+        _id
+      }
+    }
+  }
+`;
+
+const GET_SEARCH = gql`
+  query GetSearch($id: ID!) {
+    search(ID: $id) {
+      _id
+      name
+      timePeriod
+      isSaved
+      updatedAt
+      metrics {
+        _id
+        name
+      }
+      store {
+        _id
+        name
+      }
+      metricsGroup {
+        _id
+        name
+      }
+    }
+  }
+`;
+
+export const UPDATE_SEARCH = gql`
+  mutation UpdateSearch($id: ID!, $input: SearchInput!) {
+    updateSearch(id: $id, input: $input) {
+      name
+      isSaved
+      timePeriod
+      updatedAt
+      metrics {
+        _id
+        name
+      }
+      store {
+        _id
+        name
+      }
+      metricsGroup {
+        _id
+        name
+      }
+    }
+  }
+`;
 
 export const createUser = async (input: {
   name: string;
@@ -1135,9 +425,9 @@ export const loginUser = async (input: { email: string; password: string }) => {
       mutation: LOGIN_MUTATION,
       variables: { input },
     });
-    console.log('loginUser: ', data)
-    localStorage.setItem('authToken', data.loginUser.accessToken);
-    localStorage.setItem('userID', data.loginUser.userID);
+    console.log("loginUser: ", data);
+    localStorage.setItem("authToken", data.loginUser.accessToken);
+    localStorage.setItem("userID", data.loginUser.userID);
     return data;
   } catch (error) {
     throw error;
@@ -1157,34 +447,33 @@ export const getUserPhoto = async (id: string) => {
 };
 
 export const getUser = async (id: string) => {
-  
   try {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (!token) {
-      console.error('No authentication token found');
-      throw new Error('Authentication required');
+      console.error("No authentication token found");
+      throw new Error("Authentication required");
     }
-    
+
     const { data } = await apolloClient.query({
       query: GET_USER,
       variables: { id },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       context: {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     });
-        
+
     if (!data || !data.user) {
-      throw new Error('User data not found in response');
+      throw new Error("User data not found in response");
     }
-    
+
     return data.user;
   } catch (error) {
-    console.error('Error fetching user data:', error);
-    if (error instanceof Error && 'graphQLErrors' in error) {
-      console.error('GraphQL errors:', (error as any).graphQLErrors);
+    console.error("Error fetching user data:", error);
+    if (error instanceof Error && "graphQLErrors" in error) {
+      console.error("GraphQL errors:", (error as any).graphQLErrors);
     }
     throw error;
   }
@@ -1265,19 +554,23 @@ export const removeUser = async (id: string) => {
 
 export const getStore = async (id: string, token?: string) => {
   try {
-    const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('authToken') : null);
-    
+    const authToken =
+      token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("authToken")
+        : null);
+
     if (!authToken) {
-      throw new Error('No authentication token available');
+      throw new Error("No authentication token available");
     }
     const { data } = await apolloClient.query({
       query: GET_STORE,
       variables: { id },
       context: {
         headers: {
-          Authorization: `Bearer ${authToken}`
-        }
-      }
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
     });
     return data?.store || [];
   } catch (error) {
@@ -1287,14 +580,14 @@ export const getStore = async (id: string, token?: string) => {
 
 export const getStores = async () => {
   try {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     const { data } = await apolloClient.query({
       query: GET_STORES,
       context: {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     });
     return data?.stores || [];
   } catch (error) {
@@ -1304,14 +597,14 @@ export const getStores = async () => {
 
 export const getStoresBasic = async () => {
   try {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     const { data } = await apolloClient.query({
       query: GET_STORES_NAME_AND_ID,
       context: {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     });
     return data?.stores || [];
   } catch (error) {
@@ -1417,8 +710,10 @@ export const getActiveMetrics = async () => {
       query: GET_METRICS,
     });
     if (data.metrics) {
-      const activeMetrics = data.metrics.filter((m: Metric) => m.status === 'active')
-      return activeMetrics
+      const activeMetrics = data.metrics.filter(
+        (m: Metric) => m.status === "active"
+      );
+      return activeMetrics;
     }
   } catch (error) {
     throw error;
@@ -1427,14 +722,14 @@ export const getActiveMetrics = async () => {
 
 export const getGroups = async () => {
   try {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     const { data } = await apolloClient.query({
       query: GET_GROUPS,
       context: {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     });
     return data?.groups || [];
   } catch (error) {
@@ -1444,17 +739,19 @@ export const getGroups = async () => {
 
 export const getActiveGroups = async () => {
   try {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     const { data } = await apolloClient.query({
       query: GET_GROUPS,
       context: {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     });
-    const activeGroups = data.groups.filter((g: Group) => g.status === 'active')
-      return activeGroups
+    const activeGroups = data.groups.filter(
+      (g: Group) => g.status === "active"
+    );
+    return activeGroups;
   } catch (error) {
     throw error;
   }
@@ -1508,6 +805,149 @@ export const createGroup = async (input: {
     });
     return data;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const createSearch = async (input: {
+  timePeriod: string;
+  metrics: string[];
+  userID: string;
+  metricsGroup: string;
+  store: string;
+}) => {
+  try {
+    const { data } = await apolloClient.mutate({
+      mutation: CREATE_SEARCH_MUTATION,
+      variables: { input },
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserSearches = async (id: string) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    const { data } = await apolloClient.query({
+      query: GET_USER_SEARCHES,
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      variables: { id },
+    });
+    return data.userSearches || [];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserFavoriteSearches = async (id: string) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    const { data } = await apolloClient.query({
+      query: GET_USER_FAVORITE_SEARCHES,
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      variables: { id },
+    });
+    return data.userFavoriteSearches || [];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeSearch = async (id: string) => {
+  try {
+    const { data } = await apolloClient.mutate({
+      mutation: REMOVE_SEARCH_MUTATION,
+      variables: { id },
+    });
+    return data.removeSearch;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getStoreOfSearch = async (id: string, token?: string) => {
+  try {
+    const authToken =
+      token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("authToken")
+        : null);
+
+    if (!authToken) {
+      throw new Error("No authentication token available");
+    }
+    const { data } = await apolloClient.query({
+      query: GET_STORE_OF_SEARCH,
+      variables: { id },
+      context: {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    });
+    return data?.search || [];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getSearch = async (id: string, token?: string) => {
+  try {
+    const authToken =
+      token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("authToken")
+        : null);
+
+    if (!authToken) {
+      throw new Error("No authentication token available");
+    }
+    const { data } = await apolloClient.query({
+      query: GET_SEARCH,
+      variables: { id },
+      context: {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    });
+    return data?.search || [];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateSearch = async (
+  id: string,
+  input: {
+    isSaved?: boolean;
+    name?: string;
+    store?: string;
+    metrics?: string[];
+    metricsGroup?: string;
+    timePeriod?: string;
+  }
+) => {
+  try {
+    const { data } = await apolloClient.mutate({
+      mutation: UPDATE_SEARCH,
+      variables: { id, input },
+    });
+    return data.updateSearch;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error.message;
+    }
     throw error;
   }
 };

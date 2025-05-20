@@ -77,6 +77,8 @@ export const typeDefs = gql`
     metrics: [Metric!]
     metricsGroup: Group
     store: Store!
+    createdAt: String
+    updatedAt: String
   }
 
   type Order {
@@ -119,12 +121,11 @@ export const typeDefs = gql`
   }
 
   input SearchCreateInput {
-    name: String!
     timePeriod: String
     userID: String
     metrics: [ID!]
     metricsGroup: String
-    store: String
+    store: String!
   }
 
   input UserInput {
@@ -160,6 +161,16 @@ export const typeDefs = gql`
     metrics: [ID!]
   }
 
+  input SearchInput {
+    name: String
+    store: String
+    metrics: [ID!]
+    metricsGroup: String
+    isSaved: Boolean
+    timePeriod: String
+  }
+
+
   input UserLoginInput {
     email: String!
     password: String!
@@ -173,6 +184,8 @@ export const typeDefs = gql`
     metrics: [Metric]
     searches: [Search]
     search(ID: ID!): Search
+    userSearches(ID: ID!): [Search]
+    userFavoriteSearches(ID: ID!): [Search]
     store(ID: ID!): Store
     group(ID: ID!): Group
     metric(ID: ID!): Metric
@@ -195,6 +208,8 @@ export const typeDefs = gql`
     updateGroup(id: ID!, input: GroupInput!): Group
     removeGroup(id: ID!): String
     createSearch(input: SearchCreateInput!): Search
+    removeSearch(id: ID!): String
+    updateSearch(id: ID!, input: SearchInput!): Search
   }
 `;
 

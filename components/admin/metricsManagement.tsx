@@ -116,7 +116,7 @@ const MetricsManagement: React.FC = () => {
         </label>
       </div>
       {/* metrics fields */}
-      <div className="my-4 flex flex-col items-center gap-8 h-full overflow-x-auto w-full">
+      <div className="my-4 flex flex-col gap-8 h-full overflow-x-auto w-full">
         <div className="flex flex-row no-wrap gap-x-10 gap-y-3 flex-wrap">
           {filteredMetrics.length != 0 &&
             filteredMetrics.map((metric, index) => (
@@ -146,7 +146,7 @@ const MetricsManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Snackbar para feedback */}
+      {/* Snackbar feedback */}
       <SnackBar
         type={snackBarState.type}
         isOpen={snackBarState.open}
