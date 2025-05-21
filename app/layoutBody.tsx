@@ -53,9 +53,11 @@ export default function LayoutBody({
           <div className="flex-grow">
             <div className="flex flex-column justify-end p-4 sticky top-0 bg-white z-100">
               <UserMenu></UserMenu>
-            </div>
+            </div>            
             {/* Page component */}
-            <main className="z-0 p-6 pl-12 flex flex-col flex-grow items-center justify-center">
+            <main className="z-0 p-6 pl-12 flex flex-col flex-grow items-center justify-center w-full 
+            ">
+              {/* h-[calc(100vh-100px)] */}
               <React.Suspense fallback={<Loading />}>{children}</React.Suspense>
             </main>
           </div>

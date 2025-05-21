@@ -1,124 +1,95 @@
-import LoadingData from "../../../components/loadingData";
-import { Suspense } from "react";
-import SavedSearch from "../../../components/savedSearch";
-import EmptyState from "../../../components/emptyState";
-import Loading from "@/components/loading";
+"use client";
+import { Suspense, useEffect, useState } from "react";
 
-export default async function Page() {
-  const savedItems = [
-    {
-      title: "Search 01",
-      lastAcces: "3 days ago",
-      createdAt: "03/04/2025",
-      metricsGroup: {
-        title: "Marketing",
-        icon: "pencil",
-        metricsList: ["Cost per Click", "Click rate"],
-      },
-    },
-    {
-      title: "This is a veery long title that will be cut off",
-      lastAcces: "3 days ago",
-      createdAt: "03/04/2025",
-      metricsGroup: {
-        title: "Sales",
-        icon: "money",
-        metricsList: [
-          "Cost per Click",
-          "Click rate",
-          "Conversion Rate",
-          "Impressions",
-          "Customer acquisition costs",
-        ],
-      },
-    },
-    {
-      title: "Search 03",
-      lastAcces: "3 days ago",
-      createdAt: "03/04/2025",
-      metricsGroup: {
-        title: "Analytics",
-        icon: "analytics",
-        metricsList: [
-          "Cost per Click",
-          "Click rate",
-          "Conversion Rate",
-          "Impressions",
-          "Customer acquisition costs",
-        ],
-      },
-    },
-    {
-      title: "Search 04",
-      lastAcces: "3 days ago",
-      createdAt: "03/04/2025",
-      metricsGroup: {
-        title: "Engagement",
-        icon: "group",
-        metricsList: [
-          "Cost per Click",
-          "Click rate",
-          "Conversion Rate",
-          "Impressions",
-          "Customer acquisition costs",
-        ],
-      },
-    },
-    {
-      title: "Search 05",
-      lastAcces: "3 days ago",
-      createdAt: "03/04/2025",
-      metricsGroup: {
-        title: "Marketing",
-        icon: "pencil",
-        metricsList: [
-          "Cost per Click",
-          "Click rate",
-          "Conversion Rate nfoefnaoejn",
-          "Impressions",
-          "Customer acquisition costs",
-        ],
-      },
-    },
-    {
-      title: "Search 06",
-      lastAcces: "3 days ago",
-      createdAt: "03/04/2025",
-      metricsGroup: {
-        title: "Marketing",
-        icon: "pencil",
-        metricsList: [
-          "Cost per Click",
-          "Customer acquisition costs vda",
-          "Click rate",
-          "Conversion Rate",
-          "Impressions",
-          "Customer acquisition costs",
-        ],
-      },
-    },
-  ];
-  // const savedItems = []
+import LoadingData from "@/components/loadingData";
+import SavedSearch from "@/components/savedSearch";
+import EmptyState from "@/components/emptyState";
+import Loading from "@/components/loading";
+import SnackBar from "@/components/modal/snackBar";
+
+// Queries
+import { getUserFavoriteSearches, removeSearch } from "@/lib/queries";
+
+export default function Page() {
+  const [loadedItems, setLoadedItems] = useState<any[]>([]);
+
+  const [snackBarState, setSnackBarState] = useState({
+    open: false,
+    type: "",
+    message: "",
+  });
+
+  const updateSnackBarState = (key: string, value: any) => {
+    setSnackBarState((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSnackBar = (type: string, title: string) => {
+    updateSnackBarState(
+      "type",
+      type === "failurePassword" ? "error" : type === "failure" ? "error" : type
+    );
+    updateSnackBarState("message", title);
+    updateSnackBarState("open", true);
+    setTimeout(() => {
+      updateSnackBarState("open", false);
+    }, 3000);
+  };
+
+  const handleDeleteSearch = async (id: string) => {
+    const remove = await removeSearch(id);
+    // const remove = true
+    if (remove) {
+      handleSnackBar("success", "Search deleted successfully!");
+      setLoadedItems((prev) => prev.filter((item) => item._id !== id));
+
+      // window.location.reload();
+    } else {
+      handleSnackBar("error", "Error deleting search");
+    }
+  };
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userID");
+    if (!userId) {
+      return;
+    }
+    const fetchUserFavoriteSearches = async () => {
+      const loadedItems = await getUserFavoriteSearches(userId);
+      setLoadedItems(loadedItems);
+    };
+    fetchUserFavoriteSearches();
+  }, []);
+
   return (
-    <Suspense fallback={<Loading />}>
-      <div className="w-full h-fit flex flex-col gap-8 items-start">
-        <div className="flex flex-col gap-3">
-          <h1 className="worksans text-2xl">Your saved searches</h1>
-          <h1 className="worksans text-md grey800">
-            See and analize again your saved searches! Don’t worry nothing is
-            lost!
-          </h1>
-        </div>
-        <Suspense fallback={<LoadingData />}>
-          <div className="flex flex-row flex-wrap items-center w-full gap-16">
-            {savedItems.length != 0 &&
-              savedItems.map((search, index) => (
-                <SavedSearch key={index} search={search} />
-              ))}
-            {savedItems.length == 0 && <EmptyState />}
-          </div>
-        </Suspense>
+    <div className="w-full h-fit flex flex-col gap-8 items-start">
+      <div className="flex flex-col gap-3">
+        <h1 className="worksans text-2xl">Your saved searches</h1>
+        <h1 className="worksans text-md grey800">
+          Check and analize again your saved searches! Don’t worry, nothing is
+          lost!
+        </h1>
       </div>
-    </Suspense>
+      <Suspense fallback={<LoadingData />}>
+        <div className="flex flex-row flex-wrap items-center w-full gap-16">
+          {" "}
+          {loadedItems.length !== 0 &&
+            loadedItems.map((search, index) => (
+              <SavedSearch
+                key={search._id || index}
+                search={search}
+                onDelete={() => handleDeleteSearch(search._id)}
+              />
+            ))}
+          {loadedItems.length === 0 && <EmptyState />}
+        </div>
+      </Suspense>
+      {/* Snackbar feedback */}
+      <SnackBar
+        type={snackBarState.type}
+        isOpen={snackBarState.open}
+        title={snackBarState.message}
+        onDismiss={() => updateSnackBarState("open", false)}
+      />
+    </div>
   );
 }

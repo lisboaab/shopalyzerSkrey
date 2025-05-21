@@ -1,9 +1,9 @@
 import React from "react";
 import "../app/globals.css";
 
-const EmptyState: React.FC = () => {
+const SomethingWentWrong: React.FC = () => {
   return (
-    <div className="flex inset-0 flex-col items-center justify-center h-full w-full p-10 gap-4">
+    <div className="flex inset-0 z-500 flex-col items-center justify-center h-full w-full p-10 gap-4">
       <div className=" flex items-center bg-electric50 p-4 rounded-full">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -22,10 +22,10 @@ const EmptyState: React.FC = () => {
       </div>
       <div className="flex flex-col items-center justify-center gap-1">
         <p className="worksans-semibold main text-2xl">Oh no...</p>
-        <p className="worksans text-md">There is nothing here!</p>
+        <p className="worksans text-md">Something went wrong! Try again later...</p>
       </div>
     </div>
   );
 };
 
-export default EmptyState;
+export default SomethingWentWrong;

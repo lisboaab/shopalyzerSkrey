@@ -41,8 +41,8 @@ import {
   UserCircleIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect } from "react";
 
+import { useEffect } from "react";
 interface IconSelectorProps {
   onSelect: (iconName: string) => void;
   selected?: string;
@@ -91,7 +91,6 @@ const HeroIcons = {
 };
 
 const IconSelector: React.FC<IconSelectorProps> = ({ onSelect, selected }) => {
-  const [search, setSearch] = React.useState("");
   const [selectedIcon, setSelectedIcon] = React.useState("");
 
   const icons = Object.entries(HeroIcons).map(([name, Icon]) => ({

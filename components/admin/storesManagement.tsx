@@ -2,7 +2,12 @@
 import "../../app/globals.css";
 import { useState, useEffect, useCallback } from "react";
 
-import { getStores, removeStore, updateStore, createStore } from "@/lib/queries";
+import {
+  getStores,
+  removeStore,
+  updateStore,
+  createStore,
+} from "@/lib/queries";
 
 import Store from "../../app/interface/store";
 
@@ -24,10 +29,11 @@ const StoresManagement: React.FC = () => {
   // Object of the store that is being edited
   const [storeToBeEdited, setStoreToBeEdited] = useState<Store | null>(null);
   // Object of the new store
-  const [ newStore, setNewStore] = useState<any>({
-    name: "",
+  const [newStore, setNewStore] = useState<any>({
+    shopUrl: "",
     APIKey: "",
-    APIToken: ""
+    APIToken: "",
+    APISecretKey: "",
   });
 
   const [snackBarState, setSnackBarState] = useState({
@@ -66,27 +72,28 @@ const StoresManagement: React.FC = () => {
     },
     create: {
       isOpen: false,
-    }
+    },
   });
 
   const updateModalState = (key: string, value: any) => {
-    setModalState((prev) => ({ ...prev, [key]: { isOpen: value} }));
+    setModalState((prev) => ({ ...prev, [key]: { isOpen: value } }));
   };
 
   const tableHeader = [
     { item: "ID", sortable: true },
     { item: "Name", sortable: true },
-    // { item: "API Key", sortable: true },
-    // { item: "API Token", sortable: true },
-    // { item: "Created by", sortable: true },
+    { item: "Store Shopify URL", sortable: true },
     { item: "Updated at", sortable: true },
     { item: "Last modified by", sortable: true },
-    { item: "Actions", sortable: false, actions: ["edit", "remove"] },
+    {
+      item: "Actions",
+      sortable: false,
+      actions: [
+        // "edit",
+        "remove",
+      ],
+    },
   ];
-
-  const handleConsoleClick = () => {
-    console.log("clicked");
-  };
 
   const fetchData = async () => {
     try {
@@ -127,16 +134,16 @@ const StoresManagement: React.FC = () => {
 
   const handleEditStore = (store: Store) => {
     setStoreToBeEdited(store);
-    updateModalState("edit", true)
+    updateModalState("edit", true);
   };
 
   const handleSaveStoreEdit = async (id: string, storeToBeEdited: Store) => {
     try {
       const store = {
-        name: storeToBeEdited.name
-      }
+        shopUrl: storeToBeEdited.shopUrl,
+      };
       await updateStore(id, store);
-      updateModalState("edit", false)
+      updateModalState("edit", false);
       handleSnackBar("success", "Store updated successfully!");
 
       fetchData();
@@ -149,31 +156,51 @@ const StoresManagement: React.FC = () => {
 
   const createNewStore = async () => {
     try {
-      await createStore(newStore)
-      handleSnackBar("success", "Store created successfully!");
-      updateModalState("create", false)
-      
-      fetchData();
-      setNewStore({name: "", APIKey: "", APIToken: ""})
+      if (
+        !newStore.shopUrl ||
+        !newStore.APIKey ||
+        !newStore.APIToken ||
+        !newStore.APISecretKey
+      ) {
+        handleSnackBar("failure", "Please, fill up all the fields");
+        return;
+      } else {
+        await createStore(newStore);
+        handleSnackBar("success", "Store created successfully!");
+        updateModalState("create", false);
+
+        fetchData();
+        setNewStore({
+          shopUrl: "",
+          APIKey: "",
+          APIToken: "",
+          APISecretKey: "",
+        });
+      }
     } catch (error) {
       if (error instanceof Error) {
         console.log(error.message);
-        if(error.message === "This name is already in use."){ 
-          handleSnackBar("failure", "This store name is already in use");
-        } else if(error.message === "This API Key is already in use."){handleSnackBar("failure", "This store API Key is already in use");}
-        if(error.message === "This API Token is already in use.") handleSnackBar("failure", "This store API Token is already in use");
-        else if(error.message === "Missing required fields: name, APIKey, APIToken"){
-          handleSnackBar("failure", "Please, fill up all the fields");
+        if (error.message === "This shopUrl is already in use.") {
+          handleSnackBar("failure", "This store shopUrl is already in use");
+        } else if (error.message === "This API Key is already in use.") {
+          handleSnackBar("failure", "This store API Key is already in use");
         }
-        else {
+        if (error.message === "This API Token is already in use.")
+          handleSnackBar("failure", "This store API Token is already in use");
+        else if (
+          error.message ===
+          "Missing required fields: shopUrl, APIKey, APIToken, APISecretKey"
+        ) {
+          handleSnackBar("failure", "Please, fill up all the fields");
+        } else {
           handleSnackBar("failure", "Something went wrong. Try again!");
         }
       } else {
         console.error("An unknown error occurred:", error);
         handleSnackBar("failure", "Something went wrong. Try again!");
-      } 
+      }
     }
-  }
+  };
 
   return (
     <div className="w-full h-full">
@@ -208,19 +235,21 @@ const StoresManagement: React.FC = () => {
               <tr key={index} className="w-full gellix pb-2">
                 <td className="py-2">{store._id}</td>
                 <td className="py-2">{store.name}</td>
+                <td className="py-2">{store.shopUrl}</td>
                 <td className="py-2">
                   {new Date(Number(store.updatedAt)).toLocaleString()}
                 </td>
                 <td className="py-2">{store.lastModifiedBy?.name}</td>
                 <td className="flex flex-row  items-center justify-start py-2 gap-2">
-                  <ButtonAnimation
+                  {/* edit button */}
+                  {/* <ButtonAnimation
                     label="Edit"
                     icon="pencil"
                     style="outline"
                     color="#4b5563"
                     width="6em"
                     action={() => handleEditStore(store)}
-                  ></ButtonAnimation>
+                  ></ButtonAnimation> */}
                   <ButtonAnimation
                     label="Remove"
                     icon="trashcan"
@@ -282,6 +311,21 @@ const StoresManagement: React.FC = () => {
         <div className="my-4 flex flex-col justify-start gap-8">
           {storeToBeEdited && (
             <div className="space-y-4">
+              {/* store url */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">Shop Url</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                  value={storeToBeEdited.shopUrl}
+                  onChange={(e) =>
+                    setStoreToBeEdited({
+                      ...storeToBeEdited,
+                      shopUrl: e.target.value,
+                    })
+                  }
+                />
+              </div>
               {/* store name */}
               <div className="flex flex-col">
                 <label className="text-sm text-gray-600 mb-1">Name</label>
@@ -331,54 +375,87 @@ const StoresManagement: React.FC = () => {
         title="Create store"
       >
         <div className="my-4 flex flex-col justify-start gap-8">
-          
-            <div className="space-y-4">
-              {/* store name */}
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-600 mb-1">Name</label>
-                <input
-                  type="text"
-                  className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
-                  value={newStore.name}
-                  onChange={(e) =>
-                    setNewStore({
-                      ...newStore,
-                      name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              {/* store APIKey */}
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-600 mb-1">API Key</label>
-                <input
-                  type="text"
-                  className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
-                  value={newStore.APIKey}
-                  onChange={(e) =>
-                    setNewStore({
-                      ...newStore,
-                      APIKey: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              {/* store APIToken */}
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-600 mb-1">API Token</label>
-                <input
-                  type="text"
-                  className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
-                  value={newStore.APIToken}
-                  onChange={(e) =>
-                    setNewStore({
-                      ...newStore,
-                      APIToken: e.target.value,
-                    })
-                  }
-                />
-              </div>
+          <div className="space-y-4">
+            {/* store name */}
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">Name</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                value={newStore.name}
+                onChange={(e) =>
+                  setNewStore({
+                    ...newStore,
+                    name: e.target.value,
+                  })
+                }
+              />
             </div>
+            {/* store url */}
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">Store Url</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                value={newStore.shopUrl}
+                onChange={(e) =>
+                  setNewStore({
+                    ...newStore,
+                    shopUrl: e.target.value,
+                  })
+                }
+              />
+            </div>
+            {/* store APIKey */}
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">API Key</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                value={newStore.APIKey}
+                onChange={(e) =>
+                  setNewStore({
+                    ...newStore,
+                    APIKey: e.target.value,
+                  })
+                }
+              />
+            </div>
+            {/* store APIToken */}
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">
+                API Access Token
+              </label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                value={newStore.APIToken}
+                onChange={(e) =>
+                  setNewStore({
+                    ...newStore,
+                    APIToken: e.target.value,
+                  })
+                }
+              />
+            </div>
+            {/* store API secret key */}
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">
+                API Secret Key
+              </label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                value={newStore.APISecretKey}
+                onChange={(e) =>
+                  setNewStore({
+                    ...newStore,
+                    APISecretKey: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
 
           <div className="flex justify-end items-center gap-4 border-t border-gray-200 pt-5">
             <ButtonAnimation
@@ -392,7 +469,9 @@ const StoresManagement: React.FC = () => {
               label="Create store"
               color="blue"
               icon="arrow"
-              action={() => {createNewStore()}}
+              action={() => {
+                createNewStore();
+              }}
               width="12em"
               style="outline"
             />

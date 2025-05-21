@@ -49,7 +49,7 @@ import {
   removeGroup,
   updateGroup,
   createGroup,
-  getMetrics,
+  getActiveMetrics,
 } from "@/lib/queries";
 
 import Group from "../../app/interface/group";
@@ -195,7 +195,7 @@ const MetricsGroupsManagement: React.FC = () => {
 
   const fetchMetricsList = async () => {
     try {
-      const fetchedData = await getMetrics();
+      const fetchedData = await getActiveMetrics();
       if (fetchedData) {
         const result = Array.isArray(fetchedData) ? fetchedData : [];
         setMetricsList(result);
@@ -619,7 +619,7 @@ const MetricsGroupsManagement: React.FC = () => {
                   [...metricsList]
                     .sort((a, b) => a.name.localeCompare(b.name))
                     .map((m) => (
-                      <label key={m._id} className="flex w-full gap-3">
+                      <label key={m._id} className="flex w-full gap-3 mb-2">
                         <input
                           type="checkbox"
                           className="w-5 p-5"

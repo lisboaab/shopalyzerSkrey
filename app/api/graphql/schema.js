@@ -12,6 +12,7 @@ export const typeDefs = gql`
     pie
     donut
     card
+    list
   }
 
   enum Status {
@@ -49,7 +50,9 @@ export const typeDefs = gql`
   type Store {
     _id: ID!
     name: String!
+    shopUrl: String!
     APIKey: String!
+    APISecretKey: String!
     APIToken: String!
     createdBy: User!
     lastModifiedBy: User!
@@ -75,6 +78,17 @@ export const typeDefs = gql`
     metrics: [Metric!]
     metricsGroup: Group
     store: Store!
+    createdAt: String
+    updatedAt: String
+  }
+
+  type Order {
+    _id: ID
+    name: String
+    shopUrl: String
+    APIKey: String
+    APISecretKey: String
+    
   }
 
   input UserCreateInput {
@@ -84,8 +98,10 @@ export const typeDefs = gql`
   }
 
   input StoreCreateInput {
+    shopUrl: String!
     name: String!
     APIKey: String!
+    APISecretKey: String!
     APIToken: String!
     createdBy: String
   }
@@ -106,12 +122,11 @@ export const typeDefs = gql`
   }
 
   input SearchCreateInput {
-    name: String!
     timePeriod: String
     userID: String
     metrics: [ID!]
     metricsGroup: String
-    store: String
+    store: String!
   }
 
   input UserInput {
@@ -126,7 +141,9 @@ export const typeDefs = gql`
 
   input StoreInput {
     name: String
+    shopUrl: String
     APIKey: String
+    APISecretKey: String
     APIToken: String
     lastModifiedBy: String
   }
@@ -145,6 +162,16 @@ export const typeDefs = gql`
     metrics: [ID!]
   }
 
+  input SearchInput {
+    name: String
+    store: String
+    metrics: [ID!]
+    metricsGroup: String
+    isSaved: Boolean
+    timePeriod: String
+  }
+
+
   input UserLoginInput {
     email: String!
     password: String!
@@ -158,10 +185,13 @@ export const typeDefs = gql`
     metrics: [Metric]
     searches: [Search]
     search(ID: ID!): Search
+    userSearches(ID: ID!): [Search]
+    userFavoriteSearches(ID: ID!): [Search]
     store(ID: ID!): Store
     group(ID: ID!): Group
     metric(ID: ID!): Metric
     userTypesList: [TypeUser]
+    storeOrders(shopId: ID!, status: String, limit: Int): Order
   }
 
   type Mutation {
@@ -179,6 +209,8 @@ export const typeDefs = gql`
     updateGroup(id: ID!, input: GroupInput!): Group
     removeGroup(id: ID!): String
     createSearch(input: SearchCreateInput!): Search
+    removeSearch(id: ID!): String
+    updateSearch(id: ID!, input: SearchInput!): Search
   }
 `;
 

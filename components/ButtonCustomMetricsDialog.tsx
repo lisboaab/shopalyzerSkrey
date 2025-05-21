@@ -129,13 +129,13 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({
           </label>
         </div>
         {/* metrics fields */}
-        <div className="my-4 flex flex-col items-center gap-8 h-120 overflow-x-auto w-full">
-          <div className="flex flex-row no-wrap gap-x-10 gap-y-3 flex-wrap">
+        <div className="my-4 flex flex-col gap-8 h-120 overflow-x-auto w-full">
+          <div className={`flex flex-row flex-wrap gap-x-10 gap-y-3`}>
             {filteredMetrics.length != 0 &&
               filteredMetrics.map((metric, index) => (
                 <div
-                  key={index}
-                  className="flex flex-row justify-between items-center gap-4 bg-electric50 rounded-md p-4 mb-2 w-80"
+                  key={metric._id}
+                  className="flex flex-row justify-between gap-4 bg-electric50 rounded-md p-4 mb-2 w-80"
                 >
                   <label className="flex flex-row items-center justify-between w-full">
                     <div className="flex-col w-60">
