@@ -65,7 +65,7 @@ export default function Page() {
       <div className="flex flex-col gap-3">
         <h1 className="worksans text-2xl">Your saved searches</h1>
         <h1 className="worksans text-md grey800">
-          See and analize again your saved searches! Don’t worry nothing is
+          Check and analize again your saved searches! Don’t worry, nothing is
           lost!
         </h1>
       </div>

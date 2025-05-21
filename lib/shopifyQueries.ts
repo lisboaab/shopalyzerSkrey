@@ -1,5 +1,7 @@
 import { concat, gql } from "@apollo/client/core";
 import apolloClient from "./apolloClient";
+import { useQuery } from "@apollo/client";
+
 
 import Metric from "../app/interface/metric";
 import Group from "../app/interface/group";
@@ -1122,3 +1124,19 @@ export const GET_SHOP_ORDERS_BASIC = gql`
     }
   }
 `;
+
+export const getShopOrdersBasic = async () => {
+  try {
+    const { data } = useQuery(GET_SHOP_ORDERS_BASIC, {
+        context: {
+          clientName: "shopify",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};

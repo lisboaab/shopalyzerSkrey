@@ -19,10 +19,6 @@ export async function POST(
     const credentials = await getStoreCredentials(shopId, authToken);
 
     const body = await request.json();
-    // console.log("Forwarding request to Shopify:", {
-    //   url: `https://${credentials.shopUrl}/admin/api/2025-04/graphql.json`,
-    //   query: body.query,
-    // });
 
     const shopifyResponse = await fetch(
       `https://${credentials.shopUrl}/admin/api/2025-04/graphql.json`,

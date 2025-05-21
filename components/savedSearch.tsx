@@ -154,6 +154,14 @@ const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
         </div>
         <div className="flex flex-col gap-4">
           <p className="gellix-semibold">
+            Store:{" "}
+            <span className="gellix">
+              {" "}
+              {search.store &&
+                search.store.name}{" "}
+            </span>
+          </p>
+          <p className="gellix-semibold">
             Metrics group:{" "}
             <span className="gellix">
               {" "}

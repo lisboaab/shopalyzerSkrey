@@ -1,10 +1,11 @@
 import Metric from "./metric";
 import Group from "./group";
+import Store from "./store";
 
 export default interface Search {
   _id: string;
   userId: string;
-  store: string;
+  store: Store | string | [name: string];
   metricsGroup?: Group;
   metrics?: Metric[];
   timePeriod: string;

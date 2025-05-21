@@ -12,6 +12,7 @@ export const typeDefs = gql`
     pie
     donut
     card
+    list
   }
 
   enum Status {

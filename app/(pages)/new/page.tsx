@@ -110,7 +110,19 @@ export default function Page() {
           message.classList.add("hidden");
         }, 5000);
       }
-    } else {
+    } 
+    else if (metricsGroup === "681b9229fb80a7c0ec3990a3" && customMetrics.length === 0) {
+      let message = document.getElementById("errorMessageCustomMetrics");
+      if (message) {
+        message.classList.remove("hidden");
+        message.classList.add("flex");
+        setTimeout(() => {
+          message.classList.remove("flex");
+          message.classList.add("hidden");
+        }, 5000);
+      }
+    }
+    else {
       const userID = localStorage.getItem("userID");
       if (!userID) return;
       // let metricsList: Metric[] = [];
@@ -131,7 +143,6 @@ export default function Page() {
         metricsOfGroup.map((m: any) => {
           metricsList.push(m._id);
         });
-        console.log("metricsList", metricsList);
       }
       let selectecTimePeriod = "";
       if (date && date === "last_7_days") {
@@ -156,9 +167,7 @@ export default function Page() {
         metrics: metricsList,
         userID: userID,
       };
-      console.log("input", input);
       const newSearch = await createSearch(input);
-      console.log("newSearch", newSearch.createSearch);
       router.push("/dashboard/" + newSearch.createSearch._id);
     }
   };
@@ -167,6 +176,7 @@ export default function Page() {
     setStore("");
     setMetricsGroup("");
     setDate("");
+    setPencilButtonActive(false)
   };
 
   const dateRangeList = [
@@ -225,21 +235,19 @@ export default function Page() {
               </div>
               {/* Group of metrics */}
               <div className="max-w-sm mx-auto">
-                <div className="flex flex-row justify-start items-end gap-2 mb-2">
-                  <label className="block mb-2 text-sm font-medium text-gray-900 gellix">
+                <div className="flex flex-row justify-start items-center gap-2 mb-2">
+                  <label className="block mb-3 text-sm font-medium text-gray-900 gellix">
                     Group of metrics{" "}
                   </label>
-                  <div
+                  {pencilButtonActive && <div
                     id="pencilButton"
-                    className={`${
-                      pencilButtonActive ? "bg-blue-100" : ""
-                    } rounded-full w-8 h-8 flex items-center justify-center`}
+                    className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center"
                   >
                     <ButtonCustomMetricsDialog
                       setMetricsGroup={setMetricsGroup}
                       setCustomMetrics={setCustomMetrics}
                     />
-                  </div>
+                  </div>}
                 </div>
                 <select
                   value={metricsGroup}
@@ -322,6 +330,26 @@ export default function Page() {
                   />
                 </svg>
                 <p className="gellix text-red-500">All fields are required!</p>
+              </div>
+              <div
+                id="errorMessageCustomMetrics"
+                className="flex-row justify-center items-center gap-2 mt-4 hidden"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="red"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                  />
+                </svg>
+                <p className="gellix text-red-500">Select at least one metric.</p>
               </div>
             </div>
           </form>

@@ -454,7 +454,7 @@ const storeResolver = {
   },
 };
 
-const VALID_GRAPH_TYPES = ["bar", "line", "pie", "donut", "card"];
+const VALID_GRAPH_TYPES = ["bar", "line", "pie", "donut", "card", "list"];
 const metricResolver = {
   Mutation: {
     createMetric: async (_, { input }) => {
@@ -578,8 +578,8 @@ const metricResolver = {
         name: input.name != null ? input.name : metric.name,
         description:
           input.description != null ? input.description : metric.description,
-        grapthType:
-          input.grapthType != null ? input.grapthType : metric.grapthType,
+        graphType:
+          input.graphType != null ? input.graphType : metric.graphType,
         status: input.status != null ? input.status : metric.status,
       });
 

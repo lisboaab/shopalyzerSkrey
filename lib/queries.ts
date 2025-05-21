@@ -367,6 +367,7 @@ const GET_SEARCH = gql`
       metrics {
         _id
         name
+        graphType
       }
       store {
         _id
@@ -425,7 +426,6 @@ export const loginUser = async (input: { email: string; password: string }) => {
       mutation: LOGIN_MUTATION,
       variables: { input },
     });
-    console.log("loginUser: ", data);
     localStorage.setItem("authToken", data.loginUser.accessToken);
     localStorage.setItem("userID", data.loginUser.userID);
     return data;

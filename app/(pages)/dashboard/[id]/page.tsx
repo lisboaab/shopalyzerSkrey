@@ -10,20 +10,23 @@ import { getStoreOfSearch, getSearch, updateSearch } from "@/lib/queries";
 import Dashboard from "@/components/dashboard";
 import Loading from "@/components/loading";
 import ButtonAnimation from "@/components/buttonAnimation";
-import NotFound from "@/components/notFound";
+import SomethingWentWrong from "@/components/somethingWentWrong";
 
 import type Search from "../../../interface/search";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = React.use(params);
   const { id } = resolvedParams; // Search ID from the URL
+
   const [apolloClient, setApolloClient] = useState<ReturnType<
     typeof createApolloClient
   > | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState<boolean | null>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
   const [searchData, setSearchData] = useState<{
     search: Search;
     storeId: string; // Store ID that will be fetched by the Shopify Server
@@ -47,7 +50,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         const authToken = localStorage.getItem("authToken");
 
         if (!authToken) {
-          throw new Error("Token de autenticação não encontrado");
+          throw new Error("Auth token not found");
         }
 
         const search = await getSearch(id, authToken);
@@ -60,6 +63,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         setSearchData({ search, storeId: storeIdString });
         setIsSaved(search.isSaved);
         setUpdatedAt(search.updatedAt);
+
         const credentials = await getStoreCredentials(storeIdString, authToken);
 
         if (!credentials?.APIToken) {
@@ -69,8 +73,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         // Apollo client
         const client = createApolloClient(
           storeIdString,
-          credentials.shopUrl,
-          credentials.APIToken,
           authToken
         );
 
@@ -93,8 +95,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   if (error) {
     console.error("Error:", error);
-    return <NotFound />;
-  }
+    return <SomethingWentWrong />;
+}
 
   if (!apolloClient) {
     console.error("Apollo client is not initialized");
