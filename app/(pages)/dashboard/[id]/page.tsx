@@ -7,7 +7,7 @@ import { getStoreCredentials } from "@/lib/services/storeService";
 import { createApolloClient } from "@/lib/shopifyServer";
 import { getStoreOfSearch, getSearch, updateSearch } from "@/lib/queries";
 
-import Dashboard from "@/components/dashboard";
+import Dashboard from "@/components/dashboard/dashboard";
 import Loading from "@/components/loading";
 import ButtonAnimation from "@/components/buttonAnimation";
 import SomethingWentWrong from "@/components/somethingWentWrong";

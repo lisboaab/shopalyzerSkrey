@@ -454,7 +454,7 @@ const UserMenu: React.FC = () => {
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
-                            stroke="red"
+                            stroke="#DE1B1B"
                             className="size-5 "
                             onClick={() => setNameInput(false)}
                           >
@@ -540,7 +540,7 @@ const UserMenu: React.FC = () => {
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
-                            stroke="red"
+                            stroke="#DE1B1B"
                             className="size-5 "
                             onClick={() => setEmailInput(false)}
                           >
@@ -635,7 +635,7 @@ const UserMenu: React.FC = () => {
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
-                            stroke="red"
+                            stroke="#DE1B1B"
                             className="size-5 "
                             onClick={() => setPasswordInput(false)}
                           >

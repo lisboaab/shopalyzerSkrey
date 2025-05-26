@@ -444,6 +444,18 @@ export const GET_TOP_CATEGORIES = gql`
   }
 `;
 
+export const GET_TOTAL_ORDERS = gql`
+  query GetTotalOrders {
+    orders(first: 50) {
+      edges {
+        node {
+          createdAt
+        }
+      }
+    }
+  }
+`;
+
 export class ShopifyOrdersService {
   private client;
 
@@ -586,12 +598,14 @@ export class ShopifyOrdersService {
         timePeriod,
         orders.data.orders.edges
       );
-
-      const data =  filteredOrders.reduce((total: number, edge: any) => {
+      let currency;
+      const data = filteredOrders.reduce((total: number, edge: any) => {
         const amount = edge.node?.totalPriceSet?.shopMoney?.amount;
+        currency = edge.node?.totalPriceSet?.shopMoney?.currencyCode;
         return total + (parseFloat(amount) || 0);
       }, 0);
-      return data.toFixed(2)
+      const newCurrency = currency != undefined ? currency : "$";
+      return data.toFixed(2) + " " + newCurrency;
     } catch (error) {
       console.error("Error fetching total revenue of orders:", error);
       throw error;
@@ -612,11 +626,17 @@ export class ShopifyOrdersService {
       if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
         throw new Error("Invalid response format from Shopify");
       }
-      const totalRevenue = await this.calculateTotalRevenue(timePeriod);
 
-      const average = totalRevenue / filteredOrders.length;
-
-      return average.toFixed(2);
+      let average;
+      if (filteredOrders.length === 0) {
+        average = "0.00 $";
+      } else {
+        const totalRevenue = await this.calculateTotalRevenue(timePeriod);
+        const totalRevenueNumber = totalRevenue.split(" ");
+        const result = parseInt(totalRevenueNumber[0]) / filteredOrders.length;
+        average = result.toFixed(2) + " " + totalRevenueNumber[1];
+      }
+      return average
     } catch (error) {
       console.error("Error fetching average value of orders:", error);
       throw error;
@@ -640,8 +660,10 @@ export class ShopifyOrdersService {
         orders.data.orders.edges
       );
 
+      let currency;
       const discount = filteredOrders.reduce((total: number, edge: any) => {
         const amount = edge.node?.totalDiscountsSet?.shopMoney?.amount;
+        currency = edge.node?.totalDiscountsSet?.shopMoney?.currencyCode;
         return total + (parseFloat(amount) || 0);
       }, 0);
 
@@ -650,8 +672,9 @@ export class ShopifyOrdersService {
       // Percentage
       // return ((discount / totalRevenueWithDiscounts) * 100).toFixed(2);
 
+      const newCurrency = currency != undefined ? currency : "$";
       // Full price discounted
-      return discount.toFixed(2);
+      return discount.toFixed(2) + " " + newCurrency;
     } catch (error) {
       console.error("Error fetching total discount of orders:", error);
       throw error;
@@ -707,7 +730,7 @@ export class ShopifyOrdersService {
       const conversionRate =
         totalOrders > 0 ? (fulfilledOrders / totalOrders) * 100 : 0;
 
-      return conversionRate.toFixed(2);
+      return Math.round(conversionRate) + "%";
     } catch (error) {
       console.error("Error fetching conversion rate:", error);
       throw error;
@@ -730,14 +753,14 @@ export class ShopifyOrdersService {
       filteredOrders.forEach((order: any) => {
         order.node.lineItems.edges.forEach((lineItem: any) => {
           const item = {
-            product: lineItem.node.name,
+            item: lineItem.node.name,
             quantity: lineItem.node.quantity,
           };
           products.push(item);
         });
       });
       const groupedProducts = products.reduce((acc: any, curr) => {
-        const key = curr.product;
+        const key = curr.item;
         if (!acc[key]) {
           acc[key] = {
             ...curr,
@@ -758,102 +781,127 @@ export class ShopifyOrdersService {
     }
   }
 
-//   async calculateTopCategories(timePeriod: string = "30") {
-//     try {
-//       const orders = await this.client.query({
-//         query: GET_TOP_CATEGORIES,
-//       });
+  //   async calculateTopCategories(timePeriod: string = "30") {
+  //     try {
+  //       const orders = await this.client.query({
+  //         query: GET_TOP_CATEGORIES,
+  //       });
 
-//       const filteredOrders = await this.filterOrders(
-//         timePeriod,
-//         orders.data.orders.edges
-//       );
+  //       const filteredOrders = await this.filterOrders(
+  //         timePeriod,
+  //         orders.data.orders.edges
+  //       );
 
-//       const categories: any[] = [];
+  //       const categories: any[] = [];
 
-//       filteredOrders.forEach((order: any) => {
-//         order.node.lineItems.edges.forEach((lineItem: any) => {
-//           const item = {
-//             productType: lineItem.node.variant.product.productType,
-//             quantity: lineItem.node.quantity,
-//           };
-//           categories.push(item);
-//         });
-//       });
+  //       filteredOrders.forEach((order: any) => {
+  //         order.node.lineItems.edges.forEach((lineItem: any) => {
+  //           const item = {
+  //             productType: lineItem.node.variant.product.productType,
+  //             quantity: lineItem.node.quantity,
+  //           };
+  //           categories.push(item);
+  //         });
+  //       });
 
-//       const groupedCategories = categories.reduce((acc: any, curr) => {
-//         const key = curr.productType;
-//         if (!acc[key]) {
-//           acc[key] = {
-//             ...curr,
-//             totalQuantity: 0,
-//           };
-//         }
-//         acc[key].totalQuantity += curr.quantity;
-//         return acc;
-//       }, {});
-      
-//       const topCategories = Object.values(groupedCategories).sort(
-//         (a: any, b: any) => b.totalQuantity - a.totalQuantity
-//       );
-// console.log("top categorires", topCategories.slice(0, 5))
-//       return topCategories.slice(0, 5);
-//     } catch (error) {
-//       console.error("Error fetching conversion rate:", error);
-//       throw error;
-//     }
-//   }
-async calculateTopCategories(timePeriod: string = "30") {
-  try {
-    const orders = await this.client.query({
-      query: GET_TOP_CATEGORIES,
-    });
+  //       const groupedCategories = categories.reduce((acc: any, curr) => {
+  //         const key = curr.productType;
+  //         if (!acc[key]) {
+  //           acc[key] = {
+  //             ...curr,
+  //             totalQuantity: 0,
+  //           };
+  //         }
+  //         acc[key].totalQuantity += curr.quantity;
+  //         return acc;
+  //       }, {});
 
-    const filteredOrders = await this.filterOrders(
-      timePeriod,
-      orders.data.orders.edges
-    );
-
-    const categories: any[] = [];
-
-    filteredOrders.forEach((order: any) => {
-      order.node.lineItems.edges.forEach((lineItem: any) => {
-        const productType = lineItem.node.variant?.product?.productType || "Uncategorized";
-        const quantity = parseInt(lineItem.node.quantity) || 0;
-        
-        if (productType) {
-          categories.push({
-            productType,
-            quantity
-          });
-        }
+  //       const topCategories = Object.values(groupedCategories).sort(
+  //         (a: any, b: any) => b.totalQuantity - a.totalQuantity
+  //       );
+  // console.log("top categorires", topCategories.slice(0, 5))
+  //       return topCategories.slice(0, 5);
+  //     } catch (error) {
+  //       console.error("Error fetching conversion rate:", error);
+  //       throw error;
+  //     }
+  //   }
+  async calculateTopCategories(timePeriod: string = "30") {
+    try {
+      const orders = await this.client.query({
+        query: GET_TOP_CATEGORIES,
       });
-    });
 
-    const groupedCategories = categories.reduce((acc: any, curr) => {
-      const key = curr.productType;
-      
-      if (!acc[key]) {
-        acc[key] = {
-          productType: key,
-          totalQuantity: 0
-        };
-      }
-      
-      acc[key].totalQuantity += curr.quantity;
-      
-      return acc;
-    }, {});
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
 
-    const topCategories = Object.values(groupedCategories)
-      .filter((category: any) => category.productType && category.totalQuantity > 0)
-      .sort((a: any, b: any) => b.totalQuantity - a.totalQuantity)
-      .slice(0, 5);
-    
-    return topCategories;
-  } catch (error) {
-    console.error("Error fetching top categories:", error);
-    throw error;
+      const categories: any[] = [];
+
+      filteredOrders.forEach((order: any) => {
+        order.node.lineItems.edges.forEach((lineItem: any) => {
+          const item =
+            lineItem.node.variant?.product?.productType || "Uncategorized";
+          const quantity = parseInt(lineItem.node.quantity) || 0;
+
+          if (item) {
+            categories.push({
+              item,
+              quantity,
+            });
+          }
+        });
+      });
+
+      const groupedCategories = categories.reduce((acc: any, curr) => {
+        const key = curr.item;
+
+        if (!acc[key]) {
+          acc[key] = {
+            item: key,
+            totalQuantity: 0,
+          };
+        }
+
+        acc[key].totalQuantity += curr.quantity;
+
+        return acc;
+      }, {});
+
+      const topCategories = Object.values(groupedCategories)
+        .filter((category: any) => category.item && category.totalQuantity > 0)
+        .sort((a: any, b: any) => b.totalQuantity - a.totalQuantity)
+        .slice(0, 5);
+
+      return topCategories;
+    } catch (error) {
+      console.error("Error fetching top categories:", error);
+      throw error;
+    }
   }
-}
+  async calculateTotalOrders(timePeriod: string = "30") {
+    try {
+      const orders = await this.client.query({
+        query: GET_TOTAL_ORDERS,
+      });
+
+      if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
+        throw new Error("Invalid response format from Shopify");
+      }
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+      let answer;
+      if (filteredOrders.length === 50) answer = `+${filteredOrders.length}`;
+      else answer = filteredOrders.length;
+
+      return answer;
+    } catch (error) {
+      console.error("Error fetching total revenue of orders:", error);
+      throw error;
+    }
+  }
 }

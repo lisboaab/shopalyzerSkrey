@@ -183,7 +183,7 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
             <ButtonAnimation
               label="Delete"
               color="white"
-              backgroundColor="red"
+              backgroundColor="#DE1B1B"
               icon="trashcan"
               action={() => {
                 if (selectedSearchId) {handleRemoveSearch(selectedSearchId);}
