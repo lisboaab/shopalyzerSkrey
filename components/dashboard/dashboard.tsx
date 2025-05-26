@@ -1,16 +1,17 @@
 import React from "react";
-import "../app/globals.css";
-import { ShopifyOrdersService } from "../lib/services/shopifyOrdersService";
+import "../../app/globals.css";
+import { ShopifyOrdersService } from "../../lib/services/shopifyOrdersService";
 import { useEffect, useState } from "react";
 
 import LoadingData from "@/components/loadingData";
-import EmptyState from "@/components/emptyState";
 import SomethingWentWrong from "@/components/somethingWentWrong";
+import Card from "@/components/dashboard/card";
+import List from "@/components/dashboard/list";
 
 import { getSearch } from "@/lib/queries";
 
-import type Search from "../app/interface/search";
-import type Metric from "../app/interface/metric";
+import type Search from "../../app/interface/search";
+import type Metric from "../../app/interface/metric";
 
 interface DashboardData {
   card: Array<{
@@ -29,7 +30,6 @@ interface DashboardData {
 
 export default function Dashboard({ searchId }: { searchId: string }) {
   const [search, setSearch] = useState<Search | null>(null);
-  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData>({
@@ -106,6 +106,11 @@ export default function Dashboard({ searchId }: { searchId: string }) {
                   searchData.timePeriod
                 );
                 break;
+              case "Total orders":
+                value = await ordersService.calculateTotalOrders(
+                  searchData.timePeriod
+                );
+                break;
             }
             const item = {
               metric: metric,
@@ -146,53 +151,72 @@ export default function Dashboard({ searchId }: { searchId: string }) {
     fetchData();
   }, [searchId]);
 
+  // console.log("dashboard data: ", dashboardData);
+
   if (loading) return <LoadingData />;
   if (error) {
     console.error("Error:", error);
     return (
-      <div>
+      <div className="flex flex-row w-full justify-between">
         <SomethingWentWrong />
       </div>
     );
   }
   return (
     <div className="flex flex-col w-full justify-between gap-15">
+      {" "}
+      {/* Card items */}
       <div className="flex flex-row justify-between">
         {dashboardData.card.length > 0 &&
-          dashboardData.card.map((data: any) => {
-            return (
-              <div key={data.metric.name}>
-                <p className="gellix text-black">{data.metric.name}</p>
-                <p>{data.value}</p>
-              </div>
-            );
-          })}
-      </div>
+          [...dashboardData.card]
+            .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
+            .map((data: any) => {
+              return (
+                <div
+                  key={data.metric.name}
+                  className="p-8 rounded-lg flex-1 mx-3"
+                  style={{ backgroundColor: "#F6F7F9" }}
+                >
+                  <Card label={data.metric.name} value={data.value} />
+                </div>
+              );
+            })}
+      </div>{" "}
+
+      {/* List items */}
       <div className="flex flex-row justify-between">
         {dashboardData.list.length > 0 &&
-          dashboardData.list.map((data: any) => {
-            return (
-              <div key={data.metric.name}>
-                <p className="gellix text-black">{data.metric.name}</p>
-                {!Array.isArray(data.value) &&
-                  typeof data.value === "object" &&
-                  Object.entries(data.value).map(
-                    ([key, value]: [string, any], index) => (
-                      <div key={`${data.metric.name}-${index}`}>
-                        {key}: {value}
-                      </div>
-                    )
-                  )}
-                {/* Caso seja um array (ex: produtos mais vendidos) */}
-                {Array.isArray(data.value) &&
-                  data.value.map((item: any, index: number) => (
-                    <div key={`${data.metric.name}-${index}`}>
-                      {item.product || item.productType}: {item.totalQuantity}
-                    </div>
-                  ))}
-              </div>
-            );
-          })}
+          [...dashboardData.list]
+            .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
+            .map((data: any) => {
+              return (
+                <div key={data.metric.name} className="p-8 rounded-lg flex-1 mx-3"
+                  style={{ backgroundColor: "#E8F1FF90" }}>
+                    <List label={data.metric.name} value={data.value}/>
+                </div>
+              );
+            })}
+      </div>{" "}
+      <div className="flex flex-row justify-between">
+        {dashboardData.donut.length > 0 &&
+          [...dashboardData.donut]
+            .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
+            .map((data: any) => {
+              return (
+                <div key={data.metric.name}>
+                  <p className="gellix text-black">{data.metric.name}</p>
+                  {!Array.isArray(data.value) &&
+                    typeof data.value === "object" &&
+                    Object.entries(data.value).map(
+                      ([key, value]: [string, any], index) => (
+                        <div key={`${data.metric.name}-${index}`}>
+                          {key}: {value}
+                        </div>
+                      )
+                    )}
+                </div>
+              );
+            })}
       </div>
     </div>
   );

@@ -127,9 +127,27 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({
               className="bg-transparent outline-none text-gray-900 gellix h-full"
             />
           </label>
-        </div>
-        {/* metrics fields */}
+        </div>        {/* metrics fields */}
         <div className="my-4 flex flex-col gap-8 h-120 overflow-x-auto w-full">
+          {/* Select All checkbox */}
+          <div className="flex flex-row items-center gap-2 mb-2">
+            <span className="text-gray-900 gellix mr-5">Select All</span>
+            <input
+              type="checkbox"
+              className="h-5 w-5 cursor-pointer color-blue-500"
+              checked={selectedMetrics.length === filteredMetrics.length && filteredMetrics.length > 0}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  // Selecionar todas as métricas filtradas
+                  setSelectedMetrics(filteredMetrics.map(m => m._id!).filter(Boolean));
+                } else {
+                  // Desselecionar todas
+                  setSelectedMetrics([]);
+                }
+              }}
+            />
+            
+          </div>
           <div className={`flex flex-row flex-wrap gap-x-10 gap-y-3`}>
             {filteredMetrics.length != 0 &&
               filteredMetrics.map((metric, index) => (

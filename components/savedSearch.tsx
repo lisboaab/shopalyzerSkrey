@@ -2,16 +2,15 @@
 
 import "../app/globals.css";
 import { useRouter } from "next/navigation";
-import React, { JSX, useState } from "react";
+import React, { useState } from "react";
 
 import ButtonAnimation from "./buttonAnimation";
 import ModalDeleteSavedSearch from "./modal/modalDeleteSavedSearch";
-import SnackBar from "./modal/snackBar";
 
 import type Search from "@/app/interface/search";
 import type Metric from "@/app/interface/metric";
 
-import { removeSearch } from "@/lib/queries";
+import { updateSearch } from "@/lib/queries";
 
 import {
   AdjustmentsHorizontalIcon,
@@ -58,8 +57,9 @@ import {
 interface SavedSearch {
   search: Search;
   onDelete?: (id: string) => void;
+  onUnsave?: (id: string) => void;
 }
-const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
+const SavedSearch: React.FC<SavedSearch> = ({ search, onDelete, onUnsave }) => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
@@ -113,28 +113,33 @@ const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDelete) {
-      await onDelete(search._id);
+      onDelete(search._id);
       setShowModal(false);
     }
-  }
+  };
+
+  const handleUnsaveSearch = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onUnsave){
+      onUnsave(search._id)
+    }
+  };
 
   return (
     <div
-      className="p-5 bg-electric50 rounded-xl flex flex-col gap-8 w-80 h-92 cursor-pointer justify-between"
+      className="p-5 bg-electric50 rounded-xl flex flex-col gap-5 w-80 h-100 cursor-pointer justify-between"
       onClick={() => {
         router.push(`/dashboard/${search._id}`);
       }}
     >
       {/* header */}
-      <div className="flex flex-col gap-8 items-start">
+      <div className="flex flex-col gap-5 items-start">
         <div className="flex flex-row gap-8 items-center">
           {/* icon */}
           <div className="bg-electric400 flex rounded-full items-center justify-center w-15 h-15">
             {search.metricsGroup?.icon ? (
               React.createElement(
-                HeroIcons[
-                  search.metricsGroup.icon as keyof typeof HeroIcons
-                ],
+                HeroIcons[search.metricsGroup.icon as keyof typeof HeroIcons],
                 {
                   className: "w-7 h-7 text-white",
                 }
@@ -152,28 +157,28 @@ const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <p className="gellix-semibold">
             Store:{" "}
             <span className="gellix">
-              {" "}
               {search.store &&
-                search.store.name}{" "}
+              typeof search.store === "object" &&
+              "name" in search.store
+                ? (search.store as { name: string }).name
+                : ""}
             </span>
           </p>
           <p className="gellix-semibold">
             Metrics group:{" "}
             <span className="gellix">
-              {" "}
-              {search.metricsGroup &&
-                search.metricsGroup.name}{" "}
+              {search.metricsGroup && search.metricsGroup.name}
             </span>
           </p>
           <div className="flex flex-row gap-1">
             <p className="gellix-semibold">Metrics list:</p>
             <div className="max-w-48">
               {search.metrics &&
-                search.metrics.slice(0, 4).map((metric: Metric) => (
+                search.metrics.slice(0, 3).map((metric: Metric) => (
                   <p
                     key={metric._id ?? metric.name}
                     className="truncate gellix"
@@ -181,7 +186,7 @@ const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
                     {metric.name}
                   </p>
                 ))}
-              {search.metrics && search.metrics.length > 4 ? (
+              {search.metrics && search.metrics.length > 3 ? (
                 <p className="text-gray-400 text-sm gellix">More...</p>
               ) : (
                 ""
@@ -190,10 +195,17 @@ const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
           </div>
         </div>
       </div>
-      <div className="place-self-center">
+      <div className="place-self-center flex flex-col gap-3">
         <ButtonAnimation
           style="outline"
-          color="red"
+          color="#6D768A"
+          label="Unsave search"
+          action={(e) => handleUnsaveSearch(e)}
+          width="18em"
+        />
+        <ButtonAnimation
+          color="white"
+          backgroundColor="#DE1B1B"
           icon="trashcan"
           label="Delete search"
           action={(e) => modalHandler(e)}
@@ -222,7 +234,7 @@ const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
             <ButtonAnimation
               label="Delete"
               color="white"
-              backgroundColor="red"
+              backgroundColor="#DE1B1B"
               icon="trashcan"
               action={handleDelete}
               width="10em"
@@ -230,7 +242,6 @@ const SavedSearch: React.FC<SavedSearch> = ({search, onDelete}) => {
           </div>
         </div>
       </ModalDeleteSavedSearch>
-
     </div>
   );
 };

@@ -8,7 +8,7 @@ import Loading from "@/components/loading";
 import SnackBar from "@/components/modal/snackBar";
 
 // Queries
-import { getUserFavoriteSearches, removeSearch } from "@/lib/queries";
+import { getUserFavoriteSearches, removeSearch, updateSearch } from "@/lib/queries";
 
 export default function Page() {
   const [loadedItems, setLoadedItems] = useState<any[]>([]);
@@ -37,14 +37,24 @@ export default function Page() {
 
   const handleDeleteSearch = async (id: string) => {
     const remove = await removeSearch(id);
-    // const remove = true
     if (remove) {
       handleSnackBar("success", "Search deleted successfully!");
       setLoadedItems((prev) => prev.filter((item) => item._id !== id));
-
-      // window.location.reload();
     } else {
       handleSnackBar("error", "Error deleting search");
+    }
+  };
+
+  const handleUnsaveSearch = async (id: string) => {
+    const input = {
+      isSaved: false
+    }
+    const unsave = await updateSearch(id, input)
+    if (unsave) {
+      handleSnackBar("success", "Search unsaved successfully!");
+      setLoadedItems((prev) => prev.filter((item) => item._id !== id));
+    } else {
+      handleSnackBar("error", "Error unsaving search");
     }
   };
 
@@ -78,6 +88,7 @@ export default function Page() {
                 key={search._id || index}
                 search={search}
                 onDelete={() => handleDeleteSearch(search._id)}
+                onUnsave={() => handleUnsaveSearch(search._id)}
               />
             ))}
           {loadedItems.length === 0 && <EmptyState />}
