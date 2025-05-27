@@ -17,10 +17,9 @@ const SignInForm: React.FC = () => {
 
     const emailInput = document.getElementById(
       "emailInput"
-    ) as HTMLInputElement;
-    const passwordInput = document.getElementById(
+    ) as HTMLInputElement;    const passwordInput = document.getElementById(
       "passwordInput"
-    ) as HTMLInputElement;
+    )?.parentElement as HTMLElement;
 
     try {
       const input = {
@@ -30,7 +29,7 @@ const SignInForm: React.FC = () => {
       if (!email || !password) {
         setError("All fields required.");
         if (!email) emailInput.classList.add("border-red-500");
-        if (!password) passwordInput.classList.add("border-red-500");
+        else if (!password) passwordInput.classList.add("border-red-500");
         return;
       }
       const data = await loginUser(input);
@@ -45,17 +44,23 @@ const SignInForm: React.FC = () => {
     } catch (error) {
       if (error instanceof Error) {
         console.error("Login error:", error);
+        console.log("Login error:", error)
+         console.log("Login error message:", error.message)
         if (error.message === "User not found") {
           emailInput.classList.add("border-red-500");
+          passwordInput.classList.remove("border-red-500");
           setError("Please, enter a valid email address.");
         }
         if (error.message === "Wrong password") {
+          emailInput.classList.remove("border-red-500");
           passwordInput.classList.add("border-red-500");
           setError("Wrong password. Please, try again.");
-        } else {
+        } 
+        
+      }
+      else {
           setError("An error occurred. Please try again.");
         }
-      }
     }
   };
 
