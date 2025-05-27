@@ -128,10 +128,10 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({
             />
           </label>
         </div>        {/* metrics fields */}
-        <div className="my-4 flex flex-col gap-8 h-120 overflow-x-auto w-full">
+        <div className="my-4 flex flex-col gap-8 h-120 overflow-x-auto w-full">          
           {/* Select All checkbox */}
-          <div className="flex flex-row items-center gap-2 mb-2">
-            <span className="text-gray-900 gellix mr-5">Select All</span>
+          <div className="flex flex-row items-center gap-2 mb-2 justify-end w-full">
+            <span className="text-gray-900 gellix mr-1">Select All</span>
             <input
               type="checkbox"
               className="h-5 w-5 cursor-pointer color-blue-500"
@@ -148,7 +148,7 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({
             />
             
           </div>
-          <div className={`flex flex-row flex-wrap gap-x-10 gap-y-3`}>
+          <div className={`flex flex-row flex-wrap gap-x-15 gap-y-5 w-full`}>
             {filteredMetrics.length != 0 &&
               filteredMetrics.map((metric, index) => (
                 <div

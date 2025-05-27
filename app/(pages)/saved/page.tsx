@@ -8,7 +8,11 @@ import Loading from "@/components/loading";
 import SnackBar from "@/components/modal/snackBar";
 
 // Queries
-import { getUserFavoriteSearches, removeSearch, updateSearch } from "@/lib/queries";
+import {
+  getUserFavoriteSearches,
+  removeSearch,
+  updateSearch,
+} from "@/lib/queries";
 
 export default function Page() {
   const [loadedItems, setLoadedItems] = useState<any[]>([]);
@@ -47,9 +51,9 @@ export default function Page() {
 
   const handleUnsaveSearch = async (id: string) => {
     const input = {
-      isSaved: false
-    }
-    const unsave = await updateSearch(id, input)
+      isSaved: false,
+    };
+    const unsave = await updateSearch(id, input);
     if (unsave) {
       handleSnackBar("success", "Search unsaved successfully!");
       setLoadedItems((prev) => prev.filter((item) => item._id !== id));
@@ -65,7 +69,10 @@ export default function Page() {
     }
     const fetchUserFavoriteSearches = async () => {
       const loadedItems = await getUserFavoriteSearches(userId);
-      setLoadedItems(loadedItems);
+      const sortedItems = [...loadedItems].sort(
+        (a: any, b: any) => b.updatedAt - a.updatedAt
+      );
+      setLoadedItems(sortedItems);
     };
     fetchUserFavoriteSearches();
   }, []);

@@ -397,6 +397,7 @@ const StoresManagement: React.FC = () => {
               <input
                 type="text"
                 className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                placeholder="Ex.: my-store.myshopify.com"
                 value={newStore.shopUrl}
                 onChange={(e) =>
                   setNewStore({
