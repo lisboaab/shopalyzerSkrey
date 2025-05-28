@@ -74,6 +74,15 @@ const UsersManagement: React.FC = () => {
         email: userToBeEdited.email,
         userType: userToBeEdited.userType,
       };
+      if (!userToBeEdited.name || !userToBeEdited.email) {
+        throw new Error("Blank fields");
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(userToBeEdited.email)) {
+        throw new Error("Invalid email");
+      }
+
       await updateUser(id, user);
       setModalState((prev) => ({
         ...prev,
@@ -86,9 +95,19 @@ const UsersManagement: React.FC = () => {
 
       fetchData();
     } catch (error) {
-      if (error === "Email already in use.") {
-        handleSnackBar("failure", "Email already in use");
-      } else handleSnackBar("failure", "Something went wrong while updating!");
+      if (error instanceof Error) {
+        if (error.message === "Email already in use.") {
+          handleSnackBar("failure", "Email already in use");
+        } else if (error.message === "Blank fields") {
+          handleSnackBar("failure", "Please, fill all the fields");
+        } else if (error.message === "Invalid email") {
+          handleSnackBar("failure", "Please enter a valid email address");
+        } else {
+          handleSnackBar("failure", "Something went wrong while updating!");
+        }
+      } else {
+        handleSnackBar("failure", "Something went wrong while updating!");
+      }
     }
   };
 
@@ -159,8 +178,7 @@ const UsersManagement: React.FC = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-  }, [userTypesListNames]);
+  useEffect(() => {}, [userTypesListNames]);
 
   return (
     <div className="w-full h-full">
@@ -287,6 +305,14 @@ const UsersManagement: React.FC = () => {
                       name: e.target.value,
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (userToBeEdited && userToBeEdited._id) {
+                        handleSaveUserEdit(userToBeEdited._id, userToBeEdited);
+                      }
+                    }
+                  }}
                 />
               </div>
 
@@ -303,6 +329,14 @@ const UsersManagement: React.FC = () => {
                       email: e.target.value,
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (userToBeEdited && userToBeEdited._id) {
+                        handleSaveUserEdit(userToBeEdited._id, userToBeEdited);
+                      }
+                    }
+                  }}
                 />
               </div>
 

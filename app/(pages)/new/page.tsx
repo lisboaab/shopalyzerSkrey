@@ -19,6 +19,8 @@ import {
 // Interface
 import type Store from "../../interface/store";
 import type Metric from "../../interface/metric";
+import type Group from "../../interface/group";
+
 
 // Components
 import ButtonAnimation from "@/components/buttonAnimation";
@@ -36,6 +38,8 @@ export default function Page() {
   const [customMetrics, setCustomMetrics] = useState<Metric[]>([]);
   const [metricsGroupList, setMetricsGroupList] = useState<any[]>([""]);
   const [pencilButtonActive, setPencilButtonActive] = useState(false);
+  const [customGroup, setCustomGroup] = useState<Group>();
+
 
   useEffect(() => {
     const ID = localStorage.getItem("userID");
@@ -87,8 +91,16 @@ export default function Page() {
             a.name.localeCompare(b.name)
           );
           setMetricsGroupList(groupsSorted);
+
+          const cGroup = groupsSorted.find((g) => g.name === "Custom")
+          if(cGroup){
+            setCustomGroup(cGroup)
+          }
+          else {
+            console.error("Custom group not found");
+          }
         } else {
-          console.error("groups not found");
+          console.error("Groups not found");
         }
       } catch (error) {
         console.error("Error fetching groups", error);
@@ -110,8 +122,10 @@ export default function Page() {
           message.classList.add("hidden");
         }, 5000);
       }
-    } 
-    else if (metricsGroup === "681b9229fb80a7c0ec3990a3" && customMetrics.length === 0) {
+    } else if (
+      metricsGroup === customGroup?._id &&
+      customMetrics.length === 0
+    ) {
       let message = document.getElementById("errorMessageCustomMetrics");
       if (message) {
         message.classList.remove("hidden");
@@ -121,16 +135,12 @@ export default function Page() {
           message.classList.add("hidden");
         }, 5000);
       }
-    }
-    else {
+    } else {
       const userID = localStorage.getItem("userID");
       if (!userID) return;
-      // let metricsList: Metric[] = [];
       let metricsList: any[] = [];
 
-      if (metricsGroup === "681b9229fb80a7c0ec3990a3") {
-        // aqui
-
+      if (metricsGroup === customGroup?._id) {
         if (customMetrics.length > 0) {
           customMetrics.map((m) => {
             metricsList.push(m._id);
@@ -176,7 +186,7 @@ export default function Page() {
     setStore("");
     setMetricsGroup("");
     setDate("");
-    setPencilButtonActive(false)
+    setPencilButtonActive(false);
   };
 
   const dateRangeList = [
@@ -239,22 +249,23 @@ export default function Page() {
                   <label className="block mb-3 text-sm font-medium text-gray-900 gellix">
                     Group of metrics{" "}
                   </label>
-                  {pencilButtonActive && <div
-                    id="pencilButton"
-                    className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center"
-                  >
-                    <ButtonCustomMetricsDialog
-                      setMetricsGroup={setMetricsGroup}
-                      setCustomMetrics={setCustomMetrics}
-                    />
-                  </div>}
+                  {pencilButtonActive && (
+                    <div
+                      id="pencilButton"
+                      className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center"
+                    >
+                      <ButtonCustomMetricsDialog
+                        setCustomMetrics={setCustomMetrics}
+                      />
+                    </div>
+                  )}
                 </div>
                 <select
                   value={metricsGroup}
                   className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
                   onChange={(e) => {
                     setMetricsGroup(e.target.value);
-                    if (e.target.value === "681b9229fb80a7c0ec3990a3") {
+                    if (e.target.value === customGroup?._id) {
                       setPencilButtonActive(true);
                     } else {
                       setPencilButtonActive(false);
@@ -349,7 +360,9 @@ export default function Page() {
                     d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
                   />
                 </svg>
-                <p className="gellix text-red-500">Select at least one metric.</p>
+                <p className="gellix text-red-500">
+                  Select at least one metric.
+                </p>
               </div>
             </div>
           </form>

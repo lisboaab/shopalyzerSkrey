@@ -35,16 +35,12 @@ const SignInForm: React.FC = () => {
       const data = await loginUser(input);
 
       if (data?.loginUser.userID) {
-        // localStorage.setItem("authToken", data.loginUser.accessToken);
-        // localStorage.setItem("userID", data.loginUser.userID);
         router.push("/new");
       } else {
         setError("Invalid credentials.");
       }
     } catch (error) {
       if (error instanceof Error) {
-        console.error("Login error:", error);
-        console.log("Login error:", error)
          console.log("Login error message:", error.message)
         if (error.message === "User not found") {
           emailInput.classList.add("border-red-500");
@@ -78,7 +74,12 @@ const SignInForm: React.FC = () => {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"            onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSignIn(e);
+                    }
+                  }}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -89,8 +90,13 @@ const SignInForm: React.FC = () => {
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="gellix w-full bg-transparent outline-none"
+              onChange={(e) => setPassword(e.target.value)}              className="gellix w-full bg-transparent outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSignIn(e);
+                }
+              }}
             />
             {showPassword ? (
               <svg

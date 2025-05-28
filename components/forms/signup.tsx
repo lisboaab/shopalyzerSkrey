@@ -17,9 +17,7 @@ const SignUpForm: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    const nameInput = document.getElementById(
-      "nameInput"
-    ) as HTMLInputElement;
+    const nameInput = document.getElementById("nameInput") as HTMLInputElement;
     const emailInput = document.getElementById(
       "emailInput"
     ) as HTMLInputElement;
@@ -85,51 +83,81 @@ const SignUpForm: React.FC = () => {
   return (
     <form onSubmit={handleSignUp} className="flex flex-col gap-6 min-w-80 py-5">
       <div className="flex flex-col gap-2">
-          <p className="gellix">Name</p>
-          <input
-            id="nameInput"
-            type="text"
-            placeholder="Enter your first name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
-          />
-        </div>
+        <p className="gellix">Name</p>
+        <input
+          id="nameInput"
+          type="text"
+          placeholder="Enter your first name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSignUp(e);
+            }
+          }}
+        />
+      </div>
       <div className="flex flex-col gap-2">
-          <p className="gellix">Email</p>
-          <input
-            id="emailInput"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className="gellix">Password</p>
-          <input
-            id="passwordInput"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className="gellix">Confirm Password</p>
-          <input
-            id="confirmPasswordInput"
-            type="password"
-            placeholder="Confirm your password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
-          />
+        <p className="gellix">Email</p>
+        <input
+          id="emailInput"
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSignUp(e);
+            }
+          }}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="gellix">Password</p>
+        <input
+          id="passwordInput"
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSignUp(e);
+            }
+          }}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="gellix">Confirm Password</p>
+        <input
+          id="confirmPasswordInput"
+          type="password"
+          placeholder="Confirm your password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSignUp(e);
+            }
+          }}
+        />
       </div>
       {error && <p className="text-red-500">{error}</p>}
-      <ButtonAnimation label="Sign up" type="submit" color="blue" style="outline" icon="arrow"/>
+      <ButtonAnimation
+        label="Sign up"
+        type="submit"
+        color="blue"
+        style="outline"
+        icon="arrow"
+      />
     </form>
   );
 };

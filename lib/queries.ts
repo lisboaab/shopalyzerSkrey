@@ -284,6 +284,7 @@ const GET_USER_SEARCHES = gql`
       metrics {
         _id
         name
+        status
       }
       isSaved
       metricsGroup {
@@ -307,6 +308,7 @@ const GET_USER_FAVORITE_SEARCHES = gql`
       metrics {
         _id
         name
+        status
       }
       metricsGroup {
         icon
@@ -368,6 +370,7 @@ const GET_SEARCH = gql`
         _id
         name
         graphType
+        status
       }
       store {
         _id

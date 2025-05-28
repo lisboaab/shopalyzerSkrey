@@ -13,7 +13,7 @@ const NavBar: React.FC = () => {
   };
 
   return (
-    <div className={`bg-main w-fit text-white justify-between p-5 sticky top-0 z-100 h-lvh flex flex-col items-center ${isMenuOpen ? 'translate-x--1' : 'translate-x-0'} ease-in-out duration-200`}>
+    <div className={`bg-main w-fit text-white justify-between p-5 sticky top-0 z-100 h-lvh flex flex-1 flex-col items-center ${isMenuOpen ? 'translate-x--1' : 'translate-x-0'} ease-in-out duration-200`}>
       {/* Nav bar */}
       {isMenuOpen ? (
         <NavBarExpanded buttonFunction={toggleMenu} />

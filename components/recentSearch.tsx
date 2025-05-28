@@ -16,7 +16,7 @@ const RecentSearch: React.FC<RecentSearchProps> = ({ search, deleteFunction }) =
   };
 
   return (
-    <div>
+    <div className="pr-2">
       <div className="flex flex-row justify-between bg-blue-200/20 rounded-full pl-5 pr-5 h-10 items-center hover:bg-blue-950 group mb-2 w-50 cursor-pointer">
         <p className="gellix-regular truncate max-w-35" onClick={action}>
           {" "}

@@ -22,13 +22,9 @@ import ModalDeleteSavedSearch from "../modal/modalDeleteSavedSearch";
 
 const StoresManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  // Array of all stores
   const [data, setData] = useState<any>([]);
-  // ID of the store to be deleted
   const [storeToBeDeleted, setStoreToBeDeleted] = useState("");
-  // Object of the store that is being edited
   const [storeToBeEdited, setStoreToBeEdited] = useState<Store | null>(null);
-  // Object of the new store
   const [newStore, setNewStore] = useState<any>({
     shopUrl: "",
     APIKey: "",
@@ -164,7 +160,12 @@ const StoresManagement: React.FC = () => {
       ) {
         handleSnackBar("failure", "Please, fill up all the fields");
         return;
-      } else {
+      } 
+      else if (!newStore.shopUrl.endsWith(".myshopify.com")) {
+        handleSnackBar("failure", "Please, enter a valid store Url");
+        return;
+      }
+      else {
         await createStore(newStore);
         handleSnackBar("success", "Store created successfully!");
         updateModalState("create", false);
@@ -228,39 +229,53 @@ const StoresManagement: React.FC = () => {
             ))}
           </tr>
         </thead>
-        <tbody>
-          {!loading &&
-            data &&
-            data.map((store: any, index: number) => (
-              <tr key={index} className="w-full gellix pb-2">
-                <td className="py-2">{store._id}</td>
-                <td className="py-2">{store.name}</td>
-                <td className="py-2">{store.shopUrl}</td>
-                <td className="py-2">
-                  {new Date(Number(store.updatedAt)).toLocaleString()}
-                </td>
-                <td className="py-2">{store.lastModifiedBy?.name}</td>
-                <td className="flex flex-row  items-center justify-start py-2 gap-2">
-                  {/* edit button */}
-                  {/* <ButtonAnimation
-                    label="Edit"
-                    icon="pencil"
-                    style="outline"
-                    color="#4b5563"
-                    width="6em"
-                    action={() => handleEditStore(store)}
-                  ></ButtonAnimation> */}
-                  <ButtonAnimation
-                    label="Remove"
-                    icon="trashcan"
-                    style="outline"
-                    color="red"
-                    width="8em"
-                    action={() => areYouSureDelete(store._id)}
-                  ></ButtonAnimation>
+        <tbody>          {!loading ? (
+            data && data.length > 0 ? (
+              data.map((store: any, index: number) => (
+                <tr key={index} className="w-full gellix pb-2">
+                  <td className="py-2">{store._id}</td>
+                  <td className="py-2">{store.name}</td>
+                  <td className="py-2">{store.shopUrl}</td>
+                  <td className="py-2">
+                    {new Date(Number(store.updatedAt)).toLocaleString()}
+                  </td>
+                  <td className="py-2">{store.lastModifiedBy?.name}</td>
+                  <td className="flex flex-row  items-center justify-start py-2 gap-2">
+                    {/* edit button */}
+                    {/* <ButtonAnimation
+                      label="Edit"
+                      icon="pencil"
+                      style="outline"
+                      color="#4b5563"
+                      width="6em"
+                      action={() => handleEditStore(store)}
+                    ></ButtonAnimation> */}
+                    <ButtonAnimation
+                      label="Remove"
+                      icon="trashcan"
+                      style="outline"
+                      color="red"
+                      width="8em"
+                      action={() => areYouSureDelete(store._id)}
+                    ></ButtonAnimation>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6}>
+                  <EmptyState
+                  />
                 </td>
               </tr>
-            ))}
+            )
+          ) : (
+            <tr>
+              <td colSpan={6} className="text-center py-4">
+                <Loading />
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
       <SnackBar
@@ -389,6 +404,12 @@ const StoresManagement: React.FC = () => {
                     name: e.target.value,
                   })
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    createNewStore();
+                  }
+                }}
               />
             </div>
             {/* store url */}
@@ -405,6 +426,12 @@ const StoresManagement: React.FC = () => {
                     shopUrl: e.target.value,
                   })
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    createNewStore();
+                  }
+                }}
               />
             </div>
             {/* store APIKey */}
@@ -420,6 +447,12 @@ const StoresManagement: React.FC = () => {
                     APIKey: e.target.value,
                   })
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    createNewStore();
+                  }
+                }}
               />
             </div>
             {/* store APIToken */}
@@ -437,6 +470,12 @@ const StoresManagement: React.FC = () => {
                     APIToken: e.target.value,
                   })
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    createNewStore();
+                  }
+                }}
               />
             </div>
             {/* store API secret key */}
@@ -454,6 +493,12 @@ const StoresManagement: React.FC = () => {
                     APISecretKey: e.target.value,
                   })
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    createNewStore();
+                  }
+                }}
               />
             </div>
           </div>

@@ -58,7 +58,8 @@ export default function Dashboard({ searchId }: { searchId: string }) {
           authToken
         );
 
-        const metricsList = searchData?.metrics;
+        const metricsList = searchData?.metrics.filter((m: Metric) => m.status === "active");
+
         let data: DashboardData = {
           card: [],
           list: [],

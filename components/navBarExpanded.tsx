@@ -96,8 +96,8 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
   }, []);
 
   return (
-    <div className="flex flex-col items-start justify-between h-full">
-      <div className="flex flex-col items-center gap-10">
+    <div className="flex flex-col items-start  h-full">
+      <div className="flex flex-col items-center gap-10 flex-1 min-h-0">
         {/* Hamburguer menu icon + logo */}
         <div className="flex flex-row justify-between items-center w-full">
           <Image
@@ -147,24 +147,30 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
         </div>
 
         {/* Recent searches */}
-        <div className="w-full justify-self-start">
+        <div className="flex flex-col flex-1 min-h-0 w-full">
           <h2 className="gellix-semibold pb-4">Recent searches</h2>
-          {searches.map((search, index) => (
-            <RecentSearch
-              key={index}
-              search={search}
-              deleteFunction={() => {
-                setSelectedSearchId(search._id);
-                modalHandler();
-              }}
-            />
-          ))}
+          <div
+            className="flex-1 min-h-0 overflow-y-auto"
+          >
+            {searches.map((search, index) => (
+              <RecentSearch
+                key={index}
+                search={search}
+                deleteFunction={() => {
+                  setSelectedSearchId(search._id);
+                  modalHandler();
+                }}
+              />
+            ))}
+          </div>
           {searches.length === 0 && <p className="gellix pb-4">Nothing here</p>}
         </div>
       </div>
 
       <div>
-        <p className="gellix text-white text-xs pb-3">Powered by Skrey Software</p>
+        <p className="gellix text-white text-xs pt-4">
+          Powered by Skrey Software
+        </p>
       </div>
       <ModalDelete
         isOpen={showModal}

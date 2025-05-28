@@ -42,7 +42,7 @@ const List: React.FC<ListProps> = ({ label, value }) => {
 
     setData(chartData);
   }, [value]);
-  console.log(data);
+  // console.log(data);
   if (!data.length) {
     return (
       <div>

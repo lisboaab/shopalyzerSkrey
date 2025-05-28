@@ -367,7 +367,7 @@ const MetricsGroupsManagement: React.FC = () => {
                     style="outline"
                     color="#4b5563"
                     width="6em"
-                    disabled={group._id === "681b9229fb80a7c0ec3990a3"} //disabled if the group is the "Custom" option
+                    disabled={group._id === "683718396a4083c4b4339dc4"} //disabled if the group is the "Custom" option
                     action={() => handleEditGroup(group)}
                   ></ButtonAnimation>
                   <ButtonAnimation
@@ -376,7 +376,7 @@ const MetricsGroupsManagement: React.FC = () => {
                     style="outline"
                     color="red"
                     width="8em"
-                    disabled={group._id === "681b9229fb80a7c0ec3990a3"} //disabled if the group is the "Custom" option
+                    disabled={group._id === "683718396a4083c4b4339dc4"} //disabled if the group is the "Custom" option
                     action={() => areYouSureDelete(group._id)}
                   ></ButtonAnimation>
                 </td>
@@ -445,6 +445,17 @@ const MetricsGroupsManagement: React.FC = () => {
                       name: e.target.value,
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (groupToBeEdited && groupToBeEdited._id) {
+                        handleSaveGroupEdit(
+                          groupToBeEdited._id,
+                          groupToBeEdited
+                        );
+                      }
+                    }
+                  }}
                 />
               </div>
               {/* group status */}
@@ -510,6 +521,17 @@ const MetricsGroupsManagement: React.FC = () => {
                                 ...groupToBeEdited,
                                 metrics: updatedMetrics,
                               });
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                if (groupToBeEdited && groupToBeEdited._id) {
+                                  handleSaveGroupEdit(
+                                    groupToBeEdited._id,
+                                    groupToBeEdited
+                                  );
+                                }
+                              }
                             }}
                           />
                           {m.name}

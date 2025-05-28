@@ -15,14 +15,10 @@ import EmptyState from "./emptyState";
 import { getActiveMetrics } from "@/lib/queries";
 
 interface Props {
-  setMetricsGroup: (value: string) => void;
   setCustomMetrics: (value: Metric[]) => void;
 }
 
-const ButtonCustomMetricsDialog: React.FC<Props> = ({
-  setMetricsGroup,
-  setCustomMetrics,
-}) => {
+const ButtonCustomMetricsDialog: React.FC<Props> = ({ setCustomMetrics }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,7 +27,6 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({
   const modalHandler = () => {
     setShowModal((curr) => !curr);
     setSearchQuery("");
-    setMetricsGroup("681b9229fb80a7c0ec3990a3");
   };
 
   const saveMetrics = () => {
@@ -127,26 +122,34 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({
               className="bg-transparent outline-none text-gray-900 gellix h-full"
             />
           </label>
-        </div>        {/* metrics fields */}
-        <div className="my-4 flex flex-col gap-8 h-120 overflow-x-auto w-full">          
+        </div>{" "}
+        {/* metrics fields */}
+        <div className="my-4 flex flex-col gap-8 h-120 overflow-x-auto w-full">
           {/* Select All checkbox */}
           <div className="flex flex-row items-center gap-2 mb-2 justify-end w-full">
             <span className="text-gray-900 gellix mr-1">Select All</span>
             <input
               type="checkbox"
               className="h-5 w-5 cursor-pointer color-blue-500"
-              checked={selectedMetrics.length === filteredMetrics.length && filteredMetrics.length > 0}
+              checked={
+                selectedMetrics.length === filteredMetrics.length &&
+                filteredMetrics.length > 0
+              }
               onChange={(e) => {
                 if (e.target.checked) {
-                  // Selecionar todas as métricas filtradas
-                  setSelectedMetrics(filteredMetrics.map(m => m._id!).filter(Boolean));
+                  setSelectedMetrics(
+                    filteredMetrics.map((m) => m._id!).filter(Boolean)
+                  );
                 } else {
-                  // Desselecionar todas
                   setSelectedMetrics([]);
                 }
               }}
+              onKeyDown={async (e) => {
+                if (e.key === "Enter") {
+                  saveMetrics();
+                }
+              }}
             />
-            
           </div>
           <div className={`flex flex-row flex-wrap gap-x-15 gap-y-5 w-full`}>
             {filteredMetrics.length != 0 &&

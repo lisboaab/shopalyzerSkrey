@@ -40,10 +40,6 @@ const MetricsManagement: React.FC = () => {
     }, 3000);
   };
 
-  const handleConsoleClick = () => {
-    console.log("clicked");
-  };
-
   const fetchData = async () => {
     try {
       const fetchedData = await getMetrics();
@@ -76,12 +72,11 @@ const MetricsManagement: React.FC = () => {
           status: status
         }
         await updateMetricStatus(id, input);
-        console.log(status)
-        handleSnackBar("success", "Metric updated successfully!");
+        handleSnackBar("success", "Available metrics list updated successfully!");
         fetchData();
       } catch (error) {
         console.error(error)
-        handleSnackBar("failure", "Something went wrong while updating!");
+        handleSnackBar("failure", "Something went wrong while updating metrics list!");
       }
     };
 
