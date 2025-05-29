@@ -16,8 +16,7 @@ import ModalDeleteSavedSearch from "../modal/modalDeleteSavedSearch";
 import Loading from "@/components/loading";
 import EmptyState from "@/components/emptyState";
 import ButtonAnimation from "@/components/buttonAnimation";
-import ArrowUp from "@/components/icons/arrowUp";
-import ArrowDown from "@/components/icons/arrowDown";
+import SortItem from "@/components/sortItem";
 
 const UsersManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -41,6 +40,12 @@ const UsersManagement: React.FC = () => {
     type: "",
     message: "",
   });
+
+  // Talbe sort state management
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "", direction: "asc" });
 
   const handleRemoveUser = async (id: string) => {
     try {
@@ -147,12 +152,24 @@ const UsersManagement: React.FC = () => {
   };
 
   const tableHeader = [
-    { item: "ID" },
-    { item: "Email", sortable: true },
-    { item: "Type", sortable: true },
-    { item: "Created at", sortable: true },
+    { item: "Name", key: "name", sortable: true },
+    { item: "Email", key: "email", sortable: true },
+    { item: "Type", key: "userType", sortable: true },
+    { item: "Created at", key: "createdAt", sortable: true },
     { item: "Actions", sortable: false, actions: ["remove", "edit"] },
   ];
+
+  const handleSort = (key: string, direction: "asc" | "desc") => {
+    setSortConfig({ key, direction });
+
+    const sortedData = [...data].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setData(sortedData);
+  };
 
   const fetchData = async () => {
     const types = await userTypesList();
@@ -190,7 +207,15 @@ const UsersManagement: React.FC = () => {
               <th key={index} className="py-2 text-left">
                 <div className="flex flex-row gap-1 items-center">
                   {item.item}
-                  {item.sortable && <ArrowUp />}
+                  {item.sortable && (
+                    <SortItem
+                      action={(direction) => {
+                        console.log("Sort direction:", direction);
+                        if (item.key) handleSort(item.key, direction);
+                        console.log("data", data);
+                      }}
+                    />
+                  )}
                 </div>
               </th>
             ))}
@@ -206,7 +231,7 @@ const UsersManagement: React.FC = () => {
           ) : Array.isArray(data) && data.length > 0 ? (
             data.map((user: any, index: number) => (
               <tr key={index} className="w-full gellix pb-2">
-                <td className="py-2">{user._id}</td>
+                <td className="py-2">{user.name}</td>
                 <td className="py-2">{user.email}</td>
                 <td className="py-2">{user.userType}</td>
                 <td className="py-2">

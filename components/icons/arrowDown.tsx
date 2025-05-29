@@ -3,7 +3,7 @@ import "../../app/globals.css";
 
 const ArrowDown = () => {
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center hover:cursor-pointer">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
