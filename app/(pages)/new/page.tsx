@@ -7,6 +7,10 @@ import {
   createContext,
 } from "react";
 import { useRouter } from "next/navigation";
+import { DateRangePicker } from "@heroui/date-picker";
+import { RangeCalendar } from "@heroui/calendar";
+import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
+import { useDateFormatter } from "@react-aria/i18n";
 
 // Queries
 import {
@@ -21,7 +25,6 @@ import type Store from "../../interface/store";
 import type Metric from "../../interface/metric";
 import type Group from "../../interface/group";
 
-
 // Components
 import ButtonAnimation from "@/components/buttonAnimation";
 import Loading from "@/components/loading";
@@ -30,7 +33,10 @@ import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
 export default function Page() {
   const [store, setStore] = useState("");
   const [metricsGroup, setMetricsGroup] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState({
+    start: today(getLocalTimeZone()),
+    end: today(getLocalTimeZone()),
+  });
   const [name, setName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -40,6 +46,7 @@ export default function Page() {
   const [pencilButtonActive, setPencilButtonActive] = useState(false);
   const [customGroup, setCustomGroup] = useState<Group>();
 
+  let formatter = useDateFormatter({ dateStyle: "long" });
 
   useEffect(() => {
     const ID = localStorage.getItem("userID");
@@ -92,11 +99,10 @@ export default function Page() {
           );
           setMetricsGroupList(groupsSorted);
 
-          const cGroup = groupsSorted.find((g) => g.name === "Custom")
-          if(cGroup){
-            setCustomGroup(cGroup)
-          }
-          else {
+          const cGroup = groupsSorted.find((g) => g.name === "Custom");
+          if (cGroup) {
+            setCustomGroup(cGroup);
+          } else {
             console.error("Custom group not found");
           }
         } else {
@@ -112,7 +118,7 @@ export default function Page() {
 
   const analyze = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (store === "" || metricsGroup === "" || date === "") {
+    if (store === "" || metricsGroup === "" || !date.start || !date.end) {
       let message = document.getElementById("errorMessage");
       if (message) {
         message.classList.remove("hidden");
@@ -154,38 +160,41 @@ export default function Page() {
           metricsList.push(m._id);
         });
       }
-      let selectecTimePeriod = "";
-      if (date && date === "last_7_days") {
-        selectecTimePeriod = "7";
-      } else if (date && date === "today") {
-        selectecTimePeriod = "1";
-      } else if (date && date === "yesterday") {
-        selectecTimePeriod = "2";
-      } else if (date && date === "last_30_days") {
-        selectecTimePeriod = "30";
-      } else if (date && date === "last_90_days") {
-        selectecTimePeriod = "90";
-      } else if (date && date === "last_180_days") {
-        selectecTimePeriod = "180";
-      } else if (date && date === "last_365_days") {
-        selectecTimePeriod = "365";
-      }
+      // let selectecTimePeriod = "";
+      // if (date && date === "last_7_days") {
+      //   selectecTimePeriod = "7";
+      // } else if (date && date === "today") {
+      //   selectecTimePeriod = "1";
+      // } else if (date && date === "yesterday") {
+      //   selectecTimePeriod = "2";
+      // } else if (date && date === "last_30_days") {
+      //   selectecTimePeriod = "30";
+      // } else if (date && date === "last_90_days") {
+      //   selectecTimePeriod = "90";
+      // } else if (date && date === "last_180_days") {
+      //   selectecTimePeriod = "180";
+      // } else if (date && date === "last_365_days") {
+      //   selectecTimePeriod = "365";
+      // }
       const input = {
         store: store,
         metricsGroup: metricsGroup,
-        timePeriod: selectecTimePeriod,
+        timePeriod: date,
         metrics: metricsList,
         userID: userID,
       };
-      const newSearch = await createSearch(input);
-      router.push("/dashboard/" + newSearch.createSearch._id);
+      console.log(input);
+      // const newSearch = await createSearch(input);
+      // router.push("/dashboard/" + newSearch.createSearch._id);
     }
   };
-
   const reset = () => {
     setStore("");
     setMetricsGroup("");
-    setDate("");
+    setDate({
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    });
     setPencilButtonActive(false);
   };
 
@@ -286,19 +295,59 @@ export default function Page() {
                 <label className="block mb-5 text-sm font-medium text-gray-900 gellix">
                   Duration
                 </label>
-                <select
-                  value={date}
-                  className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
-                  onChange={(e) => setDate(e.target.value)}
-                  // required
-                >
-                  <option value="">Select an option</option>
-                  {dateRangeList.map((dateOption) => (
-                    <option key={dateOption.value} value={dateOption.id}>
-                      {dateOption.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
+                  <DateRangePicker
+                  className="max-w-xs gellix"
+                    calendarProps={{
+                      classNames: {
+                        base: "bg-gray-50 rounded-lg shadow-lg",
+                        prevButton:
+                          "hover:bg-gray-200 items-center justify-center ml-2 pl-1",
+                        nextButton:
+                          "hover:bg-gray-200 items-center justify-center mr-2 pr-1",
+                        gridHeader: "border-b-1 border-gray-300 text-gray-500",
+                        cellButton: [
+                          // Disable dates
+                          "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
+
+                          // Focused date styling
+                          "data-[focused=true]:border-1 data-[focused=true]:border-blue-900",
+
+                          // Range styling - start date
+                          "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
+
+                          // Range styling - end date
+                          "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
+
+                          // Style for selected dates
+                          "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
+
+                        ],
+                      },
+                    }}
+                    value={date}
+                    onChange={(newDate) => {
+                      if (newDate) {
+                        setDate({
+                          start: newDate.start,
+                          end: newDate.end,
+                        });
+                      }
+                    }}
+                    maxValue={today(getLocalTimeZone())}
+                  />
+                </div>
+                <p className="text-default-500 text-sm">
+                  Selected date:{" "}
+                  {date
+                    ? formatter.formatRange(
+                        date.start.toDate(getLocalTimeZone()),
+                        date.end.toDate(getLocalTimeZone())
+                      )
+                    : "--"}
+                   
+                </p>
+                <p> {date.start.day +  "/" + date.start.month + "/" + date.start.year + " - " + date.end.day + "/" + date.end.month + "/" + date.end.year}</p>
               </div>
             </div>
             <div className="flex flex-col justify-center items-center gap-4 w-full">
