@@ -11,8 +11,7 @@ import {
 
 import Store from "../../app/interface/store";
 
-import ArrowUp from "@/components/icons/arrowUp";
-import ArrowDown from "@/components/icons/arrowDown";
+import SortItem from "@/components/sortItem";
 import Loading from "@/components/loading";
 import EmptyState from "@/components/emptyState";
 import ButtonAnimation from "@/components/buttonAnimation";
@@ -37,6 +36,11 @@ const StoresManagement: React.FC = () => {
     type: "",
     message: "",
   });
+
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "", direction: "asc" });
 
   const areYouSureDelete = (id: string) => {
     setStoreToBeDeleted(id);
@@ -71,16 +75,27 @@ const StoresManagement: React.FC = () => {
     },
   });
 
+  const handleSort = (key: string, direction: "asc" | "desc") => {
+    setSortConfig({ key, direction });
+
+    const sortedData = [...data].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setData(sortedData);
+  };
+
   const updateModalState = (key: string, value: any) => {
     setModalState((prev) => ({ ...prev, [key]: { isOpen: value } }));
   };
-
   const tableHeader = [
-    { item: "ID", sortable: true },
-    { item: "Name", sortable: true },
-    { item: "Store Shopify URL", sortable: true },
-    { item: "Updated at", sortable: true },
-    { item: "Last modified by", sortable: true },
+    // { item: "ID", sortable: false },
+    { item: "Name", key: "name", sortable: true },
+    { item: "Store Shopify URL", key: "shopUrl", sortable: true },
+    { item: "Updated at", key: "updatedAt", sortable: true },
+    { item: "Last modified by", key: "lastModifiedBy", sortable: false },
     {
       item: "Actions",
       sortable: false,
@@ -160,12 +175,10 @@ const StoresManagement: React.FC = () => {
       ) {
         handleSnackBar("failure", "Please, fill up all the fields");
         return;
-      } 
-      else if (!newStore.shopUrl.endsWith(".myshopify.com")) {
+      } else if (!newStore.shopUrl.endsWith(".myshopify.com")) {
         handleSnackBar("failure", "Please, enter a valid store Url");
         return;
-      }
-      else {
+      } else {
         await createStore(newStore);
         handleSnackBar("success", "Store created successfully!");
         updateModalState("create", false);
@@ -180,13 +193,12 @@ const StoresManagement: React.FC = () => {
       }
     } catch (error) {
       if (error instanceof Error) {
-        console.log(error.message);
+        // console.log(error.message);
         if (error.message === "This shopUrl is already in use.") {
           handleSnackBar("failure", "This store shopUrl is already in use");
         } else if (error.message === "This API Key is already in use.") {
           handleSnackBar("failure", "This store API Key is already in use");
-        }
-        if (error.message === "This API Token is already in use.")
+        } else if (error.message === "This API Token is already in use.")
           handleSnackBar("failure", "This store API Token is already in use");
         else if (
           error.message ===
@@ -223,17 +235,26 @@ const StoresManagement: React.FC = () => {
               <th key={index} className="py-2 text-left">
                 <div className="flex flex-row gap-1 items-center">
                   {item.item}
-                  {item.sortable && <ArrowUp />}
+                  {item.sortable && (
+                    <SortItem
+                      action={(direction) => {
+                        console.log("Sort direction:", direction);
+                        if (item.key) handleSort(item.key, direction);
+                        console.log("data", data);
+                      }}
+                    />
+                  )}
                 </div>
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>          {!loading ? (
+        <tbody>
+          {!loading ? (
             data && data.length > 0 ? (
               data.map((store: any, index: number) => (
                 <tr key={index} className="w-full gellix pb-2">
-                  <td className="py-2">{store._id}</td>
+                  {/* <td className="py-2">{store._id}</td> */}
                   <td className="py-2">{store.name}</td>
                   <td className="py-2">{store.shopUrl}</td>
                   <td className="py-2">
@@ -264,8 +285,7 @@ const StoresManagement: React.FC = () => {
             ) : (
               <tr>
                 <td colSpan={6}>
-                  <EmptyState
-                  />
+                  <EmptyState />
                 </td>
               </tr>
             )

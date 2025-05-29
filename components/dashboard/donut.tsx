@@ -29,7 +29,7 @@ const customTheme = {
   },
 };
 
-const List: React.FC<ListProps> = ({ label, value }) => {
+const Donut: React.FC<ListProps> = ({ label, value }) => {
   const [data, setData] = useState<ChartData[]>([]);
 
   useEffect(() => {
@@ -95,4 +95,4 @@ const List: React.FC<ListProps> = ({ label, value }) => {
   );
 };
 
-export default List;
+export default Donut;

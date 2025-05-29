@@ -55,8 +55,7 @@ import {
 import Group from "../../app/interface/group";
 import Metric from "../../app/interface/metric";
 
-import ArrowUp from "@/components/icons/arrowUp";
-import ArrowDown from "@/components/icons/arrowDown";
+import SortItem from "@/components/sortItem";
 import ButtonAnimation from "@/components/buttonAnimation";
 import IconSelector from "@/components/iconSelector";
 import IconDisplay from "@/components/iconDisplay";
@@ -130,6 +129,11 @@ const MetricsGroupsManagement: React.FC = () => {
     message: "",
   });
 
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "", direction: "asc" });
+
   const areYouSureDelete = (id: string) => {
     setGroupToBeDeleted(id);
     updateModalState("remove", true);
@@ -168,11 +172,10 @@ const MetricsGroupsManagement: React.FC = () => {
   };
 
   const tableHeader = [
-    { item: "ID", sortable: true },
     { item: "Icon" },
-    { item: "Name", sortable: true },
-    { item: "State", sortable: true },
-    { item: "Metrics", sortable: true },
+    { item: "Name", key: "name", sortable: true },
+    { item: "State", key: "status", sortable: true },
+    { item: "Metrics", sortable: false },
     { item: "Actions", sortable: false, actions: ["remove"] },
   ];
 
@@ -265,6 +268,18 @@ const MetricsGroupsManagement: React.FC = () => {
     }
   };
 
+  const handleSort = (key: string, direction: "asc" | "desc") => {
+    setSortConfig({ key, direction });
+
+    const sortedData = [...data].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setData(sortedData);
+  };
+
   const createNewGroup = async () => {
     try {
       if (!newGroup.metrics || newGroup.metrics.length === 0) {
@@ -321,7 +336,13 @@ const MetricsGroupsManagement: React.FC = () => {
               <th key={index} className="py-2 text-left">
                 <div className="flex flex-row gap-1 items-center">
                   {item.item}
-                  {item.sortable && <ArrowUp />}
+                  {item.sortable && <SortItem
+                      action={(direction) => {
+                        console.log("Sort direction:", direction);
+                        if (item.key) handleSort(item.key, direction);
+                        console.log("data", data);
+                      }}
+                    />}
                 </div>
               </th>
             ))}
@@ -332,7 +353,6 @@ const MetricsGroupsManagement: React.FC = () => {
             data &&
             data.map((group: any, index: number) => (
               <tr key={index} className="w-full gellix pb-2">
-                <td className="py-2">{group._id}</td>
                 <td className="py-2">
                   <IconDisplay iconName={group.icon} />
                 </td>
