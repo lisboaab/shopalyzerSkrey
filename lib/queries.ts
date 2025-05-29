@@ -942,6 +942,7 @@ export const updateSearch = async (
   }
 ) => {
   try {
+    console.log("entrou pro update search")
     const { data } = await apolloClient.mutate({
       mutation: UPDATE_SEARCH,
       variables: { id, input },

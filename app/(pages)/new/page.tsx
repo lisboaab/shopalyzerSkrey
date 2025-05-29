@@ -8,8 +8,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { DateRangePicker } from "@heroui/date-picker";
-import { RangeCalendar } from "@heroui/calendar";
-import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
 
 // Queries
@@ -33,10 +32,7 @@ import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
 export default function Page() {
   const [store, setStore] = useState("");
   const [metricsGroup, setMetricsGroup] = useState("");
-  const [date, setDate] = useState({
-    start: today(getLocalTimeZone()),
-    end: today(getLocalTimeZone()),
-  });
+  const [date, setDate] = useState<null | any>(null);
   const [name, setName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -115,10 +111,34 @@ export default function Page() {
 
     fetchGroups();
   }, []);
+  function heroUIDateToTimestamp(heroUIDate: any, isEndDate: boolean = false) {
+    if (!heroUIDate) return null;
+
+    const { year, month, day } = heroUIDate;
+    const date = new Date(year, month - 1, day);
+    
+    if (isEndDate) {
+      date.setHours(23, 59, 59, 999);
+    }
+    
+    return date.getTime();
+  }
+
+  function convertDateRange(dateRange: any) {
+    if (!dateRange) return null;
+    const range = `${heroUIDateToTimestamp(dateRange.start)}-${heroUIDateToTimestamp(dateRange.end, true)}` 
+    return range
+  }
 
   const analyze = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (store === "" || metricsGroup === "" || !date.start || !date.end) {
+    if (
+      store === "" ||
+      metricsGroup === "" ||
+      !date ||
+      !date.start ||
+      !date.end
+    ) {
       let message = document.getElementById("errorMessage");
       if (message) {
         message.classList.remove("hidden");
@@ -161,40 +181,23 @@ export default function Page() {
         });
       }
       // let selectecTimePeriod = "";
-      // if (date && date === "last_7_days") {
-      //   selectecTimePeriod = "7";
-      // } else if (date && date === "today") {
-      //   selectecTimePeriod = "1";
-      // } else if (date && date === "yesterday") {
-      //   selectecTimePeriod = "2";
-      // } else if (date && date === "last_30_days") {
-      //   selectecTimePeriod = "30";
-      // } else if (date && date === "last_90_days") {
-      //   selectecTimePeriod = "90";
-      // } else if (date && date === "last_180_days") {
-      //   selectecTimePeriod = "180";
-      // } else if (date && date === "last_365_days") {
-      //   selectecTimePeriod = "365";
-      // }
+      const convertedRange = convertDateRange(date);
+
       const input = {
         store: store,
         metricsGroup: metricsGroup,
-        timePeriod: date,
+        timePeriod: convertedRange ?? "",
         metrics: metricsList,
         userID: userID,
       };
-      console.log(input);
-      // const newSearch = await createSearch(input);
-      // router.push("/dashboard/" + newSearch.createSearch._id);
+      const newSearch = await createSearch(input);
+      router.push("/dashboard/" + newSearch.createSearch._id);
     }
   };
   const reset = () => {
     setStore("");
     setMetricsGroup("");
-    setDate({
-      start: today(getLocalTimeZone()),
-      end: today(getLocalTimeZone()),
-    });
+    setDate(null);
     setPencilButtonActive(false);
   };
 
@@ -280,7 +283,6 @@ export default function Page() {
                       setPencilButtonActive(false);
                     }
                   }}
-                  // required
                 >
                   <option value="">Select an option</option>
                   {metricsGroupList.map((group) => (
@@ -297,14 +299,14 @@ export default function Page() {
                 </label>
                 <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
                   <DateRangePicker
-                  className="max-w-xs gellix"
+                    className="max-w-xs gellix"
                     calendarProps={{
                       classNames: {
                         base: "bg-gray-50 rounded-lg shadow-lg",
                         prevButton:
-                          "hover:bg-gray-200 items-center justify-center ml-2 pl-1",
+                          "hover:bg-gray-200 items-center justify-center",
                         nextButton:
-                          "hover:bg-gray-200 items-center justify-center mr-2 pr-1",
+                          "hover:bg-gray-200 items-center justify-center",
                         gridHeader: "border-b-1 border-gray-300 text-gray-500",
                         cellButton: [
                           // Disable dates
@@ -321,7 +323,6 @@ export default function Page() {
 
                           // Style for selected dates
                           "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
-
                         ],
                       },
                     }}
@@ -337,17 +338,11 @@ export default function Page() {
                     maxValue={today(getLocalTimeZone())}
                   />
                 </div>
-                <p className="text-default-500 text-sm">
-                  Selected date:{" "}
+                <p>
                   {date
-                    ? formatter.formatRange(
-                        date.start.toDate(getLocalTimeZone()),
-                        date.end.toDate(getLocalTimeZone())
-                      )
-                    : "--"}
-                   
+                    ? `${date.start.day}/${date.start.month}/${date.start.year} - ${date.end.day}/${date.end.month}/${date.end.year}`
+                    : "No date selected"}
                 </p>
-                <p> {date.start.day +  "/" + date.start.month + "/" + date.start.year + " - " + date.end.day + "/" + date.end.month + "/" + date.end.year}</p>
               </div>
             </div>
             <div className="flex flex-col justify-center items-center gap-4 w-full">

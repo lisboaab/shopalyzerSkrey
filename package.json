@@ -34,6 +34,7 @@
     "graphql-subscriptions": "^3.0.0",
     "graphql-tag": "^2.12.6",
     "graphql-ws": "^6.0.4",
+    "heroui-cli": "^1.2.3",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "micro": "^9.4.1",
