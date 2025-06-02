@@ -111,24 +111,21 @@ body {
   color: #0D0DFC;
 }
 
-/* width */
-::-webkit-scrollbar {
+/* Scrollbar styles for navBar */
+.scrollBar::-webkit-scrollbar {
     width: 7px;
 }
 
-/* Track */
-::-webkit-scrollbar-track {
+.scrollBar::-webkit-scrollbar-track {
     background: #090DCA;
     border-radius: 100px;
 }
 
-/* Handle */
-::-webkit-scrollbar-thumb {
+.scrollBar::-webkit-scrollbar-thumb {
     background: #0B0C5B70;
     border-radius: 100px;
 }
 
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
+.scrollBar::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
