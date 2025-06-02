@@ -55,7 +55,9 @@ const UserMenu: React.FC = () => {
         updateUserState("userType", user.userType);
       }
     } catch (error) {
-      console.log("Error fetching user:", error);
+      console.error("Error fetching user:", error);
+      router.push("/");
+      localStorage.clear();
     }
   };
 
@@ -63,11 +65,11 @@ const UserMenu: React.FC = () => {
     if (typeof window !== "undefined") {
       const t = localStorage.getItem("authToken");
       const id = localStorage.getItem("userID");
-      if (t && id) {
+      if (!t || !id) {
+        router.push("/");
+      } else {
         updateUserState("token", t);
         updateUserState("userId", id);
-      } else {
-        router.push("/");
       }
     }
   }, []);

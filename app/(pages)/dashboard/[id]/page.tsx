@@ -2,46 +2,87 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { ApolloProvider } from "@apollo/client";
+import { getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
 
 import { getStoreCredentials } from "@/lib/services/storeService";
-import { createApolloClient } from "@/lib/shopifyServer";
+import { getApolloClient } from "@/lib/shopifyServer";
 import {
   getStoreOfSearch,
   getSearch,
   updateSearch,
-  getStoresBasic,
   getActiveGroups,
 } from "@/lib/queries";
 
+import { DateRangePicker } from "@heroui/date-picker";
 import Dashboard from "@/components/dashboard/dashboard";
 import Loading from "@/components/loading";
 import ButtonAnimation from "@/components/buttonAnimation";
 import SomethingWentWrong from "@/components/somethingWentWrong";
 import SnackBar from "@/components/modal/snackBar";
+import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
 
 import type Search from "../../../interface/search";
+import type Metric from "../../../interface/metric";
+import type Group from "../../../interface/group";
+
+function heroUIDateToTimestamp(heroUIDate: any, isEndDate: boolean = false) {
+  if (!heroUIDate) return null;
+
+  const { year, month, day } = heroUIDate;
+  const date = new Date(year, month - 1, day);
+
+  if (isEndDate) {
+    date.setHours(23, 59, 59, 999);
+  }
+
+  return date.getTime();
+}
+
+function convertDateRange(dateRange: any) {
+  if (!dateRange) return null;
+  const range = `${heroUIDateToTimestamp(
+    dateRange.start
+  )}-${heroUIDateToTimestamp(dateRange.end, true)}`;
+  return range;
+}
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = React.use(params);
   const { id } = resolvedParams; // Search ID from the URL
 
   const [apolloClient, setApolloClient] = useState<ReturnType<
-    typeof createApolloClient
+    typeof getApolloClient
   > | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState<boolean | null>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+
+  const [date, setDate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editName, setEditName] = useState(false);
   const [editSearchInfo, setEditSearchInfo] = useState(false);
-  const [storesList, setStoresList] = useState<any[]>([]);
   const [metricsGroupList, setMetricsGroupList] = useState<any[]>([]);
+  const [pencilButtonActive, setPencilButtonActive] = useState(false);
+  const [customMetrics, setCustomMetrics] = useState<any[]>([]);
+  const [customGroup, setCustomGroup] = useState<Group>();
+
   const [snackBarState, setSnackBarState] = useState({
     open: false,
     type: "",
     message: "",
   });
+  const [tempEditData, setTempEditData] = useState<{
+    metricsGroup?: string;
+    timePeriod?: string;
+  }>({});
+  const [searchData, setSearchData] = useState<{
+    search: Search;
+    storeId: string; // Store ID that will be fetched by the Shopify Server
+  } | null>(null);
+  const [selectedDateRange, setSelectedDateRange] = useState(
+    getInitialDateRange(searchData?.search.timePeriod)
+  );
 
   const updateSnackBarState = (key: string, value: any) => {
     setSnackBarState((prev) => ({ ...prev, [key]: value }));
@@ -58,42 +99,104 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     }, 3000);
   };
 
+  const initialize = async () => {
+    try {
+      setLoading(true);
+      const authToken = localStorage.getItem("authToken");
+
+      if (!authToken) {
+        throw new Error("Auth token not found");
+      }
+
+      const search = await getSearch(id, authToken);
+      const storeId = await getStoreOfSearch(id, authToken);
+      if (!storeId) {
+        throw new Error("Store not found");
+      }
+
+      const storeIdString = storeId.store._id;
+      setSearchData({ search, storeId: storeIdString });
+      setIsSaved(search.isSaved);
+      setUpdatedAt(search.updatedAt);
+
+      const credentials = await getStoreCredentials(storeIdString, authToken);
+
+      if (!credentials?.APIToken) {
+        throw new Error("Invalid credentials for store");
+      }
+
+      // Apollo client
+      const client = getApolloClient(storeIdString, authToken);
+
+      setApolloClient(client);
+      setError(null);
+    } catch (err) {
+      console.error("Error:", err);
+      setError(err instanceof Error ? err.message : "Somthing went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSaveAllChanges = async () => {
     if (!searchData) return;
-
     try {
-      const update = await updateSearch(id, {
-        ...(tempEditData.store && { store: tempEditData.store }),
+      let metricsList: any[] = [];
+
+      if (customMetrics.length > 0) {
+        customMetrics.map((m) => {
+          metricsList.push(m._id);
+        });
+      }
+      const updateData = {
         ...(tempEditData.metricsGroup && {
           metricsGroup: tempEditData.metricsGroup,
         }),
         ...(tempEditData.timePeriod && { timePeriod: tempEditData.timePeriod }),
-      });
+        ...(tempEditData.metricsGroup === customGroup?._id &&
+          metricsList.length > 0 && { metrics: metricsList }),
+      };
 
+      if (
+        tempEditData.metricsGroup === customGroup?._id &&
+        metricsList.length === 0
+      ) {
+        handleSnackBar("failure", "Please select at least one metric");
+        return;
+      }
+
+      const update = await updateSearch(id, updateData);
       if (update) {
-        if (tempEditData.store) {
-          const selectedStore = storesList.find(
-            (s) => s._id === tempEditData.store
-          );
-          searchData.search.store = selectedStore;
-        }
         if (tempEditData.metricsGroup) {
           const selectedGroup = metricsGroupList.find(
             (g) => g._id === tempEditData.metricsGroup
           );
-          searchData.search.metricsGroup = selectedGroup;
+          setSearchData({
+            ...searchData,
+            search: {
+              ...searchData.search,
+              metricsGroup: selectedGroup,
+            },
+          });
         }
         if (tempEditData.timePeriod) {
-          searchData.search.timePeriod = tempEditData.timePeriod;
+          setSearchData({
+            ...searchData,
+            search: {
+              ...searchData.search,
+              timePeriod: tempEditData.timePeriod,
+            },
+          });
         }
 
-        setSearchData({ ...searchData });
         setUpdatedAt(update.updatedAt);
         setEditSearchInfo(false);
         setTempEditData({});
         handleSnackBar("success", "Search updated successfully!");
       }
+      initialize();
     } catch (error) {
+      console.log(error);
       handleSnackBar("error", "Error updating search");
     }
   };
@@ -101,27 +204,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const handleCancelAllChanges = () => {
     setEditSearchInfo(false);
     setTempEditData({});
+    setSelectedDateRange(getInitialDateRange(searchData?.search.timePeriod));
   };
-
-  const dateRangeList = [
-    { id: "today", label: "Today", value: "1" },
-    { id: "yesterday", label: "Yesterday", value: "2" },
-    { id: "last_7_days", label: "Last 7 days", value: "7" },
-    { id: "last_30_days", label: "Last 30 days", value: "30" },
-    { id: "last_90_days", label: "Last 90 days", value: "90" },
-    { id: "last_180_days", label: "Last 180 days", value: "180" },
-    { id: "last_365_days", label: "Last 365 days", value: "365" },
-  ];
-  const [tempEditData, setTempEditData] = useState<{
-    store?: string;
-    metricsGroup?: string;
-    timePeriod?: string;
-  }>({});
-
-  const [searchData, setSearchData] = useState<{
-    search: Search;
-    storeId: string; // Store ID that will be fetched by the Shopify Server
-  } | null>(null);
 
   const handleSaveSearch = async () => {
     const searchSaved = searchData?.search.isSaved;
@@ -132,10 +216,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     if (update) {
       setIsSaved(update.isSaved);
       setUpdatedAt(update.updatedAt);
+      window.location.reload();
     }
   };
 
-  const handleEditSearch = async (item: string, input: any) => {
+  const handleEditSearchName = async (item: string, input: any) => {
     const update = await updateSearch(id, input);
     if (update) {
       setUpdatedAt(update.updatedAt);
@@ -149,21 +234,27 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       }
     }
   };
-  useEffect(() => {
-    const fetchStores = async () => {
-      try {
-        const stores = await getStoresBasic();
-        if (stores) {
-          const storesSorted = [...stores].sort((a, b) =>
-            a.name.localeCompare(b.name)
-          );
-          setStoresList(storesSorted);
-        }
-      } catch (error) {
-        console.error("Error fetching stores", error);
-      }
-    };
 
+  function timestampToCalendarDate(timestamp: string) {
+    const date = new Date(Number(timestamp));
+    return new CalendarDate(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      date.getDate()
+    );
+  }
+
+  function getInitialDateRange(timePeriod: string | undefined) {
+    if (!timePeriod) return undefined;
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-");
+    return {
+      start: timestampToCalendarDate(startTimestamp),
+      end: timestampToCalendarDate(endTimestamp),
+    };
+  }
+
+  useEffect(() => {
     const fetchGroups = async () => {
       try {
         const groups = await getActiveGroups();
@@ -172,58 +263,56 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             a.name.localeCompare(b.name)
           );
           setMetricsGroupList(groupsSorted);
+
+          const cGroup = groupsSorted.find((g) => g.name === "Custom");
+          if (cGroup) {
+            setCustomGroup(cGroup);
+          }
         }
       } catch (error) {
         console.error("Error fetching groups", error);
       }
     };
 
-    fetchStores();
     fetchGroups();
   }, []);
 
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        setLoading(true);
-        const authToken = localStorage.getItem("authToken");
-
-        if (!authToken) {
-          throw new Error("Auth token not found");
-        }
-
-        const search = await getSearch(id, authToken);
-        const storeId = await getStoreOfSearch(id, authToken);
-        if (!storeId) {
-          throw new Error("Store not found");
-        }
-
-        const storeIdString = storeId.store._id;
-        setSearchData({ search, storeId: storeIdString });
-        setIsSaved(search.isSaved);
-        setUpdatedAt(search.updatedAt);
-
-        const credentials = await getStoreCredentials(storeIdString, authToken);
-
-        if (!credentials?.APIToken) {
-          throw new Error("Invalid credentials for store");
-        }
-
-        // Apollo client
-        const client = createApolloClient(storeIdString, authToken);
-
-        setApolloClient(client);
-        setError(null);
-      } catch (err) {
-        console.error("Error:", err);
-        setError(err instanceof Error ? err.message : "Somthing went wrong");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     initialize();
   }, [id]);
+
+  useEffect(() => {
+    const d = searchData?.search.timePeriod;
+    const sep = d?.split("-");
+    if (sep) {
+      const start =
+        typeof sep[0] === "string"
+          ? new Date(Number(sep[0]))
+          : new Date(sep[0]);
+      const end =
+        typeof sep[1] === "string"
+          ? new Date(Number(sep[1]))
+          : new Date(sep[1]);
+
+      const fullTimePeriod = `${start.toLocaleDateString(
+        "pt-BR"
+      )} - ${end.toLocaleDateString("pt-BR")}`;
+      setDate(fullTimePeriod);
+    }
+  }, [searchData]);
+
+  useEffect(() => {
+    setSelectedDateRange(getInitialDateRange(searchData?.search.timePeriod));
+    if (searchData?.search.metricsGroup?._id === customGroup?._id) {
+      setPencilButtonActive(true);
+      if (searchData?.search.metrics && searchData.search.metrics.length > 0) {
+        setCustomMetrics(searchData.search.metrics);
+      }
+    } else {
+      setPencilButtonActive(false);
+      setCustomMetrics([]);
+    }
+  }, [searchData, customGroup]);
 
   if (loading) {
     return <Loading />;
@@ -272,7 +361,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       const input = {
                         name: searchData.search.name,
                       };
-                      await handleEditSearch("name", input);
+                      await handleEditSearchName("name", input);
                     }
                   }}
                   className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none w-100"
@@ -286,7 +375,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       const input = {
                         name: searchData.search.name,
                       };
-                      await handleEditSearch("name", input);
+                      await handleEditSearchName("name", input);
                     }
                   }}
                   icon="arrow"
@@ -350,36 +439,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           <div className="flex flex-row gap-8">
             <div className="flex flex-row gap-2 items-center">
               <p className="gellix-semibold hover:cursor-pointer">Store: </p>
-              {editSearchInfo ? (
-                <div className="flex flex-row gap-2">
-                  {" "}
-                  <select
-                    value={
-                      tempEditData.store || (searchData?.search.store as string)
-                    }
-                    className="border border-gray-200 text-gray-900 text-sm rounded-lg p-2 gellix outline-none"
-                    onChange={(e) =>
-                      setTempEditData({
-                        ...tempEditData,
-                        store: e.target.value,
-                      })
-                    }
-                  >
-                    {storesList.map((store: any) => (
-                      <option key={store._id} value={store._id}>
-                        {store.name}
-                      </option>
-                    ))}{" "}
-                  </select>
-                </div>
-              ) : (
-                <p>
-                  {typeof searchData?.search.store === "object" &&
-                  searchData?.search.store !== null
-                    ? (searchData?.search.store as { name?: string }).name
-                    : searchData?.search.store}
-                </p>
-              )}
+              <p>
+                {typeof searchData?.search.store === "object" &&
+                searchData?.search.store !== null
+                  ? (searchData?.search.store as { name?: string }).name
+                  : searchData?.search.store}
+              </p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <p className="gellix-semibold">Group of Metrics:</p>
@@ -390,13 +455,18 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       tempEditData.metricsGroup ||
                       searchData?.search.metricsGroup?._id
                     }
-                    className="border border-gray-200 text-gray-900 text-sm rounded-lg p-2 gellix outline-none"
-                    onChange={(e) =>
+                    className="border border-gray-200 text-gray-900 text-sm rounded-lg p-2 gellix outline-none w-35"
+                    onChange={(e) => {
                       setTempEditData({
                         ...tempEditData,
                         metricsGroup: e.target.value,
-                      })
-                    }
+                      });
+                      if (e.target.value === customGroup?._id) {
+                        setPencilButtonActive(true);
+                      } else {
+                        setPencilButtonActive(false);
+                      }
+                    }}
                   >
                     {metricsGroupList.map((group) => (
                       <option key={group._id} value={group._id}>
@@ -404,55 +474,70 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       </option>
                     ))}{" "}
                   </select>
+                  {pencilButtonActive && (
+                    <div
+                      id="pencilButton"
+                      className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center"
+                    >
+                      <ButtonCustomMetricsDialog
+                        setCustomMetrics={setCustomMetrics}
+                        initialMetrics={searchData?.search.metrics ?? []}
+                      />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p>{searchData?.search.metricsGroup?.name}</p>
               )}
-            </div>
+            </div>{" "}
             <div className="flex flex-row gap-2 items-center">
               <p className="gellix-semibold">Time period:</p>
               {editSearchInfo ? (
                 <div className="flex flex-row gap-2">
-                  <select
-                    value={
-                      dateRangeList.find(
-                        (d) =>
-                          d.value ===
-                          (tempEditData.timePeriod ||
-                            searchData?.search.timePeriod)
-                      )?.id
-                    }
-                    className="border border-gray-200 text-gray-900 text-sm rounded-lg p-2 gellix outline-none"
-                    onChange={(e) => {
-                      const selectedPeriod = dateRangeList.find(
-                        (d) => d.id === e.target.value
-                      )?.value;
-                      if (selectedPeriod) {
-                        setTempEditData({
-                          ...tempEditData,
-                          timePeriod: selectedPeriod,
-                        });
-                      }
-                    }}
-                  >
-                    {dateRangeList.map((dateOption) => (
-                      <option key={dateOption.id} value={dateOption.id}>
-                        {dateOption.label}
-                      </option>
-                    ))}{" "}
-                  </select>
+                  <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center ">
+                    <DateRangePicker
+                      className="max-w-xs gellix w-65 gap-5"
+                      selectorButtonPlacement="end"
+                      calendarProps={{
+                        classNames: {
+                          base: "bg-gray-50 rounded-lg shadow-lg",
+                          prevButton:
+                            "hover:bg-gray-200 items-center justify-center",
+                          nextButton:
+                            "hover:bg-gray-200 items-center justify-center",
+                          gridHeader:
+                            "border-b-1 border-gray-300 text-gray-500",
+                          cellButton: [
+                            "data-[disabled=true]:opacity-40",
+                            "data-[available=true]:cursor-pointer",
+                            "data-[focused=true]:border-1 data-[focused=true]:border-blue-900 data-[focused=true]:cursor-pointer",
+                            "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:cursor-pointer data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
+                            "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:cursor-pointer data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
+                            "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
+                          ],
+                        },
+                      }}
+                      onChange={(newDate) => {
+                        console.log("new date: ", newDate);
+                        // getInitialDateRange
+                        if (newDate) {
+                          const dateRange = convertDateRange(newDate);
+                          if (dateRange !== null) {
+                            setSelectedDateRange(newDate);
+                            setTempEditData({
+                              ...tempEditData,
+                              timePeriod: dateRange,
+                            });
+                          }
+                        }
+                      }}
+                      maxValue={today(getLocalTimeZone())}
+                      value={selectedDateRange}
+                    />
+                  </div>
                 </div>
               ) : (
-                <p>
-                  {searchData?.search.timePeriod != "1" &&
-                    searchData?.search.timePeriod != "2" && (
-                      <span>Last {searchData?.search.timePeriod} day(s)</span>
-                    )}
-                  {searchData?.search.timePeriod === "1" && <span>Today</span>}
-                  {searchData?.search.timePeriod === "2" && (
-                    <span>Yesterday</span>
-                  )}
-                </p>
+                <p>{date}</p>
               )}
             </div>{" "}
           </div>
@@ -465,6 +550,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 action={handleSaveAllChanges}
                 icon="arrow"
                 width="12em"
+                // disabled={!tempEditData.metricsGroup && !tempEditData.timePeriod}
               />
               <ButtonAnimation
                 label="Cancel"
@@ -486,6 +572,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 className="size-6"
                 onClick={() => {
                   setEditSearchInfo(true);
+                  setTempEditData({
+                    ...tempEditData,
+                    metricsGroup: searchData?.search.metricsGroup?._id,
+                    // timePeriod:
+                  });
                 }}
               >
                 <path

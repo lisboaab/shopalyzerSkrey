@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import LoadingData from "@/components/loadingData";
 import SomethingWentWrong from "@/components/somethingWentWrong";
 import Card from "@/components/dashboard/card";
-import List from "@/components/dashboard/list";
+import Donut from "@/components/dashboard/donut";
 
 import { getSearch } from "@/lib/queries";
 
@@ -184,16 +184,16 @@ export default function Dashboard({ searchId }: { searchId: string }) {
             })}
       </div>{" "}
 
-      {/* List items */}
+      {/* Donut items */}
       <div className="flex flex-row justify-between">
-        {dashboardData.list.length > 0 &&
-          [...dashboardData.list]
+        {dashboardData.donut.length > 0 &&
+          [...dashboardData.donut]
             .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
             .map((data: any) => {
               return (
                 <div key={data.metric.name} className="p-8 rounded-lg flex-1 mx-3"
                   style={{ backgroundColor: "#E8F1FF90" }}>
-                    <List label={data.metric.name} value={data.value}/>
+                    <Donut label={data.metric.name} value={data.value}/>
                 </div>
               );
             })}
