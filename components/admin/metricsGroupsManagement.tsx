@@ -63,47 +63,47 @@ import IconDisplay from "@/components/iconDisplay";
 import SnackBar from "../modal/snackBar";
 import ModalDeleteSavedSearch from "../modal/modalDeleteSavedSearch";
 
-const HeroIcons = {
-  AdjustmentsHorizontalIcon,
-  ArrowTrendingUpIcon,
-  ArrowsRightLeftIcon,
-  BanknotesIcon,
-  BellAlertIcon,
-  BeakerIcon,
-  BookmarkIcon,
-  ChartBarIcon,
-  ChartPieIcon,
-  CalendarIcon,
-  CheckBadgeIcon,
-  CircleStackIcon,
-  ClockIcon,
-  Cog6ToothIcon,
-  CloudIcon,
-  CubeIcon,
-  CurrencyDollarIcon,
-  DivideIcon,
-  DocumentPlusIcon,
-  EnvelopeIcon,
-  ExclamationTriangleIcon,
-  FunnelIcon,
-  GiftIcon,
-  GlobeAltIcon,
-  HeartIcon,
-  HashtagIcon,
-  MagnifyingGlassIcon,
-  MapPinIcon,
-  MegaphoneIcon,
-  PencilIcon,
-  PuzzlePieceIcon,
-  RocketLaunchIcon,
-  ServerStackIcon,
-  ShareIcon,
-  SparklesIcon,
-  TrophyIcon,
-  UserGroupIcon,
-  UserCircleIcon,
-  UsersIcon,
-};
+// const HeroIcons = {
+//   AdjustmentsHorizontalIcon,
+//   ArrowTrendingUpIcon,
+//   ArrowsRightLeftIcon,
+//   BanknotesIcon,
+//   BellAlertIcon,
+//   BeakerIcon,
+//   BookmarkIcon,
+//   ChartBarIcon,
+//   ChartPieIcon,
+//   CalendarIcon,
+//   CheckBadgeIcon,
+//   CircleStackIcon,
+//   ClockIcon,
+//   Cog6ToothIcon,
+//   CloudIcon,
+//   CubeIcon,
+//   CurrencyDollarIcon,
+//   DivideIcon,
+//   DocumentPlusIcon,
+//   EnvelopeIcon,
+//   ExclamationTriangleIcon,
+//   FunnelIcon,
+//   GiftIcon,
+//   GlobeAltIcon,
+//   HeartIcon,
+//   HashtagIcon,
+//   MagnifyingGlassIcon,
+//   MapPinIcon,
+//   MegaphoneIcon,
+//   PencilIcon,
+//   PuzzlePieceIcon,
+//   RocketLaunchIcon,
+//   ServerStackIcon,
+//   ShareIcon,
+//   SparklesIcon,
+//   TrophyIcon,
+//   UserGroupIcon,
+//   UserCircleIcon,
+//   UsersIcon,
+// };
 
 const MetricsGroupsManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -122,6 +122,8 @@ const MetricsGroupsManagement: React.FC = () => {
   });
   // metrics list
   const [metricsList, setMetricsList] = useState<Metric[] | null>(null);
+  // "Custom" group
+  const [customGroup, setCustomGroup] = useState<Group>();
 
   const [snackBarState, setSnackBarState] = useState({
     open: false,
@@ -183,8 +185,14 @@ const MetricsGroupsManagement: React.FC = () => {
     try {
       const fetchedData = await getGroups();
       if (fetchedData) {
+        const cGroup = fetchedData.find((g: Group) => g.name === "Custom");
+        if (cGroup) {
+          setCustomGroup(cGroup);
+        } else {
+          console.error("Custom group not found");
+        }
         const result = Array.isArray(fetchedData) ? fetchedData : [];
-        setData(result);
+        setData(result.filter((g: Group) => g._id != cGroup?._id));
       }
     } catch (error) {
       console.error("Error fetching groups:", error);
@@ -336,13 +344,15 @@ const MetricsGroupsManagement: React.FC = () => {
               <th key={index} className="py-2 text-left">
                 <div className="flex flex-row gap-1 items-center">
                   {item.item}
-                  {item.sortable && <SortItem
+                  {item.sortable && (
+                    <SortItem
                       action={(direction) => {
                         console.log("Sort direction:", direction);
                         if (item.key) handleSort(item.key, direction);
                         console.log("data", data);
                       }}
-                    />}
+                    />
+                  )}
                 </div>
               </th>
             ))}
@@ -387,7 +397,7 @@ const MetricsGroupsManagement: React.FC = () => {
                     style="outline"
                     color="#4b5563"
                     width="6em"
-                    disabled={group._id === "683718396a4083c4b4339dc4"} //disabled if the group is the "Custom" option
+                    disabled={group._id === customGroup?._id} //disabled if the group is the "Custom" option
                     action={() => handleEditGroup(group)}
                   ></ButtonAnimation>
                   <ButtonAnimation
@@ -396,7 +406,7 @@ const MetricsGroupsManagement: React.FC = () => {
                     style="outline"
                     color="red"
                     width="8em"
-                    disabled={group._id === "683718396a4083c4b4339dc4"} //disabled if the group is the "Custom" option
+                    disabled={group._id === customGroup?._id} //disabled if the group is the "Custom" option
                     action={() => areYouSureDelete(group._id)}
                   ></ButtonAnimation>
                 </td>

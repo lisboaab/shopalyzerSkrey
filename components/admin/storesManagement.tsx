@@ -407,7 +407,7 @@ const StoresManagement: React.FC = () => {
       <ModalDeleteSavedSearch
         isOpen={modalState.create.isOpen}
         onDismiss={() => updateModalState("create", false)}
-        title="Create store"
+        title="Add store"
       >
         <div className="my-4 flex flex-col justify-start gap-8">
           <div className="space-y-4">
@@ -454,27 +454,6 @@ const StoresManagement: React.FC = () => {
                 }}
               />
             </div>
-            {/* store APIKey */}
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-600 mb-1">API Key</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
-                value={newStore.APIKey}
-                onChange={(e) =>
-                  setNewStore({
-                    ...newStore,
-                    APIKey: e.target.value,
-                  })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    createNewStore();
-                  }
-                }}
-              />
-            </div>
             {/* store APIToken */}
             <div className="flex flex-col">
               <label className="text-sm text-gray-600 mb-1">
@@ -488,6 +467,27 @@ const StoresManagement: React.FC = () => {
                   setNewStore({
                     ...newStore,
                     APIToken: e.target.value,
+                  })
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    createNewStore();
+                  }
+                }}
+              />
+            </div>
+            {/* store APIKey */}
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">API Key</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md p-2 bg-transparent outline-none"
+                value={newStore.APIKey}
+                onChange={(e) =>
+                  setNewStore({
+                    ...newStore,
+                    APIKey: e.target.value,
                   })
                 }
                 onKeyDown={(e) => {
