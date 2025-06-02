@@ -538,45 +538,13 @@ export class ShopifyOrdersService {
   async filterOrders(timePeriod: string, orders: any) {
     if (!orders) return [];
     try {
-      const filtered = orders.filter((order: any) => {
-        const createdAt = new Date(order.node.createdAt);
-        const today = new Date();
-        let cutoffDate;
+      const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
 
-        switch (timePeriod) {
-          case "1":
-            cutoffDate = new Date(today);
-            cutoffDate.setDate(today.getDate() - 1);
-            break;
-          case "2":
-            cutoffDate = new Date(today);
-            cutoffDate.setDate(today.getDate() - 2);
-            break;
-          case "7":
-            cutoffDate = new Date(today);
-            cutoffDate.setDate(today.getDate() - 7);
-            break;
-          case "30":
-            cutoffDate = new Date(today);
-            cutoffDate.setDate(today.getDate() - 30);
-            break;
-          case "90":
-            cutoffDate = new Date(today);
-            cutoffDate.setDate(today.getDate() - 30);
-            break;
-          case "180":
-            cutoffDate = new Date(today);
-            cutoffDate.setDate(today.getDate() - 30);
-            break;
-          case "365":
-            cutoffDate = new Date(today);
-            cutoffDate.setDate(today.getDate() - 30);
-            break;
-          default:
-            return true;
-        }
-        return createdAt >= cutoffDate;
+      const filtered = orders.filter((order: any) => {
+        const orderDate = new Date(order.node.createdAt).getTime();
+        return orderDate >= startTimestamp && orderDate <= endTimestamp;
       });
+
       return filtered;
     } catch (error) {
       console.error("Error filtering orders:", error);
@@ -636,7 +604,7 @@ export class ShopifyOrdersService {
         const result = parseInt(totalRevenueNumber[0]) / filteredOrders.length;
         average = result.toFixed(2) + " " + totalRevenueNumber[1];
       }
-      return average
+      return average;
     } catch (error) {
       console.error("Error fetching average value of orders:", error);
       throw error;

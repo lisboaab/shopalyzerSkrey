@@ -136,13 +136,13 @@ export default function Page() {
             </h1>
           </div>
           <div className="flex flex-row gap-15 w-full">
-            <div className="flex flex-col gap-2 w-1/5 h-full">
+            <div className="flex flex-col gap-2 w-1/5 h-full border-r-1 border-gray-200 ">
               {menuOptions.map((option) => {
                 return (
                   <div
                     id={option.id}
                     key={option.id}
-                    className={`flex flex-row gap-4 items-center cursor-pointer hover:bg-gray-100 hover:rounded-lg p-4 ${
+                    className={`flex flex-row gap-4 items-center cursor-pointer hover:bg-gray-100 hover:rounded-lg p-4 mr-2 ${
                       selectedItem == option.id
                         ? "main bg-electric50 rounded-lg"
                         : ""

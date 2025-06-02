@@ -4,7 +4,7 @@ import React from "react";
 import LayoutBody from "./layoutBody";
 
 export const metadata: Metadata = {
-  title: "Shopalizer",
+  title: "Shopalyzer",
 };
 
 export default function RootLayout({
