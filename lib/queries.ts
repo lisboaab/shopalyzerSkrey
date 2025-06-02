@@ -942,7 +942,6 @@ export const updateSearch = async (
   }
 ) => {
   try {
-    console.log("entrou pro update search")
     const { data } = await apolloClient.mutate({
       mutation: UPDATE_SEARCH,
       variables: { id, input },
@@ -950,8 +949,10 @@ export const updateSearch = async (
     return data.updateSearch;
   } catch (error) {
     if (error instanceof Error) {
+     console.log(error.message)
       throw error.message;
     }
+    
     throw error;
   }
 };

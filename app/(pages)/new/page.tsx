@@ -180,7 +180,6 @@ export default function Page() {
           metricsList.push(m._id);
         });
       }
-      // let selectecTimePeriod = "";
       const convertedRange = convertDateRange(date);
 
       const input = {
@@ -200,16 +199,6 @@ export default function Page() {
     setDate(null);
     setPencilButtonActive(false);
   };
-
-  const dateRangeList = [
-    { id: "today", label: "Today", value: "1" },
-    { id: "yesterday", label: "Yesterday", value: "2" },
-    { id: "last_7_days", label: "Last 7 days", value: "7" },
-    { id: "last_30_days", label: "Last 30 days", value: "30" },
-    { id: "last_90_days", label: "Last 90 days", value: "90" },
-    { id: "last_180_days", label: "Last 180 days", value: "180" },
-    { id: "last_365_days", label: "Last 365 days", value: "365" },
-  ];
 
   return loading ? (
     <Loading />
@@ -299,50 +288,45 @@ export default function Page() {
                 </label>
                 <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
                   <DateRangePicker
-                    className="max-w-xs gellix"
-                    calendarProps={{
-                      classNames: {
-                        base: "bg-gray-50 rounded-lg shadow-lg",
-                        prevButton:
-                          "hover:bg-gray-200 items-center justify-center",
-                        nextButton:
-                          "hover:bg-gray-200 items-center justify-center",
-                        gridHeader: "border-b-1 border-gray-300 text-gray-500",
-                        cellButton: [
-                          // Disable dates
-                          "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
+                  className="max-w-xs gellix"
+                  calendarProps={{
+                    classNames: {
+                    base: "bg-gray-50 rounded-lg shadow-lg",
+                    prevButton:
+                      "hover:bg-gray-200 items-center justify-center",
+                    nextButton:
+                      "hover:bg-gray-200 items-center justify-center",
+                    gridHeader: "border-b-1 border-gray-300 text-gray-500",
+                    cellButton: [
+                      // Disable dates
+                      "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
 
-                          // Focused date styling
-                          "data-[focused=true]:border-1 data-[focused=true]:border-blue-900",
+                      // Focused date styling
+                      "data-[focused=true]:border-1 data-[focused=true]:border-blue-900",
 
-                          // Range styling - start date
-                          "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
+                      // Range styling - start date
+                      "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
 
-                          // Range styling - end date
-                          "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
+                      // Range styling - end date
+                      "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
 
-                          // Style for selected dates
-                          "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
-                        ],
-                      },
-                    }}
-                    value={date}
-                    onChange={(newDate) => {
-                      if (newDate) {
-                        setDate({
-                          start: newDate.start,
-                          end: newDate.end,
-                        });
-                      }
-                    }}
-                    maxValue={today(getLocalTimeZone())}
+                      // Style for selected dates
+                      "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
+                    ],
+                    },
+                  }}
+                  value={date}
+                  onChange={(newDate) => {
+                    if (newDate) {
+                    setDate({
+                      start: newDate.start,
+                      end: newDate.end,
+                    });
+                    }
+                  }}
+                  maxValue={today("UTC")}
                   />
                 </div>
-                <p>
-                  {date
-                    ? `${date.start.day}/${date.start.month}/${date.start.year} - ${date.end.day}/${date.end.month}/${date.end.year}`
-                    : "No date selected"}
-                </p>
               </div>
             </div>
             <div className="flex flex-col justify-center items-center gap-4 w-full">
