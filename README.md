@@ -1,8 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+![Generic badge](https://img.shields.io/badge/Status-In_Progress-blue)
+
+<div align="center">
+<img src="https://res.cloudinary.com/ditdnslga/image/upload/v1748943689/logo_shopalyzer_f9ze8y.png" width="40%" />
+</div>
+
+<hr>
+
+## Team:
+
+<table align="center">
+    <tr>
+        <td align="center">
+        <img style="border-radius: 50%; width="100px;"" src="https://avatars.githubusercontent.com/u/99557581?v=4" width="100px;"><br>
+        <sub>
+        <b>Beatriz Lisboa</br>
+        </td>
+    </tr>
+</table>
+
+<hr>
+
+## Tecnologies and tools used:
+
+Structuring and developing the Web page:
+
+![React](https://shields.io/badge/React-3178C6?logo=React&logoColor=FFF&style=for-the-badge)
+![Next.js](https://shields.io/badge/Next.js-3178C6?logo=nextdorjs&logoColor=FFF&style=for-the-badge)
+![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=for-the-badge)
+![GraphQL](https://shields.io/badge/GraphQL-3178C6?logo=GraphQL&logoColor=FFF&style=for-the-badge)
+
+Internal structure of the project:
+
+![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white)
+
+
+<hr>
+
+## About the project:
+
+hush allows users to track and monitor their sleep and daily mood, offering graphics that highlight important data and help identify patterns between sleep and emotional well-being.
+
+<hr>
 
 ## Getting Started
 
-First, run the development server:
+First, run the development ambient:
 
 ```bash
 npm run dev
@@ -14,30 +56,17 @@ pnpm dev
 bun dev
 ```
 
+Then, run the server:
+
+```bash
+nodemon server
+# or
+node server
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
 
 ## Run tests
 ```bash
 npm run cypress:open
 ```
-
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
