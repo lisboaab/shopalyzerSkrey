@@ -153,16 +153,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           metricsGroup: tempEditData.metricsGroup,
         }),
         ...(tempEditData.timePeriod && { timePeriod: tempEditData.timePeriod }),
-        ...(tempEditData.metricsGroup === customGroup?._id &&
-          metricsList.length > 0 && { metrics: metricsList }),
+        ...(tempEditData.metricsGroup === customGroup?._id && metricsList.length > 0 && { metrics: metricsList }),
       };
 
-      if (
-        tempEditData.metricsGroup === customGroup?._id &&
-        metricsList.length === 0
-      ) {
-        handleSnackBar("failure", "Please select at least one metric");
-        return;
+      if(tempEditData.metricsGroup === customGroup?._id && metricsList.length === 0){
+        handleSnackBar("failure", "Please select at least one metric")
+        return
       }
 
       const update = await updateSearch(id, updateData);
@@ -220,7 +216,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     }
   };
 
-  const handleEditSearchName = async (item: string, input: any) => {
+  const handleEditSearch = async (item: string, input: any) => {
     const update = await updateSearch(id, input);
     if (update) {
       setUpdatedAt(update.updatedAt);
@@ -302,15 +298,15 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   }, [searchData]);
 
   useEffect(() => {
-    setSelectedDateRange(getInitialDateRange(searchData?.search.timePeriod));
     if (searchData?.search.metricsGroup?._id === customGroup?._id) {
       setPencilButtonActive(true);
       if (searchData?.search.metrics && searchData.search.metrics.length > 0) {
         setCustomMetrics(searchData.search.metrics);
       }
-    } else {
+    }
+    else {
       setPencilButtonActive(false);
-      setCustomMetrics([]);
+      setCustomMetrics([])
     }
   }, [searchData, customGroup]);
 
@@ -361,7 +357,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       const input = {
                         name: searchData.search.name,
                       };
-                      await handleEditSearchName("name", input);
+                      await handleEditSearch("name", input);
                     }
                   }}
                   className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none w-100"
@@ -375,7 +371,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       const input = {
                         name: searchData.search.name,
                       };
-                      await handleEditSearchName("name", input);
+                      await handleEditSearch("name", input);
                     }
                   }}
                   icon="arrow"
@@ -518,8 +514,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         },
                       }}
                       onChange={(newDate) => {
-                        console.log("new date: ", newDate);
-                        // getInitialDateRange
                         if (newDate) {
                           const dateRange = convertDateRange(newDate);
                           if (dateRange !== null) {
@@ -550,7 +544,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 action={handleSaveAllChanges}
                 icon="arrow"
                 width="12em"
-                // disabled={!tempEditData.metricsGroup && !tempEditData.timePeriod}
+                disabled={!tempEditData.metricsGroup && !tempEditData.timePeriod}
               />
               <ButtonAnimation
                 label="Cancel"
@@ -569,14 +563,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="blue"
-                className="size-6"
+                className="size-6"                
                 onClick={() => {
                   setEditSearchInfo(true);
-                  setTempEditData({
-                    ...tempEditData,
-                    metricsGroup: searchData?.search.metricsGroup?._id,
-                    // timePeriod:
-                  });
+                  // setTempEditData({
+                  //   ...tempEditData,
+                  //   metricsGroup: searchData?.search.metricsGroup?._id
+                  // });
                 }}
               >
                 <path

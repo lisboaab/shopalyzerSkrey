@@ -16,9 +16,10 @@ import { getActiveMetrics } from "@/lib/queries";
 
 interface Props {
   setCustomMetrics: (value: Metric[]) => void;
+  initialMetrics?: Metric[];
 }
 
-const ButtonCustomMetricsDialog: React.FC<Props> = ({ setCustomMetrics }) => {
+const ButtonCustomMetricsDialog: React.FC<Props> = ({ setCustomMetrics, initialMetrics }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,6 +52,12 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({ setCustomMetrics }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (initialMetrics && initialMetrics.length > 0) {
+      setSelectedMetrics(initialMetrics.map(m => m._id ?? "").filter(Boolean));
+    }
+  }, [initialMetrics]);
 
   const filteredMetrics =
     searchQuery.length < 3

@@ -949,8 +949,10 @@ export const updateSearch = async (
     return data.updateSearch;
   } catch (error) {
     if (error instanceof Error) {
+     console.log(error.message)
       throw error.message;
     }
+    
     throw error;
   }
 };

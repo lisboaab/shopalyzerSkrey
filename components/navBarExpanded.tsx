@@ -93,7 +93,7 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
       }
     };
     getUserSearchesData();
-  }, []);
+  }, [searches]);
 
   return (
     <div className="flex flex-col items-start  h-full">
@@ -150,7 +150,7 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
         <div className="flex flex-col flex-1 min-h-0 w-full">
           <h2 className="gellix-semibold pb-4">Recent searches</h2>
           <div
-            className="flex-1 min-h-0 overflow-y-auto"
+            className="flex-1 min-h-0 overflow-y-auto scrollBar"
           >
             {searches.map((search, index) => (
               <RecentSearch

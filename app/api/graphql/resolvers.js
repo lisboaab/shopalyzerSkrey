@@ -578,8 +578,7 @@ const metricResolver = {
         name: input.name != null ? input.name : metric.name,
         description:
           input.description != null ? input.description : metric.description,
-        graphType:
-          input.graphType != null ? input.graphType : metric.graphType,
+        graphType: input.graphType != null ? input.graphType : metric.graphType,
         status: input.status != null ? input.status : metric.status,
       });
 
@@ -847,7 +846,10 @@ const searchResolver = {
         }
       });
 
-      const name = `${storeFound.name} - ${input.timePeriod}`;
+      const name = `${storeFound.name} - ${input.metrics[0].slice(
+        0,
+        3
+      )}${input.timePeriod.split("-")[0].slice(0, 5)}`;
 
       const search = new Search({
         name: name,
@@ -865,7 +867,6 @@ const searchResolver = {
     },
     removeSearch: async (_, { id }) => {
       if (!id) {
-        
         throw new GraphQLError("Missing search ID", {
           extensions: {
             code: "FIELDS_MISSING",
@@ -881,6 +882,8 @@ const searchResolver = {
       return "Search deleted successfully.";
     },
     updateSearch: async (_, { id, input }) => {
+      let customGroup = await Group.findOne({ name: "Custom" });
+
       if (!id) {
         throw new GraphQLError("Missing search ID", {
           extensions: {
@@ -891,53 +894,58 @@ const searchResolver = {
       const search = await Search.findById(id);
       if (!search) throw new Error("Search not found.");
 
-      if (input.store) {
-        const store = await Store.findById(id);
-        if (!store) throw new Error("Store not found.");
-      }
-
+      let metricsList;
       if (input.metricsGroup) {
-        const metricsGroup = await Group.findById(id);
-        if (!metricsGroup) throw new Error("Group not found.");
-      }
+        const g = await Group.findById(input.metricsGroup);
+        if (!g) throw new Error("Group not found.");
+        const targetGroupId = input.metricsGroup.toString();
+        const customGroupId = customGroup._id.toString();
 
-      if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID.");
-
-      if (input.metrics) {
-        input.metrics.forEach((m) => {
-          const found = Metric.findById(m);
-          if (!found) {
-            throw new GraphQLError(`Could not find metric with ID ${m}`, {
-              extensions: {
-                code: "METRIC_NOT_FOUND",
-              },
-            });
+        if (targetGroupId === customGroupId) {
+          input.metrics.forEach((m) => {
+            const found = Metric.findById(m);
+            if (!found) {
+              throw new GraphQLError(`Could not find metric with ID ${m}`, {
+                extensions: {
+                  code: "METRIC_NOT_FOUND",
+                },
+              });
+            }
+          });
+          metricsList = input.metrics;
+        } else {
+          if (input.metricsGroup) {
+            const g = await Group.findById(input.metricsGroup);
+            metricsList = g.metrics;
           }
-        });
+        }
       }
+      if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID.");
 
       await Search.findByIdAndUpdate(id, {
         name: input.name != null ? input.name : search.name,
-        store: input.store != null ? input.store : search.store,
         metricsGroup:
           input.metricsGroup != null ? input.metricsGroup : search.metricsGroup,
-        metrics: input.metrics != null ? input.metrics : search.metrics,
+        metrics: metricsList != null ? metricsList : search.metrics,
         isSaved: input.isSaved != null ? input.isSaved : search.isSaved,
         timePeriod:
           input.timePeriod != null ? input.timePeriod : search.timePeriod,
       });
 
       const updatedSearch = await Search.findById(id)
-          .populate("store")
-          .populate("metrics")
-          .populate("metricsGroup");
+        .populate("store")
+        .populate("metrics")
+        .populate("metricsGroup");
 
       return updatedSearch;
     },
   },
   Query: {
     searches: async () =>
-      await Search.find().populate("store").populate("metrics").populate("metricsGroup"),
+      await Search.find()
+        .populate("store")
+        .populate("metrics")
+        .populate("metricsGroup"),
     search: async (_, { ID }) => {
       try {
         const search = await Search.findById(ID)
@@ -975,7 +983,7 @@ const searchResolver = {
         if (!user) {
           throw new Error("User not found");
         }
-        const searches = await Search.find({ userID: ID, isSaved: true })
+        const searches = await Search.findOne({ userID: ID, isSaved: true })
           .populate("store")
           .populate("metrics")
           .populate("metricsGroup");
