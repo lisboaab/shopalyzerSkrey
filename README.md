@@ -12,6 +12,7 @@ Shopalyzer was developed during a curricular internship @Skrey Software.
 The main goal of the app is to make it easier to analyse metrics of the Shopify Stores developed by Skrey.
 
 <hr>
+
 ## Developed by:
 
 <table align="center">
@@ -26,19 +27,12 @@ The main goal of the app is to make it easier to analyse metrics of the Shopify 
 
 <hr>
 
-## Tecnologies and tools used:
-
-Structuring and developing the Web page:
+## Main tech stack:
 
 ![React](https://shields.io/badge/React-3178C6?logo=React&logoColor=FFF&style=for-the-badge)
 ![Next.js](https://shields.io/badge/Next.js-3178C6?logo=nextdorjs&logoColor=FFF&style=for-the-badge)
 ![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=for-the-badge)
 ![GraphQL](https://shields.io/badge/GraphQL-3178C6?logo=GraphQL&logoColor=FFF&style=for-the-badge)
-
-Internal structure of the project:
-
-![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white)
-
 
 <hr>
 
