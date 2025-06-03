@@ -6,7 +6,13 @@
 
 <hr>
 
-## Team:
+## About the project:
+
+Shopalyzer was developed during a curricular internship @Skrey Software. 
+The main goal of the app is to make it easier to analyse metrics of the Shopify Stores developed by Skrey.
+
+<hr>
+## Developed by:
 
 <table align="center">
     <tr>
@@ -36,12 +42,6 @@ Internal structure of the project:
 
 <hr>
 
-## About the project:
-
-hush allows users to track and monitor their sleep and daily mood, offering graphics that highlight important data and help identify patterns between sleep and emotional well-being.
-
-<hr>
-
 ## Getting Started
 
 First, run the development ambient:
@@ -65,6 +65,8 @@ node server
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+<hr>
 
 ## Run tests
 ```bash
