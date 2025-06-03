@@ -967,7 +967,7 @@ const searchResolver = {
         if (!user) {
           throw new Error("User not found");
         }
-        const searches = await Search.findOne({ userID: ID })
+        const searches = await Search.find({ userID: ID })
           .populate("store")
           .populate("metrics")
           .populate("metricsGroup");
