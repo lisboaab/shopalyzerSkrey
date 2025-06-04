@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, split, HttpLink, ApolloLink  } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache, HttpLink, ApolloLink  } from '@apollo/client/core';
 
 const getToken = () => {
     if (typeof window !== 'undefined') {

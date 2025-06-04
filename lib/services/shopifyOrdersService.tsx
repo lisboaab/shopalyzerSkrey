@@ -388,7 +388,7 @@ export const GET_CONVERSION_RATE = gql`
 
 export const GET_TOP_PRODUCTS = gql`
   query GetTopProducts {
-    orders(first: 50) {
+    orders(first: 250) {
       edges {
         node {
           createdAt
@@ -552,7 +552,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateTotalRevenue(timePeriod: string = "30") {
+  async calculateTotalRevenue(timePeriod: string) {
     try {
       const orders = await this.client.query({
         query: GET_TOTAL_REVENUE,
@@ -580,7 +580,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateAverageOrderValue(timePeriod: string = "30") {
+  async calculateAverageOrderValue(timePeriod: string ) {
     try {
       const orders = await this.client.query({
         query: GET_TOTAL_REVENUE,
@@ -611,7 +611,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateTotalDiscount(timePeriod: string = "30") {
+  async calculateTotalDiscount(timePeriod: string ) {
     try {
       const actualTotalRevenue = await this.calculateTotalRevenue(timePeriod);
 
@@ -649,7 +649,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateTotalTax(timePeriod: string = "30") {
+  async calculateTotalTax(timePeriod: string ) {
     try {
       const orders = await this.client.query({
         query: GET_TOTAL_TAX_SET,
@@ -676,7 +676,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateConversionRate(timePeriod: string = "30") {
+  async calculateConversionRate(timePeriod: string ) {
     try {
       const orders = await this.client.query({
         query: GET_CONVERSION_RATE,
@@ -705,7 +705,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateTopProducts(timePeriod: string = "30") {
+  async calculateTopProducts(timePeriod: string ) {
     try {
       const orders = await this.client.query({
         query: GET_TOP_PRODUCTS,
@@ -749,52 +749,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  //   async calculateTopCategories(timePeriod: string = "30") {
-  //     try {
-  //       const orders = await this.client.query({
-  //         query: GET_TOP_CATEGORIES,
-  //       });
-
-  //       const filteredOrders = await this.filterOrders(
-  //         timePeriod,
-  //         orders.data.orders.edges
-  //       );
-
-  //       const categories: any[] = [];
-
-  //       filteredOrders.forEach((order: any) => {
-  //         order.node.lineItems.edges.forEach((lineItem: any) => {
-  //           const item = {
-  //             productType: lineItem.node.variant.product.productType,
-  //             quantity: lineItem.node.quantity,
-  //           };
-  //           categories.push(item);
-  //         });
-  //       });
-
-  //       const groupedCategories = categories.reduce((acc: any, curr) => {
-  //         const key = curr.productType;
-  //         if (!acc[key]) {
-  //           acc[key] = {
-  //             ...curr,
-  //             totalQuantity: 0,
-  //           };
-  //         }
-  //         acc[key].totalQuantity += curr.quantity;
-  //         return acc;
-  //       }, {});
-
-  //       const topCategories = Object.values(groupedCategories).sort(
-  //         (a: any, b: any) => b.totalQuantity - a.totalQuantity
-  //       );
-  // console.log("top categorires", topCategories.slice(0, 5))
-  //       return topCategories.slice(0, 5);
-  //     } catch (error) {
-  //       console.error("Error fetching conversion rate:", error);
-  //       throw error;
-  //     }
-  //   }
-  async calculateTopCategories(timePeriod: string = "30") {
+  async calculateTopCategories(timePeriod: string) {
     try {
       const orders = await this.client.query({
         query: GET_TOP_CATEGORIES,
@@ -848,7 +803,7 @@ export class ShopifyOrdersService {
       throw error;
     }
   }
-  async calculateTotalOrders(timePeriod: string = "30") {
+  async calculateTotalOrders(timePeriod: string ) {
     try {
       const orders = await this.client.query({
         query: GET_TOTAL_ORDERS,
