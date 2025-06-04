@@ -6,8 +6,6 @@ import Search from "../models/search.model.js";
 
 import { GraphQLError } from "graphql";
 import mongoose from "mongoose";
-import express from "express";
-import cors from "cors";
 
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -204,6 +202,7 @@ const userResolver = {
     user: async (_, { ID }, context) => {
       try {
         if (!context.user) {
+          // aqui exemplo de header de autorização
           throw new GraphQLError("Not authenticated", {
             extensions: {
               code: "UNAUTHENTICATED",
@@ -237,6 +236,7 @@ const userResolver = {
       }
     },
     users: async (_, __, context) => {
+      // ADD VALIDAÇÃO PRA SER UM USER ADMIN
       if (!context.user) {
         throw new GraphQLError("Not authenticated", {
           extensions: {
@@ -983,7 +983,7 @@ const searchResolver = {
         if (!user) {
           throw new Error("User not found");
         }
-        const searches = await Search.findOne({ userID: ID, isSaved: true })
+        const searches = await Search.find({ userID: ID, isSaved: true })
           .populate("store")
           .populate("metrics")
           .populate("metricsGroup");
