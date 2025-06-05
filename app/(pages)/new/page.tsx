@@ -236,7 +236,7 @@ export default function Page() {
                   onChange={(e) => setStore(e.target.value)}
                   // required
                 >
-                  <option value="">Select an option</option>
+                  <option value="" key="default-store">Select an option</option>
                   {storesList.map((store: Store) => (
                     <option key={store._id} value={store._id}>
                       {store.name}
@@ -273,7 +273,7 @@ export default function Page() {
                     }
                   }}
                 >
-                  <option value="">Select an option</option>
+                  <option value="" key="default-metrics">Select an option</option>
                   {metricsGroupList.map((group) => (
                     <option key={group._id} value={group._id}>
                       {group.name}
@@ -395,24 +395,6 @@ export default function Page() {
             </div>
           </form>
         </div>
-        {/* <div>
-          Chosen options:
-          <ul className="list-disc list-inside">
-            <li>Store: {store}</li>
-            <li>Group of metrics: {metricsGroup}</li>
-            {customMetrics.length > 0
-              ? customMetrics.map((m) => {
-                  return (
-                    <p key={m._id}>
-                      {m.name}: {m._id}
-                    </p>
-                  );
-                })
-              : ""}
-
-            <li>Date range: {date}</li>
-          </ul>
-        </div> */}
       </div>
     )
   );

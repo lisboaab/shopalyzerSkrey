@@ -677,6 +677,7 @@ export class ShopifyOrdersService {
   }
 
   async calculateConversionRate(timePeriod: string ) {
+
     try {
       const orders = await this.client.query({
         query: GET_CONVERSION_RATE,

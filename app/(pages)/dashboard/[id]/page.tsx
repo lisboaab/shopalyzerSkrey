@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { ApolloProvider } from "@apollo/client";
 import { getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
 
-import { getStoreCredentials } from "@/lib/services/storeService";
 import { getApolloClient } from "@/lib/shopifyServer";
 import {
   getStoreOfSearch,
@@ -119,12 +118,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       setIsSaved(search.isSaved);
       setUpdatedAt(search.updatedAt);
 
-      const credentials = await getStoreCredentials(storeIdString, authToken);
-
-      if (!credentials?.APIToken) {
-        throw new Error("Invalid credentials for store");
-      }
-
       // Apollo client
       const client = getApolloClient(storeIdString, authToken);
 
@@ -196,7 +189,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       }
       initialize();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       handleSnackBar("error", "Error updating search");
     }
   };
@@ -216,7 +209,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     if (update) {
       setIsSaved(update.isSaved);
       setUpdatedAt(update.updatedAt);
-      window.location.reload();
+      initialize();
     }
   };
 
@@ -518,8 +511,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         },
                       }}
                       onChange={(newDate) => {
-                        console.log("new date: ", newDate);
-                        // getInitialDateRange
                         if (newDate) {
                           const dateRange = convertDateRange(newDate);
                           if (dateRange !== null) {
@@ -621,10 +612,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               />
             </svg>
           )}
-        </div>
-      </div>{" "}
+        </div>      </div>{" "}
       <ApolloProvider client={apolloClient}>
-        <Dashboard searchId={id} />
+        {searchData && <Dashboard search={searchData.search} />}
       </ApolloProvider>
       {/* Snackbar feedback */}
       <SnackBar

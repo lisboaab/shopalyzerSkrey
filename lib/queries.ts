@@ -3,6 +3,7 @@ import apolloClient from "./apolloClient";
 
 import Metric from "../app/interface/metric";
 import Group from "../app/interface/group";
+import User from "../app/interface/user";
 
 export const LOGIN_MUTATION = gql`
   mutation Login($input: UserLoginInput!) {
@@ -21,6 +22,7 @@ export const SIGNUP_MUTATION = gql`
       password
       profilePicture
       cloudinaryID
+      _id
     }
   }
 `;
@@ -76,7 +78,7 @@ const GET_STORES = gql`
   }
 `;
 
-const GET_STORE = gql`
+export const GET_STORE = gql`
   query GetStore($id: ID!) {
     store(ID: $id) {
       _id
@@ -439,9 +441,20 @@ export const loginUser = async (input: { email: string; password: string }) => {
 
 export const getUserPhoto = async (id: string) => {
   try {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.error("No authentication token found");
+      throw new Error("Authentication required");
+    }
     const { data } = await apolloClient.query({
       query: GET_USER_PHOTO,
       variables: { id },
+      fetchPolicy: "network-only",
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
     });
     return data.user;
   } catch (error) {
@@ -562,7 +575,6 @@ export const getStore = async (id: string, token?: string) => {
       (typeof window !== "undefined"
         ? localStorage.getItem("authToken")
         : null);
-
     if (!authToken) {
       throw new Error("No authentication token available");
     }
@@ -766,7 +778,7 @@ export const removeGroup = async (id: string) => {
       mutation: REMOVE_GROUP_MUTATION,
       variables: { id },
     });
-    return data.removeStore;
+    return data.removeGroup;
   } catch (error) {
     throw error;
   }
@@ -885,7 +897,6 @@ export const getStoreOfSearch = async (id: string, token?: string) => {
       (typeof window !== "undefined"
         ? localStorage.getItem("authToken")
         : null);
-
     if (!authToken) {
       throw new Error("No authentication token available");
     }
@@ -900,6 +911,7 @@ export const getStoreOfSearch = async (id: string, token?: string) => {
     });
     return data?.search || [];
   } catch (error) {
+    console.error("erro no store of search");
     throw error;
   }
 };
@@ -949,10 +961,10 @@ export const updateSearch = async (
     return data.updateSearch;
   } catch (error) {
     if (error instanceof Error) {
-     console.log(error.message)
+      console.log(error.message);
       throw error.message;
     }
-    
+
     throw error;
   }
 };

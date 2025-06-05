@@ -8,8 +8,6 @@ import SomethingWentWrong from "@/components/somethingWentWrong";
 import Card from "@/components/dashboard/card";
 import Donut from "@/components/dashboard/donut";
 
-import { getSearch } from "@/lib/queries";
-
 import type Search from "../../app/interface/search";
 import type Metric from "../../app/interface/metric";
 
@@ -28,8 +26,11 @@ interface DashboardData {
   pie: any[];
 }
 
-export default function Dashboard({ searchId }: { searchId: string }) {
-  const [search, setSearch] = useState<Search | null>(null);
+export default function Dashboard({
+  search: initialSearch,
+}: {
+  search: Search;
+}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData>({
@@ -48,17 +49,17 @@ export default function Dashboard({ searchId }: { searchId: string }) {
         const authToken = localStorage.getItem("authToken");
         if (!authToken) throw new Error("Auth token not found");
 
-        const searchData = await getSearch(searchId, authToken);
-
-        setSearch(searchData);
-
         // Initialize orders service
         const ordersService = new ShopifyOrdersService(
-          searchData.store._id,
+          typeof initialSearch.store === "string"
+            ? initialSearch.store
+            : (initialSearch.store as { _id: string })._id,
           authToken
         );
 
-        const metricsList = searchData?.metrics.filter((m: Metric) => m.status === "active");
+        const metricsList = initialSearch?.metrics?.filter(
+          (m: Metric) => m.status === "active"
+        );
 
         let data: DashboardData = {
           card: [],
@@ -74,42 +75,42 @@ export default function Dashboard({ searchId }: { searchId: string }) {
             switch (metric.name) {
               case "Average order value":
                 value = await ordersService.calculateAverageOrderValue(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
               case "Conversion rate":
                 value = await ordersService.calculateConversionRate(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
               case "Total revenue":
                 value = await ordersService.calculateTotalRevenue(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
               case "Total discount":
                 value = await ordersService.calculateTotalDiscount(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
               case "Total tax/region":
                 value = await ordersService.calculateTotalTax(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
               case "Top products":
                 value = await ordersService.calculateTopProducts(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
               case "Top categories":
                 value = await ordersService.calculateTopCategories(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
               case "Total orders":
                 value = await ordersService.calculateTotalOrders(
-                  searchData.timePeriod
+                  initialSearch.timePeriod
                 );
                 break;
             }
@@ -150,9 +151,7 @@ export default function Dashboard({ searchId }: { searchId: string }) {
     };
 
     fetchData();
-  }, [searchId]);
-
-  // console.log("dashboard data: ", dashboardData);
+  }, [initialSearch]);
 
   if (loading) return <LoadingData />;
   if (error) {
@@ -183,7 +182,6 @@ export default function Dashboard({ searchId }: { searchId: string }) {
               );
             })}
       </div>{" "}
-
       {/* Donut items */}
       <div className="flex flex-row justify-between">
         {dashboardData.donut.length > 0 &&
@@ -191,9 +189,12 @@ export default function Dashboard({ searchId }: { searchId: string }) {
             .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
             .map((data: any) => {
               return (
-                <div key={data.metric.name} className="p-8 rounded-lg flex-1 mx-3"
-                  style={{ backgroundColor: "#E8F1FF90" }}>
-                    <Donut label={data.metric.name} value={data.value}/>
+                <div
+                  key={data.metric.name}
+                  className="p-8 rounded-lg flex-1 mx-3"
+                  style={{ backgroundColor: "#E8F1FF90" }}
+                >
+                  <Donut label={data.metric.name} value={data.value} />
                 </div>
               );
             })}
