@@ -35,7 +35,7 @@
     "components/ButtonCustomMetricsDialog.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-, "next.config.ts", "app/config/cloudinary.js", "lib/services/shopifyOrdersService.tsx"  ],
+, "next.config.ts", "app/config/cloudinary.js", "lib/services/shopifyOrdersService.tsx", "app/api/graphql/schema.js", "app/api/graphql/resolvers.js", "server.js"  ],
   "exclude": [
     "node_modules"
   ]
