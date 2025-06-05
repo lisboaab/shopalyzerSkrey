@@ -24,7 +24,7 @@ const generateToken = (user) => {
   );
 };
 
-const userResolver = {
+export const userResolver = {
   Mutation: {
     createUser: async (_, { input }) => {
       if (Object.values(input).length == 0) {
@@ -116,7 +116,23 @@ const userResolver = {
         userID: user._id,
       };
     },
-    updateUser: async (_, { id, input }) => {
+    updateUser: async (_, { id, input }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user._id != id && context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing user ID", {
           extensions: {
@@ -181,7 +197,22 @@ const userResolver = {
 
       return updatedUser;
     },
-    removeUser: async (_, { id }) => {
+    removeUser: async (_, { id }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user._id != id && context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
       if (!id) {
         throw new GraphQLError("Missing user ID", {
           extensions: {
@@ -202,18 +233,20 @@ const userResolver = {
     user: async (_, { ID }, context) => {
       try {
         if (!context.user) {
-          // aqui exemplo de header de autorização
           throw new GraphQLError("Not authenticated", {
             extensions: {
               code: "UNAUTHENTICATED",
             },
           });
         }
-        // console.log('ID received in resolver:: ', ID)
-        // const user = await User.findById(ID);
-        // if (!user) {
-        //   throw new Error("User not found");
-        // }
+
+        if (context.user._id != ID && context.user.userType != "admin") {
+          throw new GraphQLError("Forbidden acsess", {
+            extensions: {
+              code: "FORBIDDEN",
+            },
+          });
+        }
 
         let user;
 
@@ -236,11 +269,18 @@ const userResolver = {
       }
     },
     users: async (_, __, context) => {
-      // ADD VALIDAÇÃO PRA SER UM USER ADMIN
       if (!context.user) {
         throw new GraphQLError("Not authenticated", {
           extensions: {
             code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
           },
         });
       }
@@ -252,13 +292,21 @@ const userResolver = {
   },
 };
 
-const storeResolver = {
+export const storeResolver = {
   Mutation: {
     createStore: async (_, { input }, context) => {
       if (!context.user) {
         throw new GraphQLError("Not authenticated", {
           extensions: {
             code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
           },
         });
       }
@@ -363,6 +411,15 @@ const storeResolver = {
           },
         });
       }
+
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing store ID", {
           extensions: {
@@ -418,6 +475,15 @@ const storeResolver = {
           },
         });
       }
+
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing store ID", {
           extensions: {
@@ -435,7 +501,15 @@ const storeResolver = {
     },
   },
   Query: {
-    store: async (_, { ID }) => {
+    store: async (_, { ID }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      
       try {
         const store = await Store.findById(ID)
           .populate("createdBy")
@@ -449,15 +523,41 @@ const storeResolver = {
         throw new Error("Failed to fetch store");
       }
     },
-    stores: async () =>
-      await Store.find().populate("createdBy").populate("lastModifiedBy"),
+    stores: async (_, __, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      return await Store.find()
+        .populate("createdBy")
+        .populate("lastModifiedBy");
+    },
   },
 };
 
 const VALID_GRAPH_TYPES = ["bar", "line", "pie", "donut", "card", "list"];
-const metricResolver = {
+export const metricResolver = {
   Mutation: {
-    createMetric: async (_, { input }) => {
+    createMetric: async (_, { input }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (Object.values(input).length == 0) {
         throw new GraphQLError(
           "You need to provide the body with the request.",
@@ -491,7 +591,7 @@ const metricResolver = {
 
       if (!VALID_GRAPH_TYPES.includes(input.graphType)) {
         throw new GraphQLError(
-          `Invalid graph type: ${input.graphType}. Try one of these: ${VALID_GRAPH_TYPES}`,
+          `Invalid graph type. Try one of these: ${VALID_GRAPH_TYPES}`,
           {
             extensions: {
               code: "INVALID_GRAPH_TYPE",
@@ -519,7 +619,23 @@ const metricResolver = {
 
       return newMetric;
     },
-    removeMetric: async (_, { id }) => {
+    removeMetric: async (_, { id }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing metric ID", {
           extensions: {
@@ -535,7 +651,23 @@ const metricResolver = {
 
       return "Metric deleted successfully.";
     },
-    updateMetric: async (_, { id, input }) => {
+    updateMetric: async (_, { id, input }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing metric ID", {
           extensions: {
@@ -588,8 +720,25 @@ const metricResolver = {
     },
   },
   Query: {
-    metrics: async () => await Metric.find(),
-    metric: async (_, { ID }) => {
+    metrics: async (_, __, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      return await Metric.find();
+    },
+    metric: async (_, { ID }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
       try {
         const metric = await Metric.findById(ID);
         if (!metric) {
@@ -604,13 +753,20 @@ const metricResolver = {
   },
 };
 
-const metricsGroupResolver = {
+export const metricsGroupResolver = {
   Mutation: {
     createGroup: async (_, { input }, context) => {
       if (!context.user) {
         throw new GraphQLError("Not authenticated", {
           extensions: {
             code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
           },
         });
       }
@@ -700,7 +856,22 @@ const metricsGroupResolver = {
 
       return newGroup.populate("metrics");
     },
-    removeGroup: async (_, { id }) => {
+    removeGroup: async (_, { id }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing group ID", {
           extensions: {
@@ -716,7 +887,22 @@ const metricsGroupResolver = {
 
       return "Group deleted successfully.";
     },
-    updateGroup: async (_, { id, input }) => {
+    updateGroup: async (_, { id, input }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      if (context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing group ID", {
           extensions: {
@@ -770,10 +956,26 @@ const metricsGroupResolver = {
     },
   },
   Query: {
-    groups: async () =>
-      await Group.find().populate("createdBy").populate("metrics"),
-    group: async (_, { ID }) => {
+    groups: async (_, __, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      return await Group.find().populate("createdBy").populate("metrics");
+    },
+    group: async (_, { ID }, context) => {
       try {
+        if (!context.user) {
+          throw new GraphQLError("Not authenticated", {
+            extensions: {
+              code: "UNAUTHENTICATED",
+            },
+          });
+        }
+
         const group = await Group.findById(ID)
           .populate("createdBy")
           .populate("metrics");
@@ -789,7 +991,7 @@ const metricsGroupResolver = {
   },
 };
 
-const searchResolver = {
+export const searchResolver = {
   Mutation: {
     createSearch: async (_, { input }, context) => {
       if (!context.user) {
@@ -865,7 +1067,28 @@ const searchResolver = {
 
       return newSearch;
     },
-    removeSearch: async (_, { id }) => {
+    removeSearch: async (_, { id }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      const searchFound = await Search.findById(id);
+      if (!search) throw new Error("Search not found.");
+      else if (
+        context.user._id != searchFound.userID &&
+        context.user.userType != "admin"
+      ) {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
       if (!id) {
         throw new GraphQLError("Missing search ID", {
           extensions: {
@@ -877,12 +1100,17 @@ const searchResolver = {
       if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID.");
 
       const search = await Search.findByIdAndDelete(id);
-      if (!search) throw new Error("Search not found.");
 
       return "Search deleted successfully.";
     },
-    updateSearch: async (_, { id, input }) => {
-      let customGroup = await Group.findOne({ name: "Custom" });
+    updateSearch: async (_, { id, input }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
 
       if (!id) {
         throw new GraphQLError("Missing search ID", {
@@ -891,8 +1119,10 @@ const searchResolver = {
           },
         });
       }
+
       const search = await Search.findById(id);
       if (!search) throw new Error("Search not found.");
+      let customGroup = await Group.findOne({ name: "Custom" });
 
       let metricsList;
       if (input.metricsGroup) {
@@ -941,12 +1171,37 @@ const searchResolver = {
     },
   },
   Query: {
-    searches: async () =>
+    searches: async (_, __, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
       await Search.find()
         .populate("store")
         .populate("metrics")
-        .populate("metricsGroup"),
-    search: async (_, { ID }) => {
+        .populate("metricsGroup");
+    },
+    search: async (_, { ID }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      // if (context.user._id.toString() !== ID.toString() && context.user.userType != "admin") {
+      //   throw new GraphQLError("Forbidden acsess", {
+      //     extensions: {
+      //       code: "FORBIDDEN",
+      //     },
+      //   });
+      // }
+
       try {
         const search = await Search.findById(ID)
           .populate("store")
@@ -961,7 +1216,22 @@ const searchResolver = {
         throw new Error("Failed to fetch search");
       }
     },
-    userSearches: async (_, { ID }) => {
+    userSearches: async (_, { ID }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (context.user._id != ID && context.user.userType != "admin") {
+        throw new GraphQLError("Forbidden acsess", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
       try {
         const user = await User.findById(ID);
         if (!user) {
@@ -977,8 +1247,24 @@ const searchResolver = {
         throw new Error("Failed to fetch user searches");
       }
     },
-    userFavoriteSearches: async (_, { ID }) => {
+    userFavoriteSearches: async (_, { ID }, context) => {
       try {
+        if (!context.user) {
+          throw new GraphQLError("Not authenticated", {
+            extensions: {
+              code: "UNAUTHENTICATED",
+            },
+          });
+        }
+
+        if (context.user._id != ID && context.user.userType != "admin") {
+          throw new GraphQLError("Forbidden acsess", {
+            extensions: {
+              code: "FORBIDDEN",
+            },
+          });
+        }
+
         const user = await User.findById(ID);
         if (!user) {
           throw new Error("User not found");
@@ -997,6 +1283,7 @@ const searchResolver = {
 };
 
 import { mergeResolvers } from "@graphql-tools/merge";
+import { headers } from "next/headers.js";
 export const resolvers = mergeResolvers([
   userResolver,
   storeResolver,

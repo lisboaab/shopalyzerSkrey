@@ -1,4 +1,4 @@
-import { getStoreCredentials } from "@/lib/services/storeService";
+import { getStoreServer } from "@/lib/services/serverQueries";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
@@ -7,16 +7,18 @@ export async function POST(
 ) {
   const { shopId } = await params;
   const authToken = request.headers.get('Authorization');
-  
+
   if (!authToken) {
     return NextResponse.json(
       { error: "No authentication token provided" },
       { status: 401 }
     );
   }
-
   try {
-    const credentials = await getStoreCredentials(shopId, authToken);
+    const credentials = await getStoreServer(shopId, authToken);
+    if(!credentials){
+      throw new Error("No credentials provided by store");
+    }
 
     const body = await request.json();
 
@@ -27,6 +29,7 @@ export async function POST(
         headers: {
           "Content-Type": "application/json",
           "X-Shopify-Access-Token": credentials.APIToken,
+          "Authorization": `Bearer ${authToken}`,
         },
         body: JSON.stringify(body),
       }

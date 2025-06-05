@@ -10,12 +10,12 @@ import jwt from "jsonwebtoken";
 import dbConfig from "./app/config/db.config.js";
 
 // Shopify API imports
-import '@shopify/shopify-api/adapters/node';
-import '@shopify/shopify-api/adapters/cf-worker';
-import '@shopify/shopify-api/adapters/web-api';
+import "@shopify/shopify-api/adapters/node";
+import "@shopify/shopify-api/adapters/cf-worker";
+import "@shopify/shopify-api/adapters/web-api";
 
 // Ngrok imports
-import { connect } from '@ngrok/ngrok';
+import { connect } from "@ngrok/ngrok";
 
 dotenv.config();
 
@@ -40,11 +40,11 @@ async function startServer() {
 
     const { url } = await startStandaloneServer(server, {
       context: async ({ req }) => {
-        const token = req.headers.authorization || '';
+        const token = req.headers.authorization || "";
         if (!token) return { user: null };
-        
+
         try {
-          const cleanToken = token.replace('Bearer ', '');
+          const cleanToken = token.replace("Bearer ", "");
           const decoded = jwt.verify(cleanToken, dbConfig.secret);
           const user = await User.findById(decoded.id);
           return { user };
@@ -60,7 +60,7 @@ async function startServer() {
     const listener = await connect({
       addr: 3000,
       authtoken: process.env.NGROK_AUTHTOKEN,
-      domain: "rattler-equipped-monthly.ngrok-free.app"
+      domain: "rattler-equipped-monthly.ngrok-free.app",
     });
     console.log(`🚧 Ngrok tunnel established at: ${listener.url()}`);
 
