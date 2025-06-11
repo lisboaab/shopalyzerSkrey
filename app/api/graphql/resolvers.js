@@ -126,7 +126,7 @@ export const userResolver = {
       }
 
       if (context.user._id != id && context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -1283,7 +1283,6 @@ export const searchResolver = {
 };
 
 import { mergeResolvers } from "@graphql-tools/merge";
-import { headers } from "next/headers.js";
 export const resolvers = mergeResolvers([
   userResolver,
   storeResolver,

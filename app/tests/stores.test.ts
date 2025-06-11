@@ -157,10 +157,6 @@ describe("storeResolver", () => {
         id: "1234",
         input: {
           shopUrl: "myStore123.mystore.shopify",
-          APIKey: "123456789",
-          APIToken: "123456789",
-          APISecretKey: "123456789",
-          name: "My store 123",
         },
       };
 

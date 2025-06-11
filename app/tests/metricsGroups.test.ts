@@ -214,6 +214,39 @@ describe("metricsGroupResolver", () => {
       );
     });
 
+    it("Update metrics group with non existent metric ID", async () => {
+      const mockReturnValue = new GraphQLError(
+        "Could not find metric with ID 1234567"
+      );
+
+      vi.mocked(metricsGroupResolver.Mutation.updateGroup).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const input = {
+        id: "1234",
+        input: {
+          metrics: [{ id: "1234567" }],
+        },
+      };
+
+      const result = await metricsGroupResolver.Mutation.updateGroup(
+        null,
+        input,
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(metricsGroupResolver.Mutation.updateGroup).toHaveBeenCalledTimes(
+        2
+      );
+      expect(metricsGroupResolver.Mutation.updateGroup).toHaveBeenCalledWith(
+        null,
+        input,
+        mockContext
+      );
+    });
+
     it("Remove metrics group", async () => {
       const mockReturnValue = {
         success: true,
@@ -241,7 +274,7 @@ describe("metricsGroupResolver", () => {
         { id },
         mockContext
       );
-      expect(metricsGroupResolver.Mutation.removeGroup).toHaveReturned()
+      expect(metricsGroupResolver.Mutation.removeGroup).toHaveReturned();
     });
   });
 
@@ -303,14 +336,22 @@ describe("metricsGroupResolver", () => {
 
       const ID = "1234";
 
-      const result = await metricsGroupResolver.Query.group(null, {
-        ID,
-      }, mockContext);
+      const result = await metricsGroupResolver.Query.group(
+        null,
+        {
+          ID,
+        },
+        mockContext
+      );
 
       expect(result).toEqual(mockReturnValue);
-      expect(metricsGroupResolver.Query.group).toHaveBeenCalledWith(null, {
-        ID,
-      }, mockContext);
+      expect(metricsGroupResolver.Query.group).toHaveBeenCalledWith(
+        null,
+        {
+          ID,
+        },
+        mockContext
+      );
     });
 
     it("Group not found", async () => {
@@ -322,14 +363,22 @@ describe("metricsGroupResolver", () => {
 
       const ID = "123456";
 
-      const result = await metricsGroupResolver.Query.group(null, {
-        ID,
-      }, mockContext);
+      const result = await metricsGroupResolver.Query.group(
+        null,
+        {
+          ID,
+        },
+        mockContext
+      );
 
       expect(result).toEqual(mockReturnValue);
-      expect(metricsGroupResolver.Query.group).toHaveBeenCalledWith(null, {
-        ID,
-      }, mockContext);
+      expect(metricsGroupResolver.Query.group).toHaveBeenCalledWith(
+        null,
+        {
+          ID,
+        },
+        mockContext
+      );
     });
   });
 });

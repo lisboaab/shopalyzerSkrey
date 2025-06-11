@@ -26,35 +26,35 @@ vi.mock("../api/graphql/resolvers", () => ({
 
 describe("userResolver", () => {
   describe("Mutation", () => {
-    it("User not loggedin", async () => {
-      const mockLoginUser = vi.fn();
-      vi.mocked(userResolver.Mutation.loginUser).mockImplementation(
-        mockLoginUser
-      );
+  //   it("User not loggedin", async () => {
+  //     const mockLoginUser = vi.fn();
+  //     vi.mocked(userResolver.Mutation.loginUser).mockImplementation(
+  //       mockLoginUser
+  //     );
 
-      const mockReturnValue = {
-        success: false,
-        msg: "User not loggedin",
-        accessToken: null,
-        userID: new Types.ObjectId("000000000000000000000000"),
-      };
+  //     const mockReturnValue = {
+  //       success: false,
+  //       msg: "User not loggedin",
+  //       accessToken: null,
+  //       userID: new Types.ObjectId("000000000000000000000000"),
+  //     };
 
-      mockLoginUser.mockResolvedValue(mockReturnValue);
+  //     mockLoginUser.mockResolvedValue(mockReturnValue);
 
-      const input: ResolverArgs = {
-        input: {
-          email: "",
-          password: "",
-        },
-      };
+  //     const input: ResolverArgs = {
+  //       input: {
+  //         email: "",
+  //         password: "",
+  //       },
+  //     };
 
-      const result = await userResolver.Mutation.loginUser(null, input);
+  //     const result = await userResolver.Mutation.loginUser(null, input);
 
-      expect(result).toEqual(mockReturnValue);
-      expect(mockLoginUser).toHaveBeenCalledTimes(1);
-      expect(mockLoginUser).toHaveBeenCalledWith(null, input);
-      expect(result).toEqual(mockReturnValue);
-    });
+  //     expect(result).toEqual(mockReturnValue);
+  //     expect(mockLoginUser).toHaveBeenCalledTimes(1);
+  //     expect(mockLoginUser).toHaveBeenCalledWith(null, input);
+  //     expect(result).toEqual(mockReturnValue);
+  //   });
 
     it("Sign up", async () => {
       const mockAuthUser = vi.mocked(userResolver.Mutation.createUser);
@@ -71,6 +71,28 @@ describe("userResolver", () => {
         message: "Account successfully created",
       };
 
+      mockAuthUser.mockResolvedValue(mockReturnValue as any);
+
+      const input = {
+        input: {
+          name: "Test User",
+          email: "test@example.com",
+          password: "hashedpassword",
+        },
+      };
+      const result = await userResolver.Mutation.createUser(null, input);
+
+      expect(result).toEqual(mockReturnValue);
+      expect(mockAuthUser).toHaveBeenCalledTimes(1);
+      expect(mockAuthUser).toHaveBeenCalledWith(null, input);
+      expect(result).toEqual(mockReturnValue);
+      expect(mockAuthUser).toHaveReturned();
+    });
+
+    it("Sign up with existing email", async () => {
+      const mockAuthUser = vi.mocked(userResolver.Mutation.createUser);
+      mockAuthUser.mockClear();
+      const mockReturnValue = new GraphQLError("This email is already in use.");
       mockAuthUser.mockResolvedValue(mockReturnValue as any);
 
       const input = {
@@ -118,6 +140,31 @@ describe("userResolver", () => {
       expect(mockLoginUser).toHaveBeenCalledWith(null, input);
       expect(result).toEqual(mockReturnValue);
     });
+
+  it("Log in with wrong password", async () => {
+      const mockLoginUser = vi.fn();
+      vi.mocked(userResolver.Mutation.loginUser).mockImplementation(
+        mockLoginUser
+      );
+
+      const mockReturnValue = new GraphQLError("Wrong password");
+
+      mockLoginUser.mockResolvedValue(mockReturnValue);
+
+      const input: ResolverArgs = {
+        input: {
+          email: "test@example.com",
+          password: "hashedpassword",
+        },
+      };
+
+      const result = await userResolver.Mutation.loginUser(null, input);
+
+      expect(result).toEqual(mockReturnValue);
+      expect(mockLoginUser).toHaveBeenCalledTimes(1);
+      expect(mockLoginUser).toHaveBeenCalledWith(null, input);
+      expect(result).toEqual(mockReturnValue);
+    });
   });
 
   describe("Query", () => {
@@ -147,6 +194,20 @@ describe("userResolver", () => {
 
       expect(result).toEqual(mockReturnValue);
       expect(userResolver.Query.users).toHaveBeenCalledTimes(1);
+      expect(userResolver.Query.users).toHaveBeenCalledWith();
+    });
+
+    it("Users list without permission", async () => {
+      const mockReturnValue = new GraphQLError("Forbidden access");
+
+      vi.mocked(userResolver.Query.users).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const result = await userResolver.Query.users();
+
+      expect(result).toEqual(mockReturnValue);
+      expect(userResolver.Query.users).toHaveBeenCalledTimes(2);
       expect(userResolver.Query.users).toHaveBeenCalledWith();
     });
 

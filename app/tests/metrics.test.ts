@@ -173,6 +173,35 @@ describe("metricResolver", () => {
       );
     });
 
+    it("Update metric with existing name", async () => {
+      const mockReturnValue = new Error("Metric name already in use.");
+
+      vi.mocked(metricResolver.Mutation.updateMetric).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const input = {
+        id: "1234",
+        input: {
+          name: "Existing name",
+        },
+      };
+
+      const result = await metricResolver.Mutation.updateMetric(
+        null,
+        input,
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(metricResolver.Mutation.updateMetric).toHaveBeenCalledTimes(2);
+      expect(metricResolver.Mutation.updateMetric).toHaveBeenCalledWith(
+        null,
+        input,
+        mockContext
+      );
+    });
+
     it("Remove metric", async () => {
       const mockReturnValue = {
         success: true,
@@ -193,6 +222,30 @@ describe("metricResolver", () => {
 
       expect(result).toEqual(mockReturnValue);
       expect(metricResolver.Mutation.removeMetric).toHaveBeenCalledTimes(1);
+      expect(metricResolver.Mutation.removeMetric).toHaveBeenCalledWith(
+        null,
+        { id },
+        mockContext
+      );
+    });
+
+    it("Remove non existent metric", async () => {
+      const mockReturnValue = new Error("Metric not found.");
+
+      vi.mocked(metricResolver.Mutation.removeMetric).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const id = "1234";
+
+      const result = await metricResolver.Mutation.removeMetric(
+        null,
+        { id },
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(metricResolver.Mutation.removeMetric).toHaveBeenCalledTimes(2);
       expect(metricResolver.Mutation.removeMetric).toHaveBeenCalledWith(
         null,
         { id },
