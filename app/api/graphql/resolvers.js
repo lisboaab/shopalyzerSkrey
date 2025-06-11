@@ -207,7 +207,7 @@ export const userResolver = {
       }
 
       if (context.user._id != id && context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -241,7 +241,7 @@ export const userResolver = {
         }
 
         if (context.user._id != ID && context.user.userType != "admin") {
-          throw new GraphQLError("Forbidden acsess", {
+          throw new GraphQLError("Forbidden access", {
             extensions: {
               code: "FORBIDDEN",
             },
@@ -278,7 +278,7 @@ export const userResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -304,7 +304,7 @@ export const storeResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -413,7 +413,7 @@ export const storeResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -477,7 +477,7 @@ export const storeResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -551,7 +551,7 @@ export const metricResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -629,7 +629,7 @@ export const metricResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -661,7 +661,7 @@ export const metricResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -764,7 +764,7 @@ export const metricsGroupResolver = {
         });
       }
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -865,7 +865,7 @@ export const metricsGroupResolver = {
         });
       }
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -896,7 +896,7 @@ export const metricsGroupResolver = {
         });
       }
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -1082,7 +1082,7 @@ export const searchResolver = {
         context.user._id != searchFound.userID &&
         context.user.userType != "admin"
       ) {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -1195,7 +1195,7 @@ export const searchResolver = {
       }
 
       // if (context.user._id.toString() !== ID.toString() && context.user.userType != "admin") {
-      //   throw new GraphQLError("Forbidden acsess", {
+      //   throw new GraphQLError("Forbidden access", {
       //     extensions: {
       //       code: "FORBIDDEN",
       //     },
@@ -1226,7 +1226,7 @@ export const searchResolver = {
       }
 
       if (context.user._id != ID && context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -1258,7 +1258,7 @@ export const searchResolver = {
         }
 
         if (context.user._id != ID && context.user.userType != "admin") {
-          throw new GraphQLError("Forbidden acsess", {
+          throw new GraphQLError("Forbidden access", {
             extensions: {
               code: "FORBIDDEN",
             },

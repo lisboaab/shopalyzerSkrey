@@ -16,6 +16,8 @@ vi.mock("../api/graphql/resolvers", () => ({
     Mutation: {
       loginUser: vi.fn(),
       createUser: vi.fn(),
+      updateUser: vi.fn(),
+      removeUser: vi.fn(),
     },
     Query: {
       users: vi.fn(),
@@ -24,38 +26,15 @@ vi.mock("../api/graphql/resolvers", () => ({
   },
 }));
 
+const mockContext = {
+  user: {
+    _id: "000000000000000000000001",
+    userType: "admin",
+  },
+};
+
 describe("userResolver", () => {
   describe("Mutation", () => {
-  //   it("User not loggedin", async () => {
-  //     const mockLoginUser = vi.fn();
-  //     vi.mocked(userResolver.Mutation.loginUser).mockImplementation(
-  //       mockLoginUser
-  //     );
-
-  //     const mockReturnValue = {
-  //       success: false,
-  //       msg: "User not loggedin",
-  //       accessToken: null,
-  //       userID: new Types.ObjectId("000000000000000000000000"),
-  //     };
-
-  //     mockLoginUser.mockResolvedValue(mockReturnValue);
-
-  //     const input: ResolverArgs = {
-  //       input: {
-  //         email: "",
-  //         password: "",
-  //       },
-  //     };
-
-  //     const result = await userResolver.Mutation.loginUser(null, input);
-
-  //     expect(result).toEqual(mockReturnValue);
-  //     expect(mockLoginUser).toHaveBeenCalledTimes(1);
-  //     expect(mockLoginUser).toHaveBeenCalledWith(null, input);
-  //     expect(result).toEqual(mockReturnValue);
-  //   });
-
     it("Sign up", async () => {
       const mockAuthUser = vi.mocked(userResolver.Mutation.createUser);
       mockAuthUser.mockClear();
@@ -141,7 +120,7 @@ describe("userResolver", () => {
       expect(result).toEqual(mockReturnValue);
     });
 
-  it("Log in with wrong password", async () => {
+    it("Log in with wrong password", async () => {
       const mockLoginUser = vi.fn();
       vi.mocked(userResolver.Mutation.loginUser).mockImplementation(
         mockLoginUser
@@ -164,6 +143,100 @@ describe("userResolver", () => {
       expect(mockLoginUser).toHaveBeenCalledTimes(1);
       expect(mockLoginUser).toHaveBeenCalledWith(null, input);
       expect(result).toEqual(mockReturnValue);
+    });
+
+    it("Update user", async () => {
+      const mockReturnValue = {
+        _id: new Types.ObjectId("000000000000000000000001"),
+        name: "Test User New Name",
+        email: "test@example.com",
+        userType: "user",
+        password: "hashedpassword",
+        notifications: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      vi.mocked(userResolver.Mutation.updateUser).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const input = {
+        id: "000000000000000000000001",
+        input: {
+          name: "Test User New Name",
+        },
+      };
+
+      const result = await userResolver.Mutation.updateUser(
+        null,
+        input,
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(userResolver.Mutation.updateUser).toHaveBeenCalledTimes(1);
+      expect(userResolver.Mutation.updateUser).toHaveBeenCalledWith(
+        null,
+        input,
+        mockContext
+      );
+    });
+
+    it("Update user with existing email", async () => {
+      const mockReturnValue = new Error("Email already in use.");
+
+      vi.mocked(userResolver.Mutation.updateUser).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const input = {
+        id: "000000000000000000000001",
+        input: {
+          email: "emailInUse@gmail.com",
+        },
+      };
+
+      const result = await userResolver.Mutation.updateUser(
+        null,
+        input,
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(userResolver.Mutation.updateUser).toHaveBeenCalledTimes(2);
+      expect(userResolver.Mutation.updateUser).toHaveBeenCalledWith(
+        null,
+        input,
+        mockContext
+      );
+    });
+
+    it("Remove user", async () => {
+      const mockReturnValue = {
+        success: true,
+        msg: "User removed",
+      };
+
+      vi.mocked(userResolver.Mutation.removeUser).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const id = "000000000000000000000001";
+
+      const result = await userResolver.Mutation.removeUser(
+        null,
+        { id },
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(userResolver.Mutation.removeUser).toHaveBeenCalledTimes(1);
+      expect(userResolver.Mutation.removeUser).toHaveBeenCalledWith(
+        null,
+        { id },
+        mockContext
+      );
     });
   });
 

@@ -12,7 +12,7 @@ const Card: React.FC<CardProps> = ({
   value
 }) => {
   return (
-    <div>
+    <div className="min-w-50">
      <h1 className="main gellix text-4xl mb-2">{value}</h1> 
      <p className="gellix-semibold text-base">{label}</p>
     </div>

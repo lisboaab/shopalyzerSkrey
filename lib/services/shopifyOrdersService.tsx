@@ -316,7 +316,7 @@ export const GET_SHOP_ORDERS_BASIC = gql`
 `;
 export const GET_TOTAL_REVENUE = gql`
   query GetTotalRevenue {
-    orders(first: 50) {
+    orders(first: 250) {
       edges {
         node {
           createdAt
@@ -333,7 +333,7 @@ export const GET_TOTAL_REVENUE = gql`
 `;
 export const GET_TOTAL_DISCOUNT = gql`
   query GetTotalDiscount {
-    orders(first: 50) {
+    orders(first: 250) {
       edges {
         node {
           createdAt
@@ -351,7 +351,7 @@ export const GET_TOTAL_DISCOUNT = gql`
 
 export const GET_TOTAL_TAX_SET = gql`
   query GetTotalTaxSet {
-    orders(first: 50) {
+    orders(first: 250) {
       edges {
         node {
           createdAt
@@ -374,7 +374,7 @@ export const GET_TOTAL_TAX_SET = gql`
 
 export const GET_CONVERSION_RATE = gql`
   query GetConversionRate {
-    orders(first: 50) {
+    orders(first: 250) {
       edges {
         node {
           createdAt
@@ -392,7 +392,7 @@ export const GET_TOP_PRODUCTS = gql`
       edges {
         node {
           createdAt
-          lineItems(first: 50) {
+          lineItems(first: 250) {
             edges {
               node {
                 id
@@ -421,11 +421,11 @@ export const GET_TOP_PRODUCTS = gql`
 
 export const GET_TOP_CATEGORIES = gql`
   query GetTopProducts {
-    orders(first: 50) {
+    orders(first: 250) {
       edges {
         node {
           createdAt
-          lineItems(first: 50) {
+          lineItems(first: 250) {
             edges {
               node {
                 name
@@ -446,10 +446,109 @@ export const GET_TOP_CATEGORIES = gql`
 
 export const GET_TOTAL_ORDERS = gql`
   query GetTotalOrders {
-    orders(first: 50) {
+    orders(first: 250) {
       edges {
         node {
           createdAt
+        }
+      }
+    }
+  }
+`;
+
+export const GET_CUSTOMER_LOCATION = gql`
+  query GetTotalOrders {
+    orders(first: 250) {
+      edges {
+        node {
+          createdAt
+          shippingAddress {
+            country
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_TOTAL_SHIPPING = gql`
+  query GetTotalRevenue {
+    orders(first: 250) {
+      edges {
+        node {
+          createdAt
+          totalShippingPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_ORDER_ITEMS = gql`
+  query GetTotalOrders {
+    orders(first: 250) {
+      edges {
+        node {
+          createdAt
+          lineItems(first: 250) {
+            edges {
+              node {
+                quantity
+                currentQuantity
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+export const GET_TOTAL_REFUND = gql`
+  query GetTotalRefund {
+    orders(first: 250) {
+      edges {
+        node {
+          createdAt
+          refunds {
+            totalRefundedSet {
+              shopMoney {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_TOTAL_RETURN = gql`
+  query GetTotalReturn {
+    orders(first: 250) {
+      edges {
+        node {
+          id
+          createdAt
+          totalPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          returns(first: 100) {
+            edges {
+              node {
+                status
+                totalQuantity
+              }
+            }
+          }
         }
       }
     }
@@ -552,6 +651,36 @@ export class ShopifyOrdersService {
     }
   }
 
+  async countDays(timePeriod: string) {
+    try {
+      const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+
+      let millisecondsDiff = endTimestamp - startTimestamp;
+      let aDayInMilliseconds = 24 * 60 * 60 * 1000;
+      let daysDiff = millisecondsDiff / aDayInMilliseconds;
+      return Math.round(daysDiff);
+    } catch (error) {
+      console.error("Error filtering orders:", error);
+      throw error;
+    }
+  }
+
+  private groupOrdersByDay(orders: any[]): Map<string, any[]> {
+    const ordersByDay = new Map<string, any[]>();
+
+    orders.forEach((order) => {
+      const orderDate = new Date(order.node.createdAt);
+      const dayKey = orderDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+      if (!ordersByDay.has(dayKey)) {
+        ordersByDay.set(dayKey, []);
+      }
+      ordersByDay.get(dayKey)!.push(order);
+    });
+
+    return ordersByDay;
+  }
+
   async calculateTotalRevenue(timePeriod: string) {
     try {
       const orders = await this.client.query({
@@ -580,7 +709,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateAverageOrderValue(timePeriod: string ) {
+  async calculateAverageOrderValue(timePeriod: string) {
     try {
       const orders = await this.client.query({
         query: GET_TOTAL_REVENUE,
@@ -601,7 +730,8 @@ export class ShopifyOrdersService {
       } else {
         const totalRevenue = await this.calculateTotalRevenue(timePeriod);
         const totalRevenueNumber = totalRevenue.split(" ");
-        const result = parseInt(totalRevenueNumber[0]) / filteredOrders.length;
+        const result =
+          parseFloat(totalRevenueNumber[0]) / filteredOrders.length;
         average = result.toFixed(2) + " " + totalRevenueNumber[1];
       }
       return average;
@@ -611,7 +741,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateTotalDiscount(timePeriod: string ) {
+  async calculateTotalDiscount(timePeriod: string) {
     try {
       const actualTotalRevenue = await this.calculateTotalRevenue(timePeriod);
 
@@ -649,7 +779,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateTotalTax(timePeriod: string ) {
+  async calculateTotalTax(timePeriod: string) {
     try {
       const orders = await this.client.query({
         query: GET_TOTAL_TAX_SET,
@@ -669,15 +799,19 @@ export class ShopifyOrdersService {
         regions[region] += tax;
         return regions;
       }, {});
-      return taxByRegion;
+
+      const result = Object.entries(taxByRegion).map(([country, taxValue]) => ({
+        x: country,
+        y: taxValue,
+      }));
+      return result;
     } catch (error) {
       console.error("Error fetching total taxes per region:", error);
       throw error;
     }
   }
 
-  async calculateConversionRate(timePeriod: string ) {
-
+  async calculateConversionRate(timePeriod: string) {
     try {
       const orders = await this.client.query({
         query: GET_CONVERSION_RATE,
@@ -706,7 +840,7 @@ export class ShopifyOrdersService {
     }
   }
 
-  async calculateTopProducts(timePeriod: string ) {
+  async calculateTopProducts(timePeriod: string) {
     try {
       const orders = await this.client.query({
         query: GET_TOP_PRODUCTS,
@@ -804,7 +938,8 @@ export class ShopifyOrdersService {
       throw error;
     }
   }
-  async calculateTotalOrders(timePeriod: string ) {
+
+  async calculateTotalOrders(timePeriod: string) {
     try {
       const orders = await this.client.query({
         query: GET_TOTAL_ORDERS,
@@ -825,6 +960,299 @@ export class ShopifyOrdersService {
       return answer;
     } catch (error) {
       console.error("Error fetching total revenue of orders:", error);
+      throw error;
+    }
+  }
+
+  async calculateConversionRateOverTime(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_CONVERSION_RATE,
+      });
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      let ordersbyDay = this.groupOrdersByDay(filteredOrders);
+
+      let data: any[] = [];
+      ordersbyDay.forEach((dayOrders, dateKey) => {
+        const totalOrders = dayOrders.length;
+        const fulfilledOrders = dayOrders.filter(
+          (order: any) =>
+            order.node.displayFinancialStatus === "PAID" &&
+            order.node.displayFulfillmentStatus === "FULFILLED"
+        ).length;
+        const conversion = (fulfilledOrders / totalOrders) * 100;
+        const rate = Math.round(conversion);
+        data.push({ x: dateKey, y: rate });
+      });
+      return data;
+    } catch (error) {
+      console.error("Error fetching conversion rate:", error);
+      throw error;
+    }
+  }
+
+  async calculateCustomerRegion(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_CUSTOMER_LOCATION,
+      });
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      const countries: any[] = [];
+
+      filteredOrders.forEach((order: any) => {
+        if (!order?.node) {
+          return;
+        }
+
+        const shippingAddress = order.node.shippingAddress;
+        const country =
+          shippingAddress && shippingAddress.country
+            ? shippingAddress.country
+            : "Unknown";
+
+        const item = {
+          item: country,
+          quantity: 1,
+        };
+        countries.push(item);
+      });
+      const groupedCountries = countries.reduce((acc: any, curr) => {
+        const key = curr.item;
+        if (!acc[key]) {
+          acc[key] = {
+            ...curr,
+            totalQuantity: 0,
+          };
+        }
+        acc[key].totalQuantity += curr.quantity;
+        return acc;
+      }, {});
+      const countriesList = Object.values(groupedCountries).sort(
+        (a: any, b: any) => b.totalQuantity - a.totalQuantity
+      );
+      return countriesList.slice(0, 5);
+      // return 0;
+    } catch (error) {
+      console.error("Error fetching customer regions: ", error);
+      throw error;
+    }
+  }
+
+  async calculateAverageShippingValue(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_TOTAL_SHIPPING,
+      });
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
+        throw new Error("Invalid response format from Shopify");
+      }
+
+      let average: any;
+      let total: number = 0;
+      let currency: string = "";
+      if (filteredOrders.length === 0) {
+        average = "0.00 $";
+      } else {
+        filteredOrders.forEach((order: any) => {
+          if (!order?.node) {
+            return;
+          }
+
+          const shipping = order.node.totalShippingPriceSet.shopMoney.amount;
+          total += parseFloat(shipping);
+          currency = order.node.totalShippingPriceSet.shopMoney.currencyCode;
+        });
+        const result = total / filteredOrders.length;
+        average = result.toFixed(2) + " " + currency;
+      }
+      return average;
+    } catch (error) {
+      console.error("Error fetching average value of orders:", error);
+      throw error;
+    }
+  }
+
+  async calculateAverageOrderQuantity(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_ORDER_ITEMS,
+      });
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
+        throw new Error("Invalid response format from Shopify");
+      }
+
+      let average: any;
+      let total: number = 0;
+      if (filteredOrders.length === 0) {
+        average = "0";
+      } else
+        filteredOrders.forEach((order: any) => {
+          order.node.lineItems.edges.forEach((lineItem: any) => {
+            const quantity = parseInt(lineItem.node.quantity) || 0;
+            total += quantity;
+          });
+        });
+      const result = total / filteredOrders.length;
+      average = result.toFixed(2);
+
+      return average;
+    } catch (error) {
+      console.error("Error fetching average value of orders:", error);
+      throw error;
+    }
+  }
+
+  async calculateTotalRefund(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_TOTAL_REFUND,
+      });
+
+      if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
+        throw new Error("Invalid response format from Shopify");
+      }
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      let currency;
+      let total = 0;
+      filteredOrders.forEach((order: any) => {
+        order.node.refunds.forEach((refund: any) => {
+          const value =
+            parseFloat(refund.totalRefundedSet.shopMoney.amount) || 0;
+          total += value;
+          currency = refund.totalRefundedSet.shopMoney.currencyCode;
+        });
+      });
+
+      const newCurrency = currency != undefined ? currency : "$";
+      return total.toFixed(2) + " " + newCurrency;
+    } catch (error) {
+      console.error("Error fetching total revenue of orders:", error);
+      throw error;
+    }
+  }
+
+  async calculateRefundRate(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_TOTAL_REFUND,
+      });
+
+      if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
+        throw new Error("Invalid response format from Shopify");
+      }
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      if (filteredOrders.length === 0) {
+        return "0.00%";
+      }
+
+      const ordersWithRefund = filteredOrders.filter(
+        (order: any) => order.node.refunds && order.node.refunds.length > 0
+      );
+      const refundRate =
+        (ordersWithRefund.length / filteredOrders.length) * 100;
+
+      return refundRate.toFixed(2) + "%";
+    } catch (error) {
+      console.error("Error calculating refund rate:", error);
+      throw error;
+    }
+  }
+
+  async calculateReturnRate(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_TOTAL_RETURN,
+      });
+
+      if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
+        throw new Error("Invalid response format from Shopify");
+      }
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      if (filteredOrders.length === 0) {
+        return "0.00%";
+      }
+
+      let total = 0;
+      filteredOrders.forEach((order: any) => {
+        const returnEdges = order.node?.returns?.edges;
+        if (Array.isArray(returnEdges)) {
+          returnEdges.forEach((ret: any) => {
+            total += 1;
+          });
+        }
+      });
+
+      const result = (total / filteredOrders.length) * 100;
+
+      return result.toFixed(2) + " %";
+    } catch (error) {
+      console.error("Error calculating returns rate:", error);
+      throw error;
+    }
+  }
+
+  async calculateOrdersOverTime(timePeriod: string) {
+    try {
+      const orders = await this.client.query({
+        query: GET_TOTAL_ORDERS,
+      });
+
+      if (!orders.data || !orders.data.orders || !orders.data.orders.edges) {
+        throw new Error("Invalid response format from Shopify");
+      }
+
+      const filteredOrders = await this.filterOrders(
+        timePeriod,
+        orders.data.orders.edges
+      );
+
+      let ordersbyDay = this.groupOrdersByDay(filteredOrders);
+
+      let data: any[] = [];
+      ordersbyDay.forEach((dayOrders, dateKey) => {
+        const totalOrders = dayOrders.length;
+        data.push({ x: dateKey, y: totalOrders });
+      });
+      return data;
+    } catch (error) {
+      console.error("Error fetching conversion rate:", error);
       throw error;
     }
   }

@@ -19,9 +19,9 @@ const customTheme = {
         fillOpacity: 0.9,
       },
       labels: {
-        fill: "#222",
-        fontSize: 16,
-        padding: 12,
+        fill: "red",
+        fontSize: 20,
+        // padding: 12,
         outerWidth: 5,
       },
     },
@@ -53,31 +53,37 @@ const Donut: React.FC<ListProps> = ({ label, value }) => {
   }
 
   return (
-    <div>
+    <div className="min-w-150 max-w-180 justify-center items-center">
       <p className="gellix-semibold mb-3 text-xl">{label}</p>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 justify-center">
+        {/* <span className=" bg-red-500"> */}
         <VictoryPie
           data={data}
           theme={customTheme}
-          innerRadius={40}
+          innerRadius={60}
           padAngle={5}
-          style={{
-            labels: { fill: "black", fontSize: 8 },
-          }}
           labelComponent={
             <VictoryTooltip
               className="gellix"
-              style={{ fontSize: 8, fill: "#0D0DFC" }}
+              style={{ fontSize: "9px", fill: "#0D0DFC", padding: 2 }}
               flyoutStyle={{
                 fill: "transparent",
                 stroke: "none",
               }}
-              cornerRadius={1}
+              cornerRadius={20}
               pointerLength={0}
             />
           }
-          height={200}
+          labels={({ datum }) => {
+            const maxLength = 20;
+            const label = `${datum.x}:  ${datum.y}`;
+            return label.length > maxLength
+              ? label.slice(0, maxLength - 5) + `...:  ${datum.y} `
+              : label;
+          }}
+          height={250}
         />
+        {/* </span> */}
         <div>
           {Array.isArray(value) &&
             value.map((item: any, index: number) => (
