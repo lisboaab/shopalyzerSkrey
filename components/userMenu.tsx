@@ -51,7 +51,7 @@ const UserMenu: React.FC = () => {
         updateUserState("profilePhoto", user.profilePicture);
         updateUserState("name", user.name);
         updateUserState("email", user.email);
-        updateUserState("password", user.password);
+        updateUserState("hashPassword", user.password);
         updateUserState("userType", user.userType);
       }
     } catch (error) {
@@ -232,8 +232,10 @@ const UserMenu: React.FC = () => {
         const updatedUser = await updateUser(userState.userId, {
           password: newPassword,
         });
-        handleSnackBar("success", "Password updated successfully!");
+        if (updatedUser) {
+          handleSnackBar("success", "Password updated successfully!");
         setNewPassword("");
+        }
       } catch (error) {
         fetchUser(userState.userId);
         console.error("Error updating user:", error);
