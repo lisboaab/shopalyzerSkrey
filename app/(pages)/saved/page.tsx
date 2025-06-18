@@ -40,24 +40,32 @@ export default function Page() {
   };
 
   const handleDeleteSearch = async (id: string) => {
-    const remove = await removeSearch(id);
-    if (remove) {
-      handleSnackBar("success", "Search deleted successfully!");
-      setLoadedItems((prev) => prev.filter((item) => item._id !== id));
-    } else {
+    try {
+      const remove = await removeSearch(id);
+      if (remove) {
+        setLoadedItems((prev) => prev.filter((item) => item._id !== id));
+        handleSnackBar("success", "Search deleted successfully!");
+      } else {
+        handleSnackBar("error", "Error deleting search");
+      }
+    } catch (error) {
       handleSnackBar("error", "Error deleting search");
     }
   };
 
   const handleUnsaveSearch = async (id: string) => {
-    const input = {
-      isSaved: false,
-    };
-    const unsave = await updateSearch(id, input);
-    if (unsave) {
-      handleSnackBar("success", "Search unsaved successfully!");
-      setLoadedItems((prev) => prev.filter((item) => item._id !== id));
-    } else {
+    try {
+      const input = {
+        isSaved: false,
+      };
+      const unsave = await updateSearch(id, input);
+      if (unsave) {
+        setLoadedItems((prev) => prev.filter((item) => item._id !== id));
+        handleSnackBar("success", "Search unsaved successfully!");
+      } else {
+        handleSnackBar("error", "Error unsaving search");
+      }
+    } catch (error) {
       handleSnackBar("error", "Error unsaving search");
     }
   };
@@ -78,6 +86,7 @@ export default function Page() {
   }, []);
 
   return (
+    <Suspense fallback={<Loading />}>
     <div className="w-full h-fit flex flex-col gap-8 items-start">
       <div className="flex flex-col gap-3">
         <h1 className="worksans text-2xl">Your saved searches</h1>
@@ -109,5 +118,6 @@ export default function Page() {
         onDismiss={() => updateSnackBarState("open", false)}
       />
     </div>
+    </Suspense>
   );
 }

@@ -3,13 +3,10 @@ import {
   Suspense,
   useEffect,
   useState,
-  useContext,
-  createContext,
 } from "react";
 import { useRouter } from "next/navigation";
 import { DateRangePicker } from "@heroui/date-picker";
-import { getLocalTimeZone, today } from "@internationalized/date";
-import { useDateFormatter } from "@react-aria/i18n";
+import { today } from "@internationalized/date";
 
 // Queries
 import {
@@ -18,16 +15,15 @@ import {
   getActiveGroups,
   createSearch,
 } from "@/lib/queries";
-
 // Interface
 import type Store from "../../interface/store";
 import type Metric from "../../interface/metric";
 import type Group from "../../interface/group";
-
 // Components
 import ButtonAnimation from "@/components/buttonAnimation";
 import Loading from "@/components/loading";
 import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
+import { set } from "mongoose";
 
 export default function Page() {
   const [store, setStore] = useState("");
@@ -42,12 +38,9 @@ export default function Page() {
   const [pencilButtonActive, setPencilButtonActive] = useState(false);
   const [customGroup, setCustomGroup] = useState<Group>();
 
-  let formatter = useDateFormatter({ dateStyle: "long" });
-
   useEffect(() => {
     const ID = localStorage.getItem("userID");
     if (!ID) return;
-
     const fetchUser = async () => {
       try {
         const user = await getUserName(ID);
@@ -61,7 +54,6 @@ export default function Page() {
         console.error("Error fetching user name:", error);
       }
     };
-
     fetchUser();
   }, [name]);
 
@@ -81,7 +73,6 @@ export default function Page() {
         console.error("Error fetching stores", error);
       }
     };
-
     fetchStores();
   }, []);
 
@@ -94,7 +85,6 @@ export default function Page() {
             a.name.localeCompare(b.name)
           );
           setMetricsGroupList(groupsSorted);
-
           const cGroup = groupsSorted.find((g) => g.name === "Custom");
           if (cGroup) {
             setCustomGroup(cGroup);
@@ -108,12 +98,11 @@ export default function Page() {
         console.error("Error fetching groups", error);
       }
     };
-
     fetchGroups();
   }, []);
+
   function heroUIDateToTimestamp(heroUIDate: any, isEndDate: boolean = false) {
     if (!heroUIDate) return null;
-
     const { year, month, day } = heroUIDate;
     const date = new Date(year, month - 1, day);
     
@@ -132,6 +121,7 @@ export default function Page() {
 
   const analyze = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     if (
       store === "" ||
       metricsGroup === "" ||
@@ -139,6 +129,7 @@ export default function Page() {
       !date.start ||
       !date.end
     ) {
+      setLoading(false);
       let message = document.getElementById("errorMessage");
       if (message) {
         message.classList.remove("hidden");
@@ -152,6 +143,7 @@ export default function Page() {
       metricsGroup === customGroup?._id &&
       customMetrics.length === 0
     ) {
+      setLoading(false);
       let message = document.getElementById("errorMessageCustomMetrics");
       if (message) {
         message.classList.remove("hidden");
@@ -162,10 +154,10 @@ export default function Page() {
         }, 5000);
       }
     } else {
+      setLoading(false);
       const userID = localStorage.getItem("userID");
       if (!userID) return;
       let metricsList: any[] = [];
-
       if (metricsGroup === customGroup?._id) {
         if (customMetrics.length > 0) {
           customMetrics.map((m) => {
@@ -173,6 +165,7 @@ export default function Page() {
           });
         }
       } else {
+        setLoading(false);
         const metricsOfGroup = metricsGroupList.find(
           (group) => group._id === metricsGroup
         )?.metrics;
@@ -181,7 +174,6 @@ export default function Page() {
         });
       }
       const convertedRange = convertDateRange(date);
-
       const input = {
         store: store,
         metricsGroup: metricsGroup,
@@ -193,6 +185,7 @@ export default function Page() {
       router.push("/dashboard/" + newSearch.createSearch._id);
     }
   };
+
   const reset = () => {
     setStore("");
     setMetricsGroup("");
@@ -204,198 +197,195 @@ export default function Page() {
     <Loading />
   ) : (
     !loading && (
-      <div className="h-full w-full flex items-center p-8 flex-col">
-        <div
-          id="content"
-          className="flex items-center justify-center flex-col gap-6 h-120"
-        >
-          {/* ENCONTRAR FORMA DE CENTRALIZAR ISSO */}
-          <div className="flex flex-col justify-center items-center gap-1">
-            <h1 className="text-bold worksans-semibold text-3xl">
-              Hello,{" "}
-              <span className="main worksans-semibold text-3xl">{name}</span>
-            </h1>
-            <h2 className="gellix-semibold text-lg">
-              What do you want to search today?
-            </h2>
-          </div>
-          <form
-            onSubmit={analyze}
-            className="flex flex-col justify-center items-center gap-8 w-full"
+      <Suspense fallback={<Loading />}>
+        <div className="h-160 w-full flex items-center justify-center p-8">
+          <div
+            id="content"
+            className="flex items-center justify-center flex-col gap-6 w-full max-w-4xl"
           >
-            {/* Filters */}
-            <div className="border border-gray-200 p-8 rounded-xl w-full flex flex-row gap-15">
-              {/* Stores */}
-              <div className="max-w-sm mx-auto">
-                <label className="block text-sm font-medium text-gray-900 gellix mb-5">
-                  Stores
-                </label>
-                <select
-                  value={store}
-                  className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
-                  onChange={(e) => setStore(e.target.value)}
-                  // required
-                >
-                  <option value="" key="default-store">Select an option</option>
-                  {storesList.map((store: Store) => (
-                    <option key={store._id} value={store._id}>
-                      {store.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {/* Group of metrics */}
-              <div className="max-w-sm mx-auto">
-                <div className="flex flex-row justify-start items-center gap-2 mb-2">
-                  <label className="block mb-3 text-sm font-medium text-gray-900 gellix">
-                    Group of metrics{" "}
+            <div className="flex flex-col justify-center items-center gap-1">
+              <h1 className="text-bold worksans-semibold text-3xl">
+                Hello,{" "}
+                <span className="main worksans-semibold text-3xl">{name}</span>
+              </h1>
+              <h2 className="gellix-semibold text-lg">
+                What do you want to search today?
+              </h2>
+            </div>
+            <form
+              onSubmit={analyze}
+              className="flex flex-col justify-center items-center gap-8 w-full"
+            >
+              {/* Filters */}
+              <div className="border border-gray-200 p-8 rounded-xl w-full flex flex-row gap-15">
+                {/* Stores */}
+                <div className="max-w-sm mx-auto">
+                  <label className="block text-sm font-medium text-gray-900 gellix mb-5">
+                    Stores
                   </label>
-                  {pencilButtonActive && (
-                    <div
-                      id="pencilButton"
-                      className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center"
-                    >
-                      <ButtonCustomMetricsDialog
-                        setCustomMetrics={setCustomMetrics}
-                      />
-                    </div>
-                  )}
+                  <select
+                    value={store}
+                    className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
+                    onChange={(e) => setStore(e.target.value)}
+                    // required
+                  >
+                    <option value="" key="default-store">Select an option</option>
+                    {storesList.map((store: Store) => (
+                      <option key={store._id} value={store._id}>
+                        {store.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <select
-                  value={metricsGroup}
-                  className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
-                  onChange={(e) => {
-                    setMetricsGroup(e.target.value);
-                    if (e.target.value === customGroup?._id) {
-                      setPencilButtonActive(true);
-                    } else {
-                      setPencilButtonActive(false);
-                    }
-                  }}
-                >
-                  <option value="" key="default-metrics">Select an option</option>
-                  {metricsGroupList.map((group) => (
-                    <option key={group._id} value={group._id}>
-                      {group.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {/* Date range */}
-              <div className="max-w-sm mx-auto">
-                <label className="block mb-5 text-sm font-medium text-gray-900 gellix">
-                  Duration
-                </label>
-                <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
-                  <DateRangePicker
-                  className="max-w-xs gellix"
-                  calendarProps={{
-                    classNames: {
-                    base: "bg-gray-50 rounded-lg shadow-lg",
-                    prevButton:
-                      "hover:bg-gray-200 items-center justify-center",
-                    nextButton:
-                      "hover:bg-gray-200 items-center justify-center",
-                    gridHeader: "border-b-1 border-gray-300 text-gray-500",
-                    cellButton: [
-                      // Disable dates
-                      "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
-
-                      // Focused date styling
-                      "data-[focused=true]:border-1 data-[focused=true]:border-blue-900",
-
-                      // Range styling - start date
-                      "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
-
-                      // Range styling - end date
-                      "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
-
-                      // Style for selected dates
-                      "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
-                    ],
-                    },
-                  }}
-                  value={date}
-                  onChange={(newDate) => {
-                    if (newDate) {
-                    setDate({
-                      start: newDate.start,
-                      end: newDate.end,
-                    });
-                    }
-                  }}
-                  maxValue={today("UTC")}
-                  />
+                {/* Group of metrics */}
+                <div className="max-w-sm mx-auto">
+                  <div className="flex flex-row justify-start items-center gap-2 mb-2">
+                    <label className="block mb-3 text-sm font-medium text-gray-900 gellix">
+                      Group of metrics{" "}
+                    </label>
+                    {pencilButtonActive && (
+                      <div
+                        id="pencilButton"
+                        className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center"
+                      >
+                        <ButtonCustomMetricsDialog
+                          setCustomMetrics={setCustomMetrics}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <select
+                    value={metricsGroup}
+                    className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
+                    onChange={(e) => {
+                      setMetricsGroup(e.target.value);
+                      if (e.target.value === customGroup?._id) {
+                        setPencilButtonActive(true);
+                      } else {
+                        setPencilButtonActive(false);
+                      }
+                    }}
+                  >
+                    <option value="" key="default-metrics">Select an option</option>
+                    {metricsGroupList.map((group) => (
+                      <option key={group._id} value={group._id}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {/* Date range */}
+                <div className="max-w-sm mx-auto">
+                  <label className="block mb-5 text-sm font-medium text-gray-900 gellix">
+                    Duration
+                  </label>
+                  <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
+                    <DateRangePicker
+                    className="max-w-xs gellix"
+                    calendarProps={{
+                      classNames: {
+                      base: "bg-gray-50 rounded-lg shadow-lg",
+                      prevButton:
+                        "hover:bg-gray-200 items-center justify-center",
+                      nextButton:
+                        "hover:bg-gray-200 items-center justify-center",
+                      gridHeader: "border-b-1 border-gray-300 text-gray-500",
+                      cellButton: [
+                        // Disable dates
+                        "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
+                        // Focused date styling
+                        "data-[focused=true]:border-1 data-[focused=true]:border-blue-900",
+                        // Range styling - start date
+                        "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
+                        // Range styling - end date
+                        "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
+                        // Style for selected dates
+                        "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
+                      ],
+                      },
+                    }}
+                    value={date}
+                    onChange={(newDate) => {
+                      if (newDate) {
+                      setDate({
+                        start: newDate.start,
+                        end: newDate.end,
+                      });
+                      }
+                    }}
+                    maxValue={today("UTC")}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col justify-center items-center gap-4 w-full">
-              <div className="flex flex-row justify-center items-center gap-4 w-full">
-                <ButtonAnimation
-                  label="Clear"
-                  icon="update"
-                  style="outline"
-                  color="#8B93A5"
-                  type="reset"
-                  width="9em"
-                  action={reset}
-                ></ButtonAnimation>
-                <ButtonAnimation
-                  type="submit"
-                  label="Start analyzing data"
-                  color="white"
-                  backgroundColor="#0D0DFC"
-                  icon="arrow"
-                  width="18em"
-                />
-              </div>
-              {/* Error message */}
-              <div
-                id="errorMessage"
-                className="flex-row justify-center items-center gap-2 mt-4 hidden"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="red"
-                  className="size-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+              <div className="flex flex-col justify-center items-center gap-4 w-full">
+                <div className="flex flex-row justify-center items-center gap-4 w-full">
+                  <ButtonAnimation
+                    label="Clear"
+                    icon="update"
+                    style="outline"
+                    color="#8B93A5"
+                    type="reset"
+                    width="9em"
+                    action={reset}
+                  ></ButtonAnimation>
+                  <ButtonAnimation
+                    type="submit"
+                    label="Start analyzing data"
+                    color="white"
+                    backgroundColor="#0D0DFC"
+                    icon="arrow"
+                    width="18em"
                   />
-                </svg>
-                <p className="gellix text-red-500">All fields are required!</p>
-              </div>
-              <div
-                id="errorMessageCustomMetrics"
-                className="flex-row justify-center items-center gap-2 mt-4 hidden"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="red"
-                  className="size-6"
+                </div>
+                {/* Error message */}
+                <div
+                  id="errorMessage"
+                  className="flex-row justify-center items-center gap-2 mt-4 hidden"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                  />
-                </svg>
-                <p className="gellix text-red-500">
-                  Select at least one metric.
-                </p>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="red"
+                    className="size-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                    />
+                  </svg>
+                  <p className="gellix text-red-500">All fields are required!</p>
+                </div>
+                <div
+                  id="errorMessageCustomMetrics"
+                  className="flex-row justify-center items-center gap-2 mt-4 hidden"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="red"
+                    className="size-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                    />
+                  </svg>
+                  <p className="gellix text-red-500">
+                    Select at least one metric.
+                  </p>
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
+      </Suspense>
     )
   );
 }

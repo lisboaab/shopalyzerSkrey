@@ -16,11 +16,6 @@ const httpLink = new HttpLink({
 
 const authLink = new ApolloLink((operation, forward) => {
     const token = getToken();
-    if (!token) {
-        console.warn("⚠️ ApolloClient: Tentando fazer requisição sem token!");
-        console.log("operation", operation)
-        console.log("operation definitions", operation.query.definitions)
-    }
 
     operation.setContext(({ headers = {} }) => ({
         headers: {

@@ -71,7 +71,7 @@ const Line: React.FC<ListProps> = ({ label, value }) => {
     return (
       <div>
         <p className="gellix-semibold mb-3 text-xl">{label}</p>
-        <p>No data available</p>
+        <p className="gellix mb-3 text-md text-gray-800">No data available</p>
       </div>
     );
   }

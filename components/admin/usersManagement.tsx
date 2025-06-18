@@ -10,7 +10,7 @@ import { getUsers, userTypesList, removeUser, updateUser } from "@/lib/queries";
 
 // modals
 import SnackBar from "../modal/snackBar";
-import ModalDeleteSavedSearch from "../modal/modalDeleteSavedSearch";
+import ModalDefault from "../modal/modalDefault";
 
 // components
 import Loading from "@/components/loading";
@@ -277,7 +277,7 @@ const UsersManagement: React.FC = () => {
       />
 
       {/* Modal delete user */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.isOpen}
         onDismiss={() => updateModalState("isOpen", false)}
         title="Are you sure you want to delete this user?"
@@ -306,10 +306,10 @@ const UsersManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
 
       {/* Modal edit user */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.edit.isOpen}
         onDismiss={closeEditModal}
         title="Edit user"
@@ -413,7 +413,7 @@ const UsersManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
     </div>
   );
 };

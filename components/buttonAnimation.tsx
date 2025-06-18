@@ -157,7 +157,7 @@ const ButtonAnimation: React.FC<ButtonProps> = ({
         <div className="flex flex-row items-center justify-center gap-2">
           <span
             style={{
-              transform: hover ? "translateX(-2px)" : "translateX(10px)",
+              transform: hover ? "translateX(-2px)" : "translateX(12px)",
               transition: "transform 0.5s ease-in-out",
             }}
           >

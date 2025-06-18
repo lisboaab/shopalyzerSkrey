@@ -1076,9 +1076,24 @@ export const searchResolver = {
         });
       }
 
+      if (!id) {
+        throw new GraphQLError("Missing search ID", {
+          extensions: {
+            code: "FIELDS_MISSING",
+          },
+        });
+      }
+
+      if (!mongoose.isValidObjectId(id)) {
+        throw new Error("Invalid ID.");
+      }
+
       const searchFound = await Search.findById(id);
-      if (!search) throw new Error("Search not found.");
-      else if (
+      if (!searchFound) {
+        throw new Error("Search not found.");
+      }
+
+      if (
         context.user._id != searchFound.userID &&
         context.user.userType != "admin"
       ) {
@@ -1089,18 +1104,7 @@ export const searchResolver = {
         });
       }
 
-      if (!id) {
-        throw new GraphQLError("Missing search ID", {
-          extensions: {
-            code: "FIELDS_MISSING",
-          },
-        });
-      }
-
-      if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID.");
-
-      const search = await Search.findByIdAndDelete(id);
-
+      await Search.findByIdAndDelete(id);
       return "Search deleted successfully.";
     },
     updateSearch: async (_, { id, input }, context) => {
