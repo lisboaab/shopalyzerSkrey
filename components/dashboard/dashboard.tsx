@@ -3,10 +3,13 @@ import "../../app/globals.css";
 import { ShopifyOrdersService } from "../../lib/services/shopifyOrdersService";
 import { useEffect, useState } from "react";
 
+
 import LoadingData from "@/components/loadingData";
 import SomethingWentWrong from "@/components/somethingWentWrong";
 import Card from "@/components/dashboard/card";
 import Donut from "@/components/dashboard/donut";
+import Line from "@/components/dashboard/line";
+import Bar from "@/components/dashboard/bar";
 
 import type Search from "../../app/interface/search";
 import type Metric from "../../app/interface/metric";
@@ -93,7 +96,7 @@ export default function Dashboard({
                   initialSearch.timePeriod
                 );
                 break;
-              case "Total tax/region":
+              case "Total tax per region":
                 value = await ordersService.calculateTotalTax(
                   initialSearch.timePeriod
                 );
@@ -113,6 +116,30 @@ export default function Dashboard({
                   initialSearch.timePeriod
                 );
                 break;
+              case "Conversion rate over time":
+                value = await ordersService.calculateConversionRateOverTime(initialSearch.timePeriod)
+                break
+              case "Orders by location":
+                value = await ordersService.calculateCustomerRegion(initialSearch.timePeriod)
+                break
+              case "Average shipping value":
+                value = await ordersService.calculateAverageShippingValue(initialSearch.timePeriod)
+                break
+              case "Average order quantity":
+                value = await ordersService.calculateAverageOrderQuantity(initialSearch.timePeriod)
+                break
+              case "Total refund":
+                value = await ordersService.calculateTotalRefund(initialSearch.timePeriod)
+                break
+              case "Refund rate":
+                 value = await ordersService.calculateRefundRate(initialSearch.timePeriod)
+                break
+              case "Return rate":
+                 value = await ordersService.calculateReturnRate(initialSearch.timePeriod)
+                break
+              case "Orders over time":
+                 value = await ordersService.calculateOrdersOverTime(initialSearch.timePeriod)
+                break
             }
             const item = {
               metric: metric,
@@ -166,7 +193,7 @@ export default function Dashboard({
     <div className="flex flex-col w-full justify-between gap-15">
       {" "}
       {/* Card items */}
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between flex-wrap gap-4">
         {dashboardData.card.length > 0 &&
           [...dashboardData.card]
             .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
@@ -183,7 +210,7 @@ export default function Dashboard({
             })}
       </div>{" "}
       {/* Donut items */}
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between flex-wrap gap-16">
         {dashboardData.donut.length > 0 &&
           [...dashboardData.donut]
             .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
@@ -191,7 +218,7 @@ export default function Dashboard({
               return (
                 <div
                   key={data.metric.name}
-                  className="p-8 rounded-lg flex-1 mx-3"
+                  className="p-8 rounded-lg flex-1 mx-3  max-w-200 justify-center items-center"
                   style={{ backgroundColor: "#E8F1FF90" }}
                 >
                   <Donut label={data.metric.name} value={data.value} />
@@ -199,23 +226,36 @@ export default function Dashboard({
               );
             })}
       </div>{" "}
-      <div className="flex flex-row justify-between">
-        {dashboardData.donut.length > 0 &&
-          [...dashboardData.donut]
+      {/* Line items */}
+      <div className="flex flex-row justify-between flex-wrap gap-16">
+        {dashboardData.line.length > 0 &&
+          [...dashboardData.line]
             .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
             .map((data: any) => {
               return (
-                <div key={data.metric.name}>
-                  <p className="gellix text-black">{data.metric.name}</p>
-                  {!Array.isArray(data.value) &&
-                    typeof data.value === "object" &&
-                    Object.entries(data.value).map(
-                      ([key, value]: [string, any], index) => (
-                        <div key={`${data.metric.name}-${index}`}>
-                          {key}: {value}
-                        </div>
-                      )
-                    )}
+               <div
+                  key={data.metric.name}
+                  className="p-8 rounded-lg flex-1 mx-3"
+                  style={{ backgroundColor: "#E8F1FF90" }}
+                >
+                  <Line label={data.metric.name} value={data.value} />
+                </div>
+              );
+            })}
+      </div>
+      {/* Bar items */}
+      <div className="flex flex-row justify-between flex-wrap gap-16">
+        {dashboardData.bar.length > 0 &&
+          [...dashboardData.bar]
+            .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
+            .map((data: any) => {
+              return (
+               <div
+                  key={data.metric.name}
+                  className="p-8 rounded-lg flex-1 mx-3"
+                  style={{ backgroundColor: "#E8F1FF90" }}
+                >
+                  <Bar label={data.metric.name} value={data.value} />
                 </div>
               );
             })}

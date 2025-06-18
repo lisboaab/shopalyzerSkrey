@@ -1,6 +1,6 @@
 'use client';
 
-const ModalDeleteSavedSearch = ({ isOpen, title, onDismiss, children }) => {
+const ModalDefault = ({ isOpen, title, onDismiss, children }) => {
     if (!isOpen) {
         return null;
     }
@@ -31,4 +31,4 @@ const ModalDeleteSavedSearch = ({ isOpen, title, onDismiss, children }) => {
     );
 };
 
-export default ModalDeleteSavedSearch;
+export default ModalDefault;

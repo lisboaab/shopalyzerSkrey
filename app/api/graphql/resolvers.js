@@ -126,7 +126,7 @@ export const userResolver = {
       }
 
       if (context.user._id != id && context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -207,7 +207,7 @@ export const userResolver = {
       }
 
       if (context.user._id != id && context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -241,7 +241,7 @@ export const userResolver = {
         }
 
         if (context.user._id != ID && context.user.userType != "admin") {
-          throw new GraphQLError("Forbidden acsess", {
+          throw new GraphQLError("Forbidden access", {
             extensions: {
               code: "FORBIDDEN",
             },
@@ -278,7 +278,7 @@ export const userResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -304,7 +304,7 @@ export const storeResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -413,7 +413,7 @@ export const storeResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -477,7 +477,7 @@ export const storeResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -551,7 +551,7 @@ export const metricResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -629,7 +629,7 @@ export const metricResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -661,7 +661,7 @@ export const metricResolver = {
       }
 
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -764,7 +764,7 @@ export const metricsGroupResolver = {
         });
       }
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -865,7 +865,7 @@ export const metricsGroupResolver = {
         });
       }
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -896,7 +896,7 @@ export const metricsGroupResolver = {
         });
       }
       if (context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -1076,19 +1076,6 @@ export const searchResolver = {
         });
       }
 
-      const searchFound = await Search.findById(id);
-      if (!search) throw new Error("Search not found.");
-      else if (
-        context.user._id != searchFound.userID &&
-        context.user.userType != "admin"
-      ) {
-        throw new GraphQLError("Forbidden acsess", {
-          extensions: {
-            code: "FORBIDDEN",
-          },
-        });
-      }
-
       if (!id) {
         throw new GraphQLError("Missing search ID", {
           extensions: {
@@ -1097,10 +1084,27 @@ export const searchResolver = {
         });
       }
 
-      if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID.");
+      if (!mongoose.isValidObjectId(id)) {
+        throw new Error("Invalid ID.");
+      }
 
-      const search = await Search.findByIdAndDelete(id);
+      const searchFound = await Search.findById(id);
+      if (!searchFound) {
+        throw new Error("Search not found.");
+      }
 
+      if (
+        context.user._id != searchFound.userID &&
+        context.user.userType != "admin"
+      ) {
+        throw new GraphQLError("Forbidden access", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+
+      await Search.findByIdAndDelete(id);
       return "Search deleted successfully.";
     },
     updateSearch: async (_, { id, input }, context) => {
@@ -1195,7 +1199,7 @@ export const searchResolver = {
       }
 
       // if (context.user._id.toString() !== ID.toString() && context.user.userType != "admin") {
-      //   throw new GraphQLError("Forbidden acsess", {
+      //   throw new GraphQLError("Forbidden access", {
       //     extensions: {
       //       code: "FORBIDDEN",
       //     },
@@ -1226,7 +1230,7 @@ export const searchResolver = {
       }
 
       if (context.user._id != ID && context.user.userType != "admin") {
-        throw new GraphQLError("Forbidden acsess", {
+        throw new GraphQLError("Forbidden access", {
           extensions: {
             code: "FORBIDDEN",
           },
@@ -1258,7 +1262,7 @@ export const searchResolver = {
         }
 
         if (context.user._id != ID && context.user.userType != "admin") {
-          throw new GraphQLError("Forbidden acsess", {
+          throw new GraphQLError("Forbidden access", {
             extensions: {
               code: "FORBIDDEN",
             },
@@ -1283,7 +1287,6 @@ export const searchResolver = {
 };
 
 import { mergeResolvers } from "@graphql-tools/merge";
-import { headers } from "next/headers.js";
 export const resolvers = mergeResolvers([
   userResolver,
   storeResolver,

@@ -3,48 +3,6 @@ import "../../app/globals.css";
 import { useState, useEffect, useCallback } from "react";
 
 import {
-  AdjustmentsHorizontalIcon,
-  ArrowTrendingUpIcon,
-  ArrowsRightLeftIcon,
-  BanknotesIcon,
-  BellAlertIcon,
-  BeakerIcon,
-  BookmarkIcon,
-  ChartBarIcon,
-  ChartPieIcon,
-  CalendarIcon,
-  CheckBadgeIcon,
-  CircleStackIcon,
-  ClockIcon,
-  Cog6ToothIcon,
-  CloudIcon,
-  CubeIcon,
-  CurrencyDollarIcon,
-  DivideIcon,
-  DocumentPlusIcon,
-  EnvelopeIcon,
-  ExclamationTriangleIcon,
-  FunnelIcon,
-  GiftIcon,
-  GlobeAltIcon,
-  HeartIcon,
-  HashtagIcon,
-  MagnifyingGlassIcon,
-  MapPinIcon,
-  MegaphoneIcon,
-  PencilIcon,
-  PuzzlePieceIcon,
-  RocketLaunchIcon,
-  ServerStackIcon,
-  ShareIcon,
-  SparklesIcon,
-  TrophyIcon,
-  UserGroupIcon,
-  UserCircleIcon,
-  UsersIcon,
-} from "@heroicons/react/24/outline";
-
-import {
   getGroups,
   removeGroup,
   updateGroup,
@@ -61,7 +19,7 @@ import IconSelector from "@/components/iconSelector";
 import IconDisplay from "@/components/iconDisplay";
 
 import SnackBar from "../modal/snackBar";
-import ModalDeleteSavedSearch from "../modal/modalDeleteSavedSearch";
+import ModalDefault from "../modal/modalDefault";
 
 // const HeroIcons = {
 //   AdjustmentsHorizontalIcon,
@@ -422,7 +380,7 @@ const MetricsGroupsManagement: React.FC = () => {
       ></SnackBar>
 
       {/* modal delete group */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.remove.isOpen}
         onDismiss={() => updateModalState("remove", false)}
         title="Are you sure you want to delete this?"
@@ -451,10 +409,10 @@ const MetricsGroupsManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
 
       {/* Modal edit group */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.edit.isOpen}
         onDismiss={() => updateModalState("edit", false)}
         title="Edit group"
@@ -511,8 +469,8 @@ const MetricsGroupsManagement: React.FC = () => {
 
               <div className="flex flex-row gap-3">
                 {/* group metrics */}
-                <div className="flex flex-col">
-                  <label className="text-sm text-gray-600 mb-1 flex gap-5">
+                <div className="flex flex-col max-h-85 overflow-auto w-75">
+                <label className="text-sm text-gray-600 mb-1 flex gap-5 pb-1">
                     Metrics{" "}
                   </label>
                   {metricsList &&
@@ -609,10 +567,10 @@ const MetricsGroupsManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
 
       {/* Modal create group */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.create.isOpen}
         onDismiss={() => {
           setNewGroup({
@@ -663,7 +621,7 @@ const MetricsGroupsManagement: React.FC = () => {
 
             <div className="flex flex-row gap-5">
               {/* group metrics */}
-              <div className="flex flex-col">
+              <div className="flex flex-col max-h-85 overflow-auto w-75">
                 <label className="text-sm text-gray-600 mb-1 flex gap-5 pb-1">
                   Metrics{" "}
                 </label>
@@ -737,7 +695,7 @@ const MetricsGroupsManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
     </div>
   );
 };

@@ -149,21 +149,23 @@ const NavBarExpanded: React.FC<NavBarProps> = ({ buttonFunction }) => {
         {/* Recent searches */}
         <div className="flex flex-col flex-1 min-h-0 w-full">
           <h2 className="gellix-semibold pb-4">Recent searches</h2>
-          <div
-            className="flex-1 min-h-0 overflow-y-auto scrollBar"
-          >
-            {searches.map((search, index) => (
-              <RecentSearch
-                key={index}
-                search={search}
-                deleteFunction={() => {
-                  setSelectedSearchId(search._id);
-                  modalHandler();
-                }}
-              />
-            ))}
-          </div>
-          {searches.length === 0 && <p className="gellix pb-4">Nothing here</p>}
+
+          {searches.length === 0 ? (
+            <p className="gellix pb-4">Nothing here</p>
+          ) : (
+            <div className="flex-1 min-h-0 overflow-y-auto scrollBar">
+              {searches.map((search, index) => (
+                <RecentSearch
+                  key={index}
+                  search={search}
+                  deleteFunction={() => {
+                    setSelectedSearchId(search._id);
+                    modalHandler();
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

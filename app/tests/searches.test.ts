@@ -131,6 +131,50 @@ describe("searchResolver", () => {
       );
     });
 
+    it("Create search with non existent store", async () => {
+      const mockReturnValue = new GraphQLError(
+        "Store not found"
+      );
+
+      vi.mocked(searchResolver.Mutation.createSearch).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const input: ResolverArgs = {
+        input: {
+          metrics: [
+            {
+              id: "1234",
+              description: "This is a description",
+              graphType: "bar",
+              name: "Metric 01",
+              status: "active",
+            },
+          ],
+          name: "Search 01",
+          isSaved: false,
+          timePeriod: "25062025-27062025",
+          userID: "00000012345",
+          metricsGroup: "idOfTheMetricsGroup",
+          store: "idOfNonExistentStore",
+        },
+      };
+
+      const result = await searchResolver.Mutation.createSearch(
+        null,
+        input,
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(searchResolver.Mutation.createSearch).toHaveBeenCalledTimes(3);
+      expect(searchResolver.Mutation.createSearch).toHaveBeenCalledWith(
+        null,
+        input,
+        mockContext
+      );
+    });
+
     it("Update search", async () => {
       const mockReturnValue = {
         success: true,
@@ -271,6 +315,56 @@ describe("searchResolver", () => {
       );
 
       const ID = "1234";
+
+      const result = await searchResolver.Query.search(
+        null,
+        {
+          ID,
+        },
+        mockContext
+      );
+
+      expect(result).toEqual(mockReturnValue);
+      expect(searchResolver.Query.search).toHaveBeenCalledWith(
+        null,
+        {
+          ID,
+        },
+        mockContext
+      );
+    });
+
+    it("User searches", async () => {
+      const mockReturnValue = {
+        success: true,
+        userID: "12345678",
+        data: [
+          {
+            id: "1234",
+            metrics: [
+              {
+                id: "1234",
+                description: "This is a description",
+                graphType: "bar",
+                name: "Metric 01",
+                status: "active",
+              },
+            ],
+            name: "Search 01",
+            isSaved: false,
+            timePeriod: "25062025-27062025",
+            userID: "00000012345",
+            metricsGroup: "idOfTheMetricsGroup",
+            store: "idOfTheStore",
+          },
+        ],
+      };
+
+      vi.mocked(searchResolver.Query.search).mockResolvedValue(
+        mockReturnValue as any
+      );
+
+      const ID = "12345678";
 
       const result = await searchResolver.Query.search(
         null,

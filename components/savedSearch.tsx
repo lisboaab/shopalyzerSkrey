@@ -5,12 +5,10 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import ButtonAnimation from "./buttonAnimation";
-import ModalDeleteSavedSearch from "./modal/modalDeleteSavedSearch";
+import ModalDefault from "./modal/modalDefault";
 
 import type Search from "@/app/interface/search";
 import type Metric from "@/app/interface/metric";
-
-import { updateSearch } from "@/lib/queries";
 
 import {
   AdjustmentsHorizontalIcon,
@@ -112,16 +110,16 @@ const SavedSearch: React.FC<SavedSearch> = ({ search, onDelete, onUnsave }) => {
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDelete) {
-      onDelete(search._id);
-      setShowModal(false);
+    if (onDelete && search._id) {  // Check if search._id exists
+      setShowModal(false);  // Close modal first
+      onDelete(search._id);  // Then trigger delete
     }
   };
 
   const handleUnsaveSearch = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onUnsave){
-      onUnsave(search._id)
+    if (onUnsave && search._id) {  // Check if search._id exists
+      onUnsave(search._id);
     }
   };
 
@@ -212,7 +210,7 @@ const SavedSearch: React.FC<SavedSearch> = ({ search, onDelete, onUnsave }) => {
           width="18em"
         />
       </div>
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={showModal}
         onDismiss={modalHandler}
         title="Are you sure you want to delete this?"
@@ -241,7 +239,7 @@ const SavedSearch: React.FC<SavedSearch> = ({ search, onDelete, onUnsave }) => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
     </div>
   );
 };

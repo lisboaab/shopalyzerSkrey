@@ -17,7 +17,7 @@ import EmptyState from "@/components/emptyState";
 import ButtonAnimation from "@/components/buttonAnimation";
 
 import SnackBar from "../modal/snackBar";
-import ModalDeleteSavedSearch from "../modal/modalDeleteSavedSearch";
+import ModalDefault from "../modal/modalDefault";
 
 const StoresManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -306,7 +306,7 @@ const StoresManagement: React.FC = () => {
       ></SnackBar>
 
       {/* modal delete store */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.remove.isOpen}
         onDismiss={() => updateModalState("remove", false)}
         title="Are you sure you want to delete this?"
@@ -335,10 +335,10 @@ const StoresManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
 
       {/* Modal edit store */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.edit.isOpen}
         onDismiss={() => updateModalState("edit", false)}
         title="Edit store"
@@ -401,10 +401,10 @@ const StoresManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
 
       {/* Modal create store */}
-      <ModalDeleteSavedSearch
+      <ModalDefault
         isOpen={modalState.create.isOpen}
         onDismiss={() => updateModalState("create", false)}
         title="Add store"
@@ -543,7 +543,7 @@ const StoresManagement: React.FC = () => {
             />
           </div>
         </div>
-      </ModalDeleteSavedSearch>
+      </ModalDefault>
     </div>
   );
 };
