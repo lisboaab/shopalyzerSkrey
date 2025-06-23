@@ -38,6 +38,12 @@ The main goal of the app is to make it easier to analyse metrics of the Shopify 
 
 ## Getting Started
 
+Don't forget to install all the dependecies with the command:
+
+```bash
+npm install
+```
+
 First, run the development ambient:
 
 ```bash
@@ -62,7 +68,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 <hr>
 
-## Run tests
+## Run tests (Vitest)
 ```bash
-npm run cypress:open
+npm run test
 ```
