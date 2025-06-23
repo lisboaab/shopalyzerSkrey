@@ -10,6 +10,7 @@ import {
   getSearch,
   updateSearch,
   getActiveGroups,
+  getStoresBasic,
 } from "@/lib/queries";
 
 import { DateRangePicker } from "@heroui/date-picker";
@@ -21,7 +22,6 @@ import SnackBar from "@/components/modal/snackBar";
 import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
 
 import type Search from "../../../interface/search";
-import type Metric from "../../../interface/metric";
 import type Group from "../../../interface/group";
 
 function heroUIDateToTimestamp(heroUIDate: any, isEndDate: boolean = false) {
@@ -77,8 +77,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   }>({});
   const [searchData, setSearchData] = useState<{
     search: Search;
-    storeId: string; // Store ID that will be fetched by the Shopify Server
+    storeIds: string[]; // Array of store IDs
   } | null>(null);
+  const [storeList, setStoreList] = useState<any[]>([]);
   const [selectedDateRange, setSelectedDateRange] = useState(
     getInitialDateRange(searchData?.search.timePeriod)
   );
@@ -102,25 +103,24 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     try {
       setLoading(true);
       const authToken = localStorage.getItem("authToken");
-
-      if (!authToken) {
-        throw new Error("Auth token not found");
-      }
+      if (!authToken) throw new Error("Auth token not found");
 
       const search = await getSearch(id, authToken);
-      const storeId = await getStoreOfSearch(id, authToken);
-      if (!storeId) {
-        throw new Error("Store not found");
-      }
+      // Accepts array or single store
+      const storeIds = Array.isArray(search.store)
+        ? search.store.map((s: any) => (typeof s === "object" ? s._id : s))
+        : [typeof search.store === "object" ? search.store._id : search.store];
 
-      const storeIdString = storeId.store._id;
-      setSearchData({ search, storeId: storeIdString });
+      // Fetch all store objects
+      const allStores = await getStoresBasic();
+      const stores = allStores.filter((s: any) => storeIds.includes(s._id));
+      setSearchData({ search, storeIds });
+      setStoreList(stores);
       setIsSaved(search.isSaved);
       setUpdatedAt(search.updatedAt);
 
-      // Apollo client
-      const client = getApolloClient(storeIdString, authToken);
-
+      // Apollo client: pick the first store for context (or adapt as needed)
+      const client = getApolloClient(storeIds[0], authToken);
       setApolloClient(client);
       setError(null);
     } catch (err) {
@@ -210,19 +210,24 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       if (update) {
         setIsSaved(!searchSaved);
         setUpdatedAt(update.updatedAt);
-        
+
         if (searchData) {
           setSearchData({
             ...searchData,
             search: {
               ...searchData.search,
               isSaved: !searchSaved,
-              updatedAt: update.updatedAt
-            }
+              updatedAt: update.updatedAt,
+            },
           });
         }
-        
-        handleSnackBar("success", searchSaved ? "Search removed from saved" : "Search saved successfully!");
+
+        handleSnackBar(
+          "success",
+          searchSaved
+            ? "Search removed from saved"
+            : "Search saved successfully!"
+        );
       }
     } catch (error) {
       console.error("Error saving search:", error);
@@ -362,7 +367,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                                 ...searchData.search,
                                 name: e.target.value,
                               },
-                              storeId: searchData.storeId,
+                              storeIds: searchData.storeIds,
                             }
                           : null
                       )
@@ -449,12 +454,18 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           <div className="flex flex-row gap-4">
             <div className="flex flex-row gap-8">
               <div className="flex flex-row gap-2 items-center">
-                <p className="gellix-semibold hover:cursor-pointer">Store: </p>
+                <p className="gellix-semibold hover:cursor-pointer">Stores: </p>
                 <p>
-                  {typeof searchData?.search.store === "object" &&
-                  searchData?.search.store !== null
-                    ? (searchData?.search.store as { name?: string }).name
-                    : searchData?.search.store}
+                  {(() => {
+                    const stores =
+                      storeList.length > 0
+                        ? storeList.map((store) => store.name)
+                        : searchData?.storeIds || [];
+
+                    return stores.length > 3
+                      ? stores.slice(0, 3).join(", ") + "..."
+                      : stores.join(", ");
+                  })()}
                 </p>
               </div>
               <div className="flex flex-row gap-2 items-center">

@@ -83,8 +83,9 @@ const Line: React.FC<ListProps> = ({ label, value }) => {
         {/* h-120 w-full */}
         <VictoryChart
           theme={customTheme.line}
-          height={300}
+          height={200}
           width={1000}
+          domain={{ y: [0, 100] }}
           containerComponent={
             <VictoryVoronoiContainer
               voronoiDimension="x"

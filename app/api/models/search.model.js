@@ -7,7 +7,7 @@ const schema = new mongoose.Schema({
   metrics: [{ type: mongoose.Schema.Types.ObjectId, ref: "Metric" }],
   metricsGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   timePeriod: { type: String, required: true },
-  store: { type: mongoose.Schema.Types.ObjectId, ref: "Store", required: true },
+  store: [{ type: mongoose.Schema.Types.ObjectId, ref: "Store", required: true }],
   createdAt: { type: Date },
   updatedAt: { type: Date }
 },

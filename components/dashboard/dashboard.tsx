@@ -3,7 +3,6 @@ import "../../app/globals.css";
 import { ShopifyOrdersService } from "../../lib/services/shopifyOrdersService";
 import { useEffect, useState } from "react";
 
-
 import LoadingData from "@/components/loadingData";
 import SomethingWentWrong from "@/components/somethingWentWrong";
 import Card from "@/components/dashboard/card";
@@ -47,23 +46,30 @@ export default function Dashboard({
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
         const authToken = localStorage.getItem("authToken");
         if (!authToken) throw new Error("Auth token not found");
 
-        // Initialize orders service
-        const ordersService = new ShopifyOrdersService(
-          typeof initialSearch.store === "string"
-            ? initialSearch.store
-            : (initialSearch.store as { _id: string })._id,
-          authToken
-        );
+        // Suporte a múltiplas stores
+        let storeIds: string[] = [];
+        if (Array.isArray(initialSearch.store)) {
+          storeIds = initialSearch.store.map((s: any) =>
+            typeof s === "object" ? s._id : s
+          );
+        } else if (
+          typeof initialSearch.store === "object" &&
+          initialSearch.store !== null
+        ) {
+          storeIds = [initialSearch.store._id];
+        } else if (initialSearch.store) {
+          storeIds = [initialSearch.store];
+        }
 
+        // Agrupar dados das lojas para cada métrica
         const metricsList = initialSearch?.metrics?.filter(
           (m: Metric) => m.status === "active"
         );
-
         let data: DashboardData = {
           card: [],
           list: [],
@@ -72,80 +78,135 @@ export default function Dashboard({
           line: [],
           pie: [],
         };
-        if (metricsList) {
-          const metricsPromises = metricsList.map(async (metric: Metric) => {
+        if (metricsList && storeIds.length > 0) {
+          for (const metric of metricsList) {
             let value: any = null;
             switch (metric.name) {
               case "Average order value":
-                value = await ordersService.calculateAverageOrderValue(
-                  initialSearch.timePeriod
-                );
+                value =
+                  await ShopifyOrdersService.calculateAverageOrderValueGlobal(
+                    storeIds,
+                    initialSearch.timePeriod,
+                    authToken
+                  );
                 break;
               case "Conversion rate":
-                value = await ordersService.calculateConversionRate(
-                  initialSearch.timePeriod
-                );
+                value =
+                  await ShopifyOrdersService.calculateGlobalConversionRate(
+                    storeIds,
+                    initialSearch.timePeriod,
+                    authToken
+                  );
                 break;
               case "Total revenue":
-                value = await ordersService.calculateTotalRevenue(
-                  initialSearch.timePeriod
+                value = await ShopifyOrdersService.calculateTotalRevenueGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
                 );
                 break;
               case "Total discount":
-                value = await ordersService.calculateTotalDiscount(
-                  initialSearch.timePeriod
+                value = await ShopifyOrdersService.calculateTotalDiscountGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
                 );
                 break;
               case "Total tax per region":
-                value = await ordersService.calculateTotalTax(
-                  initialSearch.timePeriod
+                value = await ShopifyOrdersService.calculateTotalTaxGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
                 );
                 break;
               case "Top products":
-                value = await ordersService.calculateTopProducts(
-                  initialSearch.timePeriod
+                value = await ShopifyOrdersService.calculateTopProductsGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
                 );
                 break;
               case "Top categories":
-                value = await ordersService.calculateTopCategories(
-                  initialSearch.timePeriod
+                value = await ShopifyOrdersService.calculateTopCategoriesGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
                 );
                 break;
               case "Total orders":
-                value = await ordersService.calculateTotalOrders(
-                  initialSearch.timePeriod
+                value = await ShopifyOrdersService.calculateTotalOrdersGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
+                );
+                break;
+              case "Orders by location":
+                value =
+                  await ShopifyOrdersService.calculateOrdersByLocationGlobal(
+                    storeIds,
+                    initialSearch.timePeriod,
+                    authToken
+                  );
+                break;
+              case "Average shipping value":
+                value =
+                  await ShopifyOrdersService.calculateAverageShippingValueGlobal(
+                    storeIds,
+                    initialSearch.timePeriod,
+                    authToken
+                  );
+                break;
+              case "Average order quantity":
+                value =
+                  await ShopifyOrdersService.calculateAverageOrderQuantityGlobal(
+                    storeIds,
+                    initialSearch.timePeriod,
+                    authToken
+                  );
+                break;
+              case "Total refund":
+                value = await ShopifyOrdersService.calculateTotalRefundGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
+                );
+                break;
+              case "Refund rate":
+                value = await ShopifyOrdersService.calculateRefundRateGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
+                );
+                break;
+              case "Return rate":
+                value = await ShopifyOrdersService.calculateReturnRateGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
+                );
+                break;
+              case "Orders over time":
+                value = await ShopifyOrdersService.calculateOrdersOverTimeGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
                 );
                 break;
               case "Conversion rate over time":
-                value = await ordersService.calculateConversionRateOverTime(initialSearch.timePeriod)
-                break
-              case "Orders by location":
-                value = await ordersService.calculateCustomerRegion(initialSearch.timePeriod)
-                break
-              case "Average shipping value":
-                value = await ordersService.calculateAverageShippingValue(initialSearch.timePeriod)
-                break
-              case "Average order quantity":
-                value = await ordersService.calculateAverageOrderQuantity(initialSearch.timePeriod)
-                break
-              case "Total refund":
-                value = await ordersService.calculateTotalRefund(initialSearch.timePeriod)
-                break
-              case "Refund rate":
-                 value = await ordersService.calculateRefundRate(initialSearch.timePeriod)
-                break
-              case "Return rate":
-                 value = await ordersService.calculateReturnRate(initialSearch.timePeriod)
-                break
-              case "Orders over time":
-                 value = await ordersService.calculateOrdersOverTime(initialSearch.timePeriod)
-                break
+                value = await ShopifyOrdersService.calculateConversionRateOverTimeGlobal(
+                  storeIds,
+                  initialSearch.timePeriod,
+                  authToken
+                );
+                break;
+              default:
+                value = null;
             }
             const item = {
               metric: metric,
               value: value,
             };
-            switch (item.metric.graphType) {
+            switch (metric.graphType) {
               case "card":
                 data.card.push(item);
                 break;
@@ -165,8 +226,7 @@ export default function Dashboard({
                 data.donut.push(item);
                 break;
             }
-          });
-          await Promise.all(metricsPromises);
+          }
           setDashboardData(data);
         }
       } catch (err) {
@@ -176,7 +236,6 @@ export default function Dashboard({
         setLoading(false);
       }
     };
-
     fetchData();
   }, [initialSearch]);
 
@@ -233,7 +292,7 @@ export default function Dashboard({
             .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
             .map((data: any) => {
               return (
-               <div
+                <div
                   key={data.metric.name}
                   className="p-8 rounded-lg flex-1 mx-3"
                   style={{ backgroundColor: "#E8F1FF90" }}
@@ -250,7 +309,7 @@ export default function Dashboard({
             .sort((a, b) => a.metric.name.localeCompare(b.metric.name))
             .map((data: any) => {
               return (
-               <div
+                <div
                   key={data.metric.name}
                   className="p-8 rounded-lg flex-1 mx-3"
                   style={{ backgroundColor: "#E8F1FF90" }}

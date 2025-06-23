@@ -77,7 +77,7 @@ export const typeDefs = gql`
     timePeriod: String
     metrics: [Metric!]
     metricsGroup: Group
-    store: Store!
+    store: [Store!]
     createdAt: String
     updatedAt: String
   }
@@ -126,7 +126,7 @@ export const typeDefs = gql`
     userID: String
     metrics: [ID!]
     metricsGroup: String
-    store: String!
+    store: [ID!]
   }
 
   input UserInput {
@@ -164,7 +164,7 @@ export const typeDefs = gql`
 
   input SearchInput {
     name: String
-    store: String
+    store: [ID!]
     metrics: [ID!]
     metricsGroup: String
     isSaved: Boolean

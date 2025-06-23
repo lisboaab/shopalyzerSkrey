@@ -829,7 +829,7 @@ export const createSearch = async (input: {
   metrics: string[];
   userID: string;
   metricsGroup: string;
-  store: string;
+  store: string[] | string;
 }) => {
   try {
     const { data } = await apolloClient.mutate({

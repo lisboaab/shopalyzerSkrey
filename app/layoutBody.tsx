@@ -18,8 +18,6 @@ export default function LayoutBody({
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
  
-  // o objetivo desse useEffect era fazer com que a navbar e o loading não aparecessem enquanto a página vê se tem um token no localStorage
-  // mas não funciona. O ideal seria colocar a página de login como principal e se tiver um token ele envia pra outra?
   useEffect(() => {
     const t = localStorage.getItem("authToken");
     if (t) {
