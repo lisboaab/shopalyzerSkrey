@@ -1057,8 +1057,8 @@ export const searchResolver = {
           });
         }
       }
-console.log("input.metricsGroup", input.metricsGroup)
-      const name = `${storeFound.name} - ${input.metricsGroup[0].slice(0, 3)}${input.metrics[0].slice(0, 5)}${input.timePeriod.split("-")[0].slice(0, 5)}`;
+      
+      const name = `Search ${input.metricsGroup[0].slice(0, 3)}${input.metrics[0].slice(0, 5)}${input.timePeriod.split("-")[0].slice(0, 5)}`;
 
       const search = new Search({
         name: name,
@@ -1100,8 +1100,8 @@ console.log("input.metricsGroup", input.metricsGroup)
       }
 
       if (
-        context.user._id != searchFound.userID &&
-        context.user.userType != "admin"
+        context.user._id.toString() !== searchFound.userID.toString() &&
+        context.user.userType !== "admin"
       ) {
         throw new GraphQLError("Forbidden access", {
           extensions: {

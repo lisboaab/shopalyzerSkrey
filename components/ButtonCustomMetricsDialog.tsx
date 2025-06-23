@@ -158,7 +158,7 @@ const ButtonCustomMetricsDialog: React.FC<Props> = ({ setCustomMetrics, initialM
               }}
             />
           </div>
-          <div className={`flex flex-row flex-wrap gap-x-15 gap-y-5 w-full`}>
+          <div className={`flex flex-row flex-wrap gap-x-10 gap-y-5 w-full`}>
             {filteredMetrics.length != 0 &&
               filteredMetrics.map((metric, index) => (
                 <div

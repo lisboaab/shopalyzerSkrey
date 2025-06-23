@@ -5,7 +5,7 @@ import Store from "./store";
 export default interface Search {
   _id: string;
   userId: string;
-  store: Store | string | [name: string];
+  store: Store[] | string | [name: string] | Store;
   metricsGroup?: Group;
   metrics?: Metric[];
   timePeriod: string;
