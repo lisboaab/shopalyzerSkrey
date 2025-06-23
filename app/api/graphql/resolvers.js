@@ -509,7 +509,7 @@ export const storeResolver = {
           },
         });
       }
-      
+
       try {
         const store = await Store.findById(ID)
           .populate("createdBy")
@@ -1015,13 +1015,13 @@ export const searchResolver = {
 
       if (
         !input.metrics ||
-        !input.store ||
+        !input.store.lenght === 0 ||
         input.metrics.lenght === 0 ||
         !input.timePeriod ||
         !input.userID
       ) {
         throw new GraphQLError(
-          "Missing required fields: store (the ID), metrics list or group, timePeriod and userID",
+          "Missing required fields: array of store IDs, metrics list or group, timePeriod and userID",
           {
             extensions: {
               code: "FIELDS_MISSING",
@@ -1030,28 +1030,35 @@ export const searchResolver = {
         );
       }
 
-      const storeFound = await Store.findById(input.store);
+      const firstStoreId = input.store[0];
+      const storeFound = await Store.findById(firstStoreId);
       if (!storeFound) {
         throw new GraphQLError("Store not found", {
           extensions: { code: "STORE_NOT_FOUND" },
         });
       }
 
-      input.metrics.forEach((m) => {
-        const found = Metric.findById(m);
+      for (const s of input.store) {
+        const store = await Store.findById(s);
+        if (!store) {
+          throw new GraphQLError("Store not found", {
+            extensions: { code: "STORE_NOT_FOUND" },
+          });
+        }
+      }
+
+      for (const m of input.metrics) {
+        const found = await Metric.findById(m);
         if (!found) {
-          throw new GraphQLError(`Could not find metric with ID ${m}`, {
+          throw new GraphQLError(`Could not find metric with ID ${m}` , {
             extensions: {
               code: "METRIC_NOT_FOUND",
             },
           });
         }
-      });
-
-      const name = `${storeFound.name} - ${input.metrics[0].slice(
-        0,
-        3
-      )}${input.timePeriod.split("-")[0].slice(0, 5)}`;
+      }
+console.log("input.metricsGroup", input.metricsGroup)
+      const name = `${storeFound.name} - ${input.metricsGroup[0].slice(0, 3)}${input.metrics[0].slice(0, 5)}${input.timePeriod.split("-")[0].slice(0, 5)}`;
 
       const search = new Search({
         name: name,
@@ -1064,7 +1071,6 @@ export const searchResolver = {
       });
 
       const newSearch = await search.save();
-
       return newSearch;
     },
     removeSearch: async (_, { id }, context) => {

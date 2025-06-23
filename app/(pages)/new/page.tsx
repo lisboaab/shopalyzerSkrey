@@ -1,9 +1,5 @@
 "use client";
-import {
-  Suspense,
-  useEffect,
-  useState,
-} from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DateRangePicker } from "@heroui/date-picker";
 import { today } from "@internationalized/date";
@@ -23,10 +19,9 @@ import type Group from "../../interface/group";
 import ButtonAnimation from "@/components/buttonAnimation";
 import Loading from "@/components/loading";
 import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
-import { set } from "mongoose";
 
 export default function Page() {
-  const [store, setStore] = useState("");
+  const [store, setStore] = useState<string | string[]>("");
   const [metricsGroup, setMetricsGroup] = useState("");
   const [date, setDate] = useState<null | any>(null);
   const [name, setName] = useState<string>("");
@@ -105,25 +100,28 @@ export default function Page() {
     if (!heroUIDate) return null;
     const { year, month, day } = heroUIDate;
     const date = new Date(year, month - 1, day);
-    
+
     if (isEndDate) {
       date.setHours(23, 59, 59, 999);
     }
-    
+
     return date.getTime();
   }
 
   function convertDateRange(dateRange: any) {
     if (!dateRange) return null;
-    const range = `${heroUIDateToTimestamp(dateRange.start)}-${heroUIDateToTimestamp(dateRange.end, true)}` 
-    return range
+    const range = `${heroUIDateToTimestamp(
+      dateRange.start
+    )}-${heroUIDateToTimestamp(dateRange.end, true)}`;
+    return range;
   }
 
   const analyze = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    let storeValue = store;
     if (
-      store === "" ||
+      storeValue === "" ||
       metricsGroup === "" ||
       !date ||
       !date.start ||
@@ -165,7 +163,6 @@ export default function Page() {
           });
         }
       } else {
-        setLoading(false);
         const metricsOfGroup = metricsGroupList.find(
           (group) => group._id === metricsGroup
         )?.metrics;
@@ -173,9 +170,15 @@ export default function Page() {
           metricsList.push(m._id);
         });
       }
+
+      if (storeValue === "all") {
+        if (storeValue === "all") {
+          storeValue = storesList.map((store) => store._id);
+        }
+      }
       const convertedRange = convertDateRange(date);
       const input = {
-        store: store,
+        store: storeValue,
         metricsGroup: metricsGroup,
         timePeriod: convertedRange ?? "",
         metrics: metricsList,
@@ -229,7 +232,12 @@ export default function Page() {
                     onChange={(e) => setStore(e.target.value)}
                     // required
                   >
-                    <option value="" key="default-store">Select an option</option>
+                    <option value="" key="default-store">
+                      Select an option
+                    </option>
+                    <option value="all" key="default-store">
+                      Select all
+                    </option>
                     {storesList.map((store: Store) => (
                       <option key={store._id} value={store._id}>
                         {store.name}
@@ -266,7 +274,9 @@ export default function Page() {
                       }
                     }}
                   >
-                    <option value="" key="default-metrics">Select an option</option>
+                    <option value="" key="default-metrics">
+                      Select an option
+                    </option>
                     {metricsGroupList.map((group) => (
                       <option key={group._id} value={group._id}>
                         {group.name}
@@ -281,39 +291,40 @@ export default function Page() {
                   </label>
                   <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
                     <DateRangePicker
-                    className="max-w-xs gellix"
-                    calendarProps={{
-                      classNames: {
-                      base: "bg-gray-50 rounded-lg shadow-lg",
-                      prevButton:
-                        "hover:bg-gray-200 items-center justify-center",
-                      nextButton:
-                        "hover:bg-gray-200 items-center justify-center",
-                      gridHeader: "border-b-1 border-gray-300 text-gray-500",
-                      cellButton: [
-                        // Disable dates
-                        "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
-                        // Focused date styling
-                        "data-[focused=true]:border-1 data-[focused=true]:border-blue-900",
-                        // Range styling - start date
-                        "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
-                        // Range styling - end date
-                        "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
-                        // Style for selected dates
-                        "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
-                      ],
-                      },
-                    }}
-                    value={date}
-                    onChange={(newDate) => {
-                      if (newDate) {
-                      setDate({
-                        start: newDate.start,
-                        end: newDate.end,
-                      });
-                      }
-                    }}
-                    maxValue={today("UTC")}
+                      className="max-w-xs gellix"
+                      calendarProps={{
+                        classNames: {
+                          base: "bg-gray-50 rounded-lg shadow-lg",
+                          prevButton:
+                            "hover:bg-gray-200 items-center justify-center",
+                          nextButton:
+                            "hover:bg-gray-200 items-center justify-center",
+                          gridHeader:
+                            "border-b-1 border-gray-300 text-gray-500",
+                          cellButton: [
+                            // Disable dates
+                            "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
+                            // Focused date styling
+                            "data-[focused=true]:border-1 data-[focused=true]:border-blue-900",
+                            // Range styling - start date
+                            "data-[selection-start=true]:bg-blue-600 data-[selection-start=true]:text-white data-[selection-start=true]:rounded-2xl",
+                            // Range styling - end date
+                            "data-[selection-end=true]:bg-blue-600 data-[selection-end=true]:text-white data-[selection-end=true]:rounded-2xl",
+                            // Style for selected dates
+                            "data-[selected=true]:bg-blue-100 data-[selected=true]:text-black data-[selected=true]:rounded-none",
+                          ],
+                        },
+                      }}
+                      value={date}
+                      onChange={(newDate) => {
+                        if (newDate) {
+                          setDate({
+                            start: newDate.start,
+                            end: newDate.end,
+                          });
+                        }
+                      }}
+                      maxValue={today("UTC")}
                     />
                   </div>
                 </div>
@@ -357,7 +368,9 @@ export default function Page() {
                       d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
                     />
                   </svg>
-                  <p className="gellix text-red-500">All fields are required!</p>
+                  <p className="gellix text-red-500">
+                    All fields are required!
+                  </p>
                 </div>
                 <div
                   id="errorMessageCustomMetrics"

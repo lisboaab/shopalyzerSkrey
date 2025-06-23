@@ -84,13 +84,13 @@ const Bar: React.FC<ListProps> = ({ label, value }) => {
 
   return (
     <div className="min-w-200">
-      <p className="gellix-semibold mb-3 text-xl">{label}</p>
-      <div className="flex flex-col gap-5">
+      <p className="gellix-semibold text-xl">{label}</p>
+      <div className="flex flex-col">
         {/* h-120 w-full */}
         <VictoryChart
           theme={customTheme.bar}
           domainPadding={{ x: 40, y: 0 }}
-          height={300}
+          height={200}
           width={1000}
           containerComponent={
             <VictoryVoronoiContainer
