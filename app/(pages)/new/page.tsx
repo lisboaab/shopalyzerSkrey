@@ -209,7 +209,7 @@ export default function Page() {
   };
 
   const reset = () => {
-    setStore("");
+    setSelectedStores([]);
     setMetricsGroup("");
     setDate(null);
     setPencilButtonActive(false);
@@ -306,16 +306,16 @@ export default function Page() {
                   </label>
                   <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
                     <DateRangePicker
-                      className="max-w-xs gellix"
+                      className="max-w-xs gellix w-63"
                       calendarProps={{
                         classNames: {
-                          base: "bg-gray-50 rounded-lg shadow-lg",
+                          base: "bg-gray-50 gellix rounded-lg shadow-lg",
                           prevButton:
-                            "hover:bg-gray-200 items-center justify-center",
+                            "hover:bg-gray-200 gellix items-center justify-center",
                           nextButton:
-                            "hover:bg-gray-200 items-center justify-center",
+                            "hover:bg-gray-200 gellix items-center justify-center",
                           gridHeader:
-                            "border-b-1 border-gray-300 text-gray-500",
+                            "border-b-1 gellix border-gray-300 text-gray-500",
                           cellButton: [
                             // Disable dates
                             "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",
