@@ -1057,9 +1057,7 @@ export const searchResolver = {
           });
         }
       }
-      
-      console.log("timepriod", input.timePeriod)
-      console.log("timepriod", input.timePeriod.split("-")[1].slice(1, 11))
+
       const name = `Search ${input.metricsGroup[0].slice(2, 4)}${input.timePeriod.split("-")[1].slice(1, 9)}${input.metrics[0].slice(2, 7)}`;
 
       const search = new Search({
