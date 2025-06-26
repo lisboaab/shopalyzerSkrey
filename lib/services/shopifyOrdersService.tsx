@@ -315,8 +315,8 @@ export const GET_SHOP_ORDERS_BASIC = gql`
   }
 `;
 export const GET_TOTAL_REVENUE = gql`
-  query GetTotalRevenue {
-    orders(first: 250) {
+  query GetTotalRevenue($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -328,12 +328,16 @@ export const GET_TOTAL_REVENUE = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 export const GET_TOTAL_DISCOUNT = gql`
-  query GetTotalDiscount {
-    orders(first: 250) {
+  query GetTotalDiscount($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -345,13 +349,17 @@ export const GET_TOTAL_DISCOUNT = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
 export const GET_TOTAL_TAX_SET = gql`
-  query GetTotalTaxSet {
-    orders(first: 250) {
+  query GetTotalTaxSet($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -368,13 +376,17 @@ export const GET_TOTAL_TAX_SET = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
 export const GET_CONVERSION_RATE = gql`
-  query GetConversionRate {
-    orders(first: 250) {
+  query GetConversionRate($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -382,13 +394,17 @@ export const GET_CONVERSION_RATE = gql`
           displayFulfillmentStatus
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
 export const GET_TOP_PRODUCTS = gql`
-  query GetTopProducts {
-    orders(first: 250) {
+  query GetTopProducts($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -415,13 +431,17 @@ export const GET_TOP_PRODUCTS = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
 export const GET_TOP_CATEGORIES = gql`
-  query GetTopProducts {
-    orders(first: 250) {
+  query GetTopProducts($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -440,25 +460,33 @@ export const GET_TOP_CATEGORIES = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
 export const GET_TOTAL_ORDERS = gql`
-  query GetTotalOrders {
-    orders(first: 250) {
+  query GetTotalOrders($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
         }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }
 `;
 
 export const GET_CUSTOMER_LOCATION = gql`
-  query GetTotalOrders {
-    orders(first: 250) {
+  query GetTotalOrders($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -467,13 +495,17 @@ export const GET_CUSTOMER_LOCATION = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
 export const GET_TOTAL_SHIPPING = gql`
-  query GetTotalRevenue {
-    orders(first: 250) {
+  query GetTotalRevenue($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -485,13 +517,17 @@ export const GET_TOTAL_SHIPPING = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
 export const GET_ORDER_ITEMS = gql`
-  query GetTotalOrders {
-    orders(first: 250) {
+  query GetTotalOrders($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -505,12 +541,17 @@ export const GET_ORDER_ITEMS = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
+
 export const GET_TOTAL_REFUND = gql`
-  query GetTotalRefund {
-    orders(first: 250) {
+  query GetTotalRefund($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           createdAt
@@ -524,13 +565,18 @@ export const GET_TOTAL_REFUND = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
 
+// Ver a paginacao daqui
 export const GET_TOTAL_RETURN = gql`
-  query GetTotalReturn {
-    orders(first: 250) {
+  query GetTotalReturn($cursor: String, $query: String) {
+    orders(first: 250, after: $cursor, query: $query) {
       edges {
         node {
           id
@@ -548,8 +594,16 @@ export const GET_TOTAL_RETURN = gql`
                 totalQuantity
               }
             }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }
@@ -602,19 +656,36 @@ export class ShopifyOrdersService {
   ) {
     let total = 0;
     let currency = "$";
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_REFUND });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((order: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_REFUND,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((order: any) => {
         order.node.refunds.forEach((refund: any) => {
           const value =
             parseFloat(refund.totalRefundedSet.shopMoney.amount) || 0;
           total += value;
-          currency = refund.totalRefundedSet.shopMoney.currencyCode;
+          currency = refund.totalRefundedSet.shopMoney.currencyCode || currency;
         });
       });
     }
@@ -629,15 +700,30 @@ export class ShopifyOrdersService {
   ) {
     let totalOrders = 0;
     let ordersWithRefund = 0;
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_REFUND });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      totalOrders += filteredOrders.length;
-      const refundedOrders = filteredOrders.filter(
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_REFUND,
+          variables: { cursor, query: queryString },
+        });
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+        totalOrders += orders.edges.length;
+      }
+      const refundedOrders = allOrders.filter(
         (order: any) => order.node.refunds && order.node.refunds.length > 0
       );
       ordersWithRefund += refundedOrders.length;
@@ -654,14 +740,29 @@ export class ShopifyOrdersService {
   ) {
     let ordersWithReturn = 0;
     let totalOrders = 0;
+        const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_RETURN });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((order: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_RETURN,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+      allOrders.forEach((order: any) => {
         const returnEdges = order.node?.returns?.edges;
         if (Array.isArray(returnEdges)) {
           returnEdges.forEach((ret: any) => {
@@ -683,15 +784,31 @@ export class ShopifyOrdersService {
   ) {
     let totalOrders = 0;
     let fulfilledOrders = 0;
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_CONVERSION_RATE });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      totalOrders += filteredOrders.length;
-      fulfilledOrders += filteredOrders.filter(
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_CONVERSION_RATE,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+        totalOrders += orders.edges.length;
+      }
+      fulfilledOrders += allOrders.filter(
         (order: any) =>
           order.node.displayFinancialStatus === "PAID" &&
           order.node.displayFulfillmentStatus === "FULFILLED"
@@ -710,21 +827,37 @@ export class ShopifyOrdersService {
     let totalShipping = 0;
     let totalOrders = 0;
     let currency = "$";
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_SHIPPING });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((edge: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_SHIPPING,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+      allOrders.forEach((edge: any) => {
         const amount = edge.node?.totalShippingPriceSet?.shopMoney?.amount;
         if (edge.node?.totalShippingPriceSet?.shopMoney?.currencyCode) {
           currency = edge.node.totalShippingPriceSet.shopMoney.currencyCode;
         }
         totalShipping += parseFloat(amount) || 0;
       });
-      totalOrders += filteredOrders.length;
+      totalOrders += allOrders.length;
     }
     if (totalOrders === 0) return "0.00 " + currency;
     return (totalShipping / totalOrders).toFixed(2) + " " + currency;
@@ -737,21 +870,36 @@ export class ShopifyOrdersService {
   ) {
     let total = 0;
     let totalOrders = 0;
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_ORDER_ITEMS });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
 
-      filteredOrders.forEach((order: any) => {
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_ORDER_ITEMS,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((order: any) => {
         order.node.lineItems.edges.forEach((lineItem: any) => {
           const quantity = parseInt(lineItem.node.quantity) || 0;
           total += quantity;
         });
       });
-      totalOrders += filteredOrders.length;
+      totalOrders += allOrders.length;
     }
     if (totalOrders === 0) return "0.00";
     return (total / totalOrders).toFixed(2);
@@ -763,14 +911,29 @@ export class ShopifyOrdersService {
     authToken: string
   ) {
     let answer = 0;
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_ORDERS });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      answer += filteredOrders.length;
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_ORDERS,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+        answer += allOrders.length;
+      }
     }
     return answer;
   }
@@ -782,14 +945,31 @@ export class ShopifyOrdersService {
   ) {
     let total = 0;
     let currency = "$";
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_REVENUE });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((edge: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_REVENUE,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((edge: any) => {
         const amount = edge.node?.totalPriceSet?.shopMoney?.amount;
         if (edge.node?.totalPriceSet?.shopMoney?.currencyCode) {
           currency = edge.node.totalPriceSet.shopMoney.currencyCode;
@@ -808,21 +988,38 @@ export class ShopifyOrdersService {
     let totalRevenue = 0;
     let totalOrders = 0;
     let currency = "$";
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_REVENUE });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((edge: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_REVENUE,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((edge: any) => {
         const amount = edge.node?.totalPriceSet?.shopMoney?.amount;
         if (edge.node?.totalPriceSet?.shopMoney?.currencyCode) {
           currency = edge.node.totalPriceSet.shopMoney.currencyCode;
         }
         totalRevenue += parseFloat(amount) || 0;
       });
-      totalOrders += filteredOrders.length;
+      totalOrders += allOrders.length;
     }
     if (totalOrders === 0) return "0.00 " + currency;
     return (totalRevenue / totalOrders).toFixed(2) + " " + currency;
@@ -835,14 +1032,31 @@ export class ShopifyOrdersService {
   ) {
     let totalDiscount = 0;
     let currency = "$";
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_DISCOUNT });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((edge: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_DISCOUNT,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((edge: any) => {
         const amount = edge.node?.totalDiscountsSet?.shopMoney?.amount;
         if (edge.node?.totalDiscountsSet?.shopMoney?.currencyCode) {
           currency = edge.node.totalDiscountsSet.shopMoney.currencyCode;
@@ -859,14 +1073,31 @@ export class ShopifyOrdersService {
     authToken: string
   ) {
     const taxByRegion: Record<string, number> = {};
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOTAL_TAX_SET });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((edge: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_TAX_SET,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((edge: any) => {
         const region = edge.node.shippingAddress?.country || "Unknown";
         const tax = parseFloat(edge.node.totalTaxSet.shopMoney.amount);
         if (!taxByRegion[region]) taxByRegion[region] = 0;
@@ -885,14 +1116,31 @@ export class ShopifyOrdersService {
     authToken: string
   ) {
     const products: any[] = [];
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOP_PRODUCTS });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((order: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOP_PRODUCTS,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((order: any) => {
         order.node.lineItems.edges.forEach((lineItem: any) => {
           const item = {
             item: lineItem.node.name,
@@ -922,14 +1170,31 @@ export class ShopifyOrdersService {
     authToken: string
   ) {
     const categories: any[] = [];
+
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({ query: GET_TOP_CATEGORIES });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((order: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOP_CATEGORIES,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+
+      allOrders.forEach((order: any) => {
         order.node.lineItems.edges.forEach((lineItem: any) => {
           const item =
             lineItem.node.variant?.product?.productType || "Uncategorized";
@@ -969,16 +1234,29 @@ export class ShopifyOrdersService {
     authToken: string
   ) {
     const countries: any[] = [];
+    const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     for (const storeId of storeIds) {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({
-        query: GET_CUSTOMER_LOCATION,
-      });
-      const filteredOrders = await service.filterOrders(
-        timePeriod,
-        orders.data.orders.edges
-      );
-      filteredOrders.forEach((order: any) => {
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_CUSTOMER_LOCATION,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+      allOrders.forEach((order: any) => {
         const shippingAddress = order.node.shippingAddress;
         const country =
           shippingAddress && shippingAddress.country
@@ -1011,12 +1289,29 @@ export class ShopifyOrdersService {
     timePeriod: string,
     authToken: string
   ) {
+     const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     const allOrdersPromises = storeIds.map(async (storeId) => {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({
-        query: GET_TOTAL_ORDERS,
-      });
-      return service.filterOrders(timePeriod, orders.data.orders.edges);
+       let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_TOTAL_ORDERS,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+      return allOrders;
     });
 
     const allOrdersArrays = await Promise.all(allOrdersPromises);
@@ -1037,17 +1332,34 @@ export class ShopifyOrdersService {
     timePeriod: string,
     authToken: string
   ) {
+        const [startTimestamp, endTimestamp] = timePeriod.split("-").map(Number);
+    const startDate = new Date(startTimestamp).toISOString();
+    const endDate = new Date(endTimestamp).toISOString();
+    const queryString = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+
     const allOrdersPromises = storeIds.map(async (storeId) => {
       const service = new ShopifyOrdersService(storeId, authToken);
-      const orders = await service.client.query({
-        query: GET_CONVERSION_RATE,
-      });
-      return service.filterOrders(timePeriod, orders.data.orders.edges);
+      let hasNextPage = true;
+      let cursor: string | null = null;
+      let allOrders: any[] = [];
+
+      while (hasNextPage) {
+        const result: any = await service.client.query({
+          query: GET_CONVERSION_RATE,
+          variables: { cursor, query: queryString },
+        });
+
+        const orders = result.data.orders;
+        allOrders = allOrders.concat(orders.edges);
+        hasNextPage = orders.pageInfo.hasNextPage;
+        cursor = orders.pageInfo.endCursor;
+      }
+      return allOrders;
     });
 
     const allOrdersArrays = await Promise.all(allOrdersPromises);
-    const allOrders = allOrdersArrays.flat();
-    const ordersbyDay = this.groupOrdersByDay(allOrders);
+    const allOrders2 = allOrdersArrays.flat();
+    const ordersbyDay = this.groupOrdersByDay(allOrders2);
 
     const data = Array.from(ordersbyDay.entries())
       .map(([dateKey, dayOrders]) => {
