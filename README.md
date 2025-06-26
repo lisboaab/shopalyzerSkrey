@@ -105,4 +105,8 @@ npm run test
 
 ## Environment variables
 1. uri: MONGODB URI to connect with the BD
-2. 
+2. SECRET: JWT SECRET KEY
+3. NGROK_AUTHTOKEN: Authtoken for the NGROK tunnel to connect with the Shopify API
+4. C_CLOUD_NAME: Cloudnary name to manage user photos
+5. C_API_KEY: Cloudnary API Key
+6. C_API_SECRET: Cloudnary API Secret
