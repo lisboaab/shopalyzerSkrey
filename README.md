@@ -97,4 +97,12 @@ npm run test
 
 ## Please notice
 - When rendering the server it checks if the app already has an admin user, if the metrics are added to the database and if the "Custom" metrics group exists. If they don't exist the server created them, since these are all required items for the app to successfully run.
-- It was not implemented a pagination to the Shopify API answers
+- Admin user data:
+  Email: admin@gmail.com
+  Password: 123
+
+<hr>
+
+## Environment variables
+1. uri: MONGODB URI to connect with the BD
+2. 
