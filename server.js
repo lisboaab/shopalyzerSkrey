@@ -94,7 +94,7 @@ const metricsList = [
     status: "active"
   },
   {
-    name: "Average order quantity",
+    name: "Average products per order",
     graphType: "card",
     description: "Average items per order",
     status: "active"

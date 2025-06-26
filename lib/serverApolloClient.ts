@@ -26,7 +26,7 @@ const createServerApolloClient = (token?: string) => {
     cache: new InMemoryCache(),
     defaultOptions: {
       query: {
-        fetchPolicy: 'no-cache', // Importante para o servidor
+        fetchPolicy: 'no-cache',
       },
     },
   });
