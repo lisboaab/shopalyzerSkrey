@@ -96,7 +96,7 @@ npm run test
 <hr>
 
 ## Please notice
-- When rendering the server it checks if the app already has an admin user, if the metrics are added to the database and if the "Custom" metrics group exists. If they don't exist the server created them, since these are all required items for the app to successfully run.
+- When rendering the server, it checks if the application already has an administrator user, if the metrics have been added to the database and if the "Custom" metrics group exists. If they do not exist, the server creates them, as they are all items necessary for the correct functioning of the application.
 - Admin user data:
   Email: admin@gmail.com
   Password: 123
