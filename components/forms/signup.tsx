@@ -18,8 +18,8 @@ const SignUpForm: React.FC = () => {
     setError("");
 
     const nameInput = document.getElementById("nameInput") as HTMLInputElement;
-    const emailInput = document.getElementById(
-      "emailInput"
+    const signUpEmailInput = document.getElementById(
+      "signUpEmailInput"
     ) as HTMLInputElement;
     const passwordInput = document.getElementById(
       "passwordInput"
@@ -27,6 +27,11 @@ const SignUpForm: React.FC = () => {
     const confirmPasswordInput = document.getElementById(
       "confirmPasswordInput"
     ) as HTMLInputElement;
+
+    nameInput.classList.remove("border-red-500");
+    signUpEmailInput.classList.remove("border-red-500");
+    passwordInput.classList.remove("border-red-500");
+    confirmPasswordInput.classList.remove("border-red-500");
 
     try {
       const input = {
@@ -38,7 +43,7 @@ const SignUpForm: React.FC = () => {
       if (!name || !email || !password || !confirmPassword) {
         setError("All fields required.");
         if (!name) nameInput.classList.add("border-red-500");
-        if (!email) emailInput.classList.add("border-red-500");
+        if (!email) signUpEmailInput.classList.add("border-red-500");
         if (!password) passwordInput.classList.add("border-red-500");
         if (!confirmPassword)
           confirmPasswordInput.classList.add("border-red-500");
@@ -73,7 +78,7 @@ const SignUpForm: React.FC = () => {
       if (error instanceof Error) {
         console.error("Login error:", error.message);
         if (error.message === "This email is already in use.") {
-          emailInput.classList.add("border-red-500");
+          signUpEmailInput.classList.add("border-red-500");
           setError("This email is already in use.");
         }
       }
@@ -89,7 +94,10 @@ const SignUpForm: React.FC = () => {
           type="text"
           placeholder="Enter your first name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            e.currentTarget.classList.remove("border-red-500");
+          }}
           className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -102,11 +110,14 @@ const SignUpForm: React.FC = () => {
       <div className="flex flex-col gap-2">
         <p className="gellix">Email</p>
         <input
-          id="emailInput"
+          id="signUpEmailInput"
           type="email"
           placeholder="Enter your email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            e.currentTarget.classList.remove("border-red-500");
+          }}
           className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -123,7 +134,10 @@ const SignUpForm: React.FC = () => {
           type="password"
           placeholder="Enter your password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            e.currentTarget.classList.remove("border-red-500");
+          }}
           className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -140,7 +154,10 @@ const SignUpForm: React.FC = () => {
           type="password"
           placeholder="Confirm your password"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            e.currentTarget.classList.remove("border-red-500");
+          }}
           className="border border-gray-300 p-2 rounded-lg gellix bg-transparent outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter") {

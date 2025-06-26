@@ -9,6 +9,7 @@ import ModalDefault from "./modal/modalDefault";
 
 import type Search from "@/app/interface/search";
 import type Metric from "@/app/interface/metric";
+import type Store from "@/app/interface/store";
 
 import {
   AdjustmentsHorizontalIcon,
@@ -110,15 +111,15 @@ const SavedSearch: React.FC<SavedSearch> = ({ search, onDelete, onUnsave }) => {
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDelete && search._id) {  // Check if search._id exists
-      setShowModal(false);  // Close modal first
-      onDelete(search._id);  // Then trigger delete
+    if (onDelete && search._id) {
+      setShowModal(false);
+      onDelete(search._id);
     }
   };
 
   const handleUnsaveSearch = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onUnsave && search._id) {  // Check if search._id exists
+    if (onUnsave && search._id) {
       onUnsave(search._id);
     }
   };
@@ -156,16 +157,55 @@ const SavedSearch: React.FC<SavedSearch> = ({ search, onDelete, onUnsave }) => {
           </div>
         </div>
         <div className="flex flex-col gap-3">
-          <p className="gellix-semibold">
-            Store:{" "}
-            <span className="gellix">
-              {search.store &&
-              typeof search.store === "object" &&
-              "name" in search.store
-                ? (search.store as { name: string }).name
-                : ""}
-            </span>
-          </p>
+          {Array.isArray(search.store) && search.store.length === 1 ? (
+            <p className="gellix-semibold">
+              Store:{" "}
+              <span className="gellix">
+                {typeof search.store[0] === "object" && search.store[0] !== null && "name" in search.store[0]
+                  ? (search.store[0] as Store).name
+                  : typeof search.store[0] === "string"
+                  ? search.store[0]
+                  : ""}
+              </span>
+            </p>
+          ) : Array.isArray(search.store) && search.store.length > 1 ? (
+            <p className="gellix-semibold">
+              Stores:{" "}
+              <span className="gellix">
+                {search.store.length > 3
+                  ? search.store
+                      .slice(0, 3)
+                      .map((store) =>
+                        typeof store === "object" && store !== null && "name" in store
+                          ? (store as Store).name
+                          : typeof store === "string"
+                          ? store
+                          : ""
+                      )
+                      .join(", ") + "..."
+                  : search.store
+                      .map((store) =>
+                        typeof store === "object" && store !== null && "name" in store
+                          ? (store as Store).name
+                          : typeof store === "string"
+                          ? store
+                          : ""
+                      )
+                      .join(", ")}
+              </span>
+            </p>
+          ) : (
+            <p className="gellix-semibold">
+              Store:{" "}
+              <span className="gellix">
+                {typeof search.store === "object" && search.store !== null && "name" in search.store
+                  ? (search.store as Store).name
+                  : typeof search.store === "string"
+                  ? search.store
+                  : "No stores"}
+              </span>
+            </p>
+          )}
           <p className="gellix-semibold">
             Metrics group:{" "}
             <span className="gellix">

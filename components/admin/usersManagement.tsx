@@ -100,7 +100,10 @@ const UsersManagement: React.FC = () => {
 
       fetchData();
     } catch (error) {
-      if (error instanceof Error) {
+      console.log("Error updating user:", error);
+      if (error === "Email already in use.") {
+        handleSnackBar("failure", "Email already in use");
+      } else if (error instanceof Error) {
         if (error.message === "Email already in use.") {
           handleSnackBar("failure", "Email already in use");
         } else if (error.message === "Blank fields") {

@@ -11,14 +11,18 @@ import {
   getActiveGroups,
   createSearch,
 } from "@/lib/queries";
+
 // Interface
 import type Store from "../../interface/store";
 import type Metric from "../../interface/metric";
 import type Group from "../../interface/group";
+
 // Components
 import ButtonAnimation from "@/components/buttonAnimation";
 import Loading from "@/components/loading";
 import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
+import MultiSelect from "@/components/multiSelect";
+import Select from "@/components/select";
 
 export default function Page() {
   const [store, setStore] = useState<string | string[]>("");
@@ -32,6 +36,17 @@ export default function Page() {
   const [metricsGroupList, setMetricsGroupList] = useState<any[]>([""]);
   const [pencilButtonActive, setPencilButtonActive] = useState(false);
   const [customGroup, setCustomGroup] = useState<Group>();
+  const [selectedStores, setSelectedStores] = useState([]);
+
+  const storeOptions = storesList.map((store) => ({
+    value: store._id,
+    label: store.name,
+  }));
+
+  const metricsGroupsOptions = metricsGroupList.map((group) => ({
+    value: group._id,
+    label: group.name,
+  }));
 
   useEffect(() => {
     const ID = localStorage.getItem("userID");
@@ -116,12 +131,21 @@ export default function Page() {
     return range;
   }
 
+  const handleMetricsGroupChange = (value: string) => {
+    setMetricsGroup(value);
+    if (value === customGroup?._id) {
+      setPencilButtonActive(true);
+    } else {
+      setPencilButtonActive(false);
+      setCustomMetrics([]);
+    }
+  };
+
   const analyze = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    let storeValue = store;
     if (
-      storeValue === "" ||
+      selectedStores.length === 0 ||
       metricsGroup === "" ||
       !date ||
       !date.start ||
@@ -171,14 +195,9 @@ export default function Page() {
         });
       }
 
-      if (storeValue === "all") {
-        if (storeValue === "all") {
-          storeValue = storesList.map((store) => store._id);
-        }
-      }
       const convertedRange = convertDateRange(date);
       const input = {
-        store: storeValue,
+        store: selectedStores,
         metricsGroup: metricsGroup,
         timePeriod: convertedRange ?? "",
         metrics: metricsList,
@@ -190,7 +209,7 @@ export default function Page() {
   };
 
   const reset = () => {
-    setStore("");
+    setSelectedStores([]);
     setMetricsGroup("");
     setDate(null);
     setPencilButtonActive(false);
@@ -226,24 +245,13 @@ export default function Page() {
                   <label className="block text-sm font-medium text-gray-900 gellix mb-5">
                     Stores
                   </label>
-                  <select
-                    value={store}
-                    className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
-                    onChange={(e) => setStore(e.target.value)}
-                    // required
-                  >
-                    <option value="" key="default-store">
-                      Select an option
-                    </option>
-                    <option value="all" key="default-store">
-                      Select all
-                    </option>
-                    {storesList.map((store: Store) => (
-                      <option key={store._id} value={store._id}>
-                        {store.name}
-                      </option>
-                    ))}
-                  </select>
+                  <MultiSelect
+                    options={storeOptions}
+                    value={selectedStores}
+                    onChange={setSelectedStores}
+                    placeholder="Select stores"
+                    className="w-55"
+                  />
                 </div>
                 {/* Group of metrics */}
                 <div className="max-w-sm mx-auto">
@@ -262,7 +270,7 @@ export default function Page() {
                       </div>
                     )}
                   </div>
-                  <select
+                  {/* <select
                     value={metricsGroup}
                     className="border border-gray-200 text-gray-900 text-sm rounded-lg w-55 p-3 gellix outline-none"
                     onChange={(e) => {
@@ -282,7 +290,14 @@ export default function Page() {
                         {group.name}
                       </option>
                     ))}
-                  </select>
+                  </select> */}
+                  <Select
+                    options={metricsGroupsOptions}
+                    value={metricsGroup}
+                    onChange={handleMetricsGroupChange}
+                    placeholder="Select group"
+                    className="w-55"
+                  />
                 </div>
                 {/* Date range */}
                 <div className="max-w-sm mx-auto">
@@ -291,16 +306,16 @@ export default function Page() {
                   </label>
                   <div className="border border-gray-200 text-gray-900 rounded-lg w-fit h-11 p-3 outline-none items-center">
                     <DateRangePicker
-                      className="max-w-xs gellix"
+                      className="max-w-xs gellix w-63"
                       calendarProps={{
                         classNames: {
-                          base: "bg-gray-50 rounded-lg shadow-lg",
+                          base: "bg-gray-50 gellix rounded-lg shadow-lg",
                           prevButton:
-                            "hover:bg-gray-200 items-center justify-center",
+                            "hover:bg-gray-200 gellix items-center justify-center",
                           nextButton:
-                            "hover:bg-gray-200 items-center justify-center",
+                            "hover:bg-gray-200 gellix items-center justify-center",
                           gridHeader:
-                            "border-b-1 border-gray-300 text-gray-500",
+                            "border-b-1 gellix border-gray-300 text-gray-500",
                           cellButton: [
                             // Disable dates
                             "data-[disabled=true]:opacity-40 data-[disabled=true]:line-through data-[disabled=true]:bg-danger-50",

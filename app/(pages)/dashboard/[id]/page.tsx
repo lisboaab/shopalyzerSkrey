@@ -20,6 +20,7 @@ import ButtonAnimation from "@/components/buttonAnimation";
 import SomethingWentWrong from "@/components/somethingWentWrong";
 import SnackBar from "@/components/modal/snackBar";
 import ButtonCustomMetricsDialog from "@/components/ButtonCustomMetricsDialog";
+import Select from "@/components/select";
 
 import type Search from "../../../interface/search";
 import type Group from "../../../interface/group";
@@ -106,13 +107,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       if (!authToken) throw new Error("Auth token not found");
 
       const search = await getSearch(id, authToken);
-      // Accepts array or single store
+
       const storeIds = Array.isArray(search.store)
         ? search.store.map((s: any) => (typeof s === "object" ? s._id : s))
         : [typeof search.store === "object" ? search.store._id : search.store];
 
-      // Fetch all store objects
-      const allStores = await getStoresBasic();
+
+        const allStores = await getStoresBasic();
       const stores = allStores.filter((s: any) => storeIds.includes(s._id));
       setSearchData({ search, storeIds });
       setStoreList(stores);
@@ -343,6 +344,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     return <SomethingWentWrong />;
   }
 
+  const metricsGroupsOptions = metricsGroupList.map((group) => ({
+    value: group._id,
+    label: group.name,
+  }));
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full h-fit flex flex-col gap-8 items-start">
@@ -471,31 +477,27 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               <div className="flex flex-row gap-2 items-center">
                 <p className="gellix-semibold">Group of Metrics:</p>
                 {editSearchInfo ? (
-                  <div className="flex flex-row gap-2">
-                    <select
+                  <div className="flex flex-row gap-2 items-center">
+                    <Select
+                      options={metricsGroupsOptions}
                       value={
                         tempEditData.metricsGroup ||
                         searchData?.search.metricsGroup?._id
                       }
-                      className="border border-gray-200 text-gray-900 text-sm rounded-lg p-2 gellix outline-none w-35"
-                      onChange={(e) => {
+                      onChange={(value) => {
                         setTempEditData({
                           ...tempEditData,
-                          metricsGroup: e.target.value,
+                          metricsGroup: value,
                         });
-                        if (e.target.value === customGroup?._id) {
+                        if (value === customGroup?._id) {
                           setPencilButtonActive(true);
                         } else {
                           setPencilButtonActive(false);
                         }
                       }}
-                    >
-                      {metricsGroupList.map((group) => (
-                        <option key={group._id} value={group._id}>
-                          {group.name}
-                        </option>
-                      ))}{" "}
-                    </select>
+                      placeholder="Select group"
+                      className="w-35"
+                    />
                     {pencilButtonActive && (
                       <div
                         id="pencilButton"

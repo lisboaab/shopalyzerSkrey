@@ -82,7 +82,8 @@ export default function Dashboard({
           for (const metric of metricsList) {
             let value: any = null;
             switch (metric.name) {
-              case "Average order value":
+              case "Average order value": 
+               
                 value =
                   await ShopifyOrdersService.calculateAverageOrderValueGlobal(
                     storeIds,
@@ -91,6 +92,7 @@ export default function Dashboard({
                   );
                 break;
               case "Conversion rate":
+                 
                 value =
                   await ShopifyOrdersService.calculateGlobalConversionRate(
                     storeIds,
@@ -99,6 +101,7 @@ export default function Dashboard({
                   );
                 break;
               case "Total revenue":
+                 
                 value = await ShopifyOrdersService.calculateTotalRevenueGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -106,6 +109,7 @@ export default function Dashboard({
                 );
                 break;
               case "Total discount":
+                 
                 value = await ShopifyOrdersService.calculateTotalDiscountGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -113,6 +117,7 @@ export default function Dashboard({
                 );
                 break;
               case "Total tax per region":
+                 
                 value = await ShopifyOrdersService.calculateTotalTaxGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -120,6 +125,7 @@ export default function Dashboard({
                 );
                 break;
               case "Top products":
+                 
                 value = await ShopifyOrdersService.calculateTopProductsGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -127,6 +133,7 @@ export default function Dashboard({
                 );
                 break;
               case "Top categories":
+                   
                 value = await ShopifyOrdersService.calculateTopCategoriesGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -134,6 +141,7 @@ export default function Dashboard({
                 );
                 break;
               case "Total orders":
+                 
                 value = await ShopifyOrdersService.calculateTotalOrdersGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -141,6 +149,7 @@ export default function Dashboard({
                 );
                 break;
               case "Orders by location":
+                 
                 value =
                   await ShopifyOrdersService.calculateOrdersByLocationGlobal(
                     storeIds,
@@ -149,6 +158,7 @@ export default function Dashboard({
                   );
                 break;
               case "Average shipping value":
+                 
                 value =
                   await ShopifyOrdersService.calculateAverageShippingValueGlobal(
                     storeIds,
@@ -156,7 +166,8 @@ export default function Dashboard({
                     authToken
                   );
                 break;
-              case "Average order quantity":
+              case "Average products per order":
+                 
                 value =
                   await ShopifyOrdersService.calculateAverageOrderQuantityGlobal(
                     storeIds,
@@ -165,6 +176,7 @@ export default function Dashboard({
                   );
                 break;
               case "Total refund":
+                 
                 value = await ShopifyOrdersService.calculateTotalRefundGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -172,6 +184,7 @@ export default function Dashboard({
                 );
                 break;
               case "Refund rate":
+                 
                 value = await ShopifyOrdersService.calculateRefundRateGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -179,6 +192,7 @@ export default function Dashboard({
                 );
                 break;
               case "Return rate":
+                 
                 value = await ShopifyOrdersService.calculateReturnRateGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -186,6 +200,7 @@ export default function Dashboard({
                 );
                 break;
               case "Orders over time":
+                 
                 value = await ShopifyOrdersService.calculateOrdersOverTimeGlobal(
                   storeIds,
                   initialSearch.timePeriod,
@@ -193,6 +208,7 @@ export default function Dashboard({
                 );
                 break;
               case "Conversion rate over time":
+                 
                 value = await ShopifyOrdersService.calculateConversionRateOverTimeGlobal(
                   storeIds,
                   initialSearch.timePeriod,
